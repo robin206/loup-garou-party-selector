@@ -3,12 +3,53 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { CharacterType, GameState } from '@/types';
+import { CharacterType, GameState, ExpansionType } from '@/types';
 import CharacterList from './CharacterList';
 import { toast } from 'sonner';
-import { Users, Play } from 'lucide-react';
+import { Users, Play, PackageOpen } from 'lucide-react';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-// Default character data
+// Expansion packs data
+const expansionPacks: ExpansionType[] = [
+  {
+    id: 'all',
+    name: 'Toutes les extensions',
+    description: 'Tous les personnages disponibles'
+  },
+  {
+    id: 'base',
+    name: 'Jeu de base',
+    description: 'Le jeu de base avec les personnages essentiels'
+  },
+  {
+    id: 'new-moon',
+    name: 'Nouvelle Lune',
+    description: 'Extension avec de nouveaux rôles puissants'
+  },
+  {
+    id: 'characters-pack',
+    name: 'Pack de Personnages',
+    description: 'Personnages additionnels pour enrichir votre jeu'
+  },
+  {
+    id: 'village',
+    name: 'Le Village',
+    description: 'Extension centrée sur les villageois spéciaux'
+  },
+  {
+    id: 'bonus',
+    name: 'Bonus',
+    description: 'Personnages bonus et variantes'
+  }
+];
+
+// Default character data with expansion information
 const defaultCharacters: CharacterType[] = [
   {
     id: 'werewolf',
@@ -17,7 +58,8 @@ const defaultCharacters: CharacterType[] = [
     icon: 'moon',
     description: 'Se réveille la nuit et vote pour éliminer un villageois.',
     team: 'werewolf',
-    recommended: true
+    recommended: true,
+    expansion: 'base'
   },
   {
     id: 'villager',
@@ -26,7 +68,8 @@ const defaultCharacters: CharacterType[] = [
     icon: 'user',
     description: 'Citoyen ordinaire qui vote le jour pour éliminer les loups-garous.',
     team: 'village',
-    recommended: true
+    recommended: true,
+    expansion: 'base'
   },
   {
     id: 'seer',
@@ -35,7 +78,8 @@ const defaultCharacters: CharacterType[] = [
     icon: 'eye',
     description: 'Peut voir l\'identité d\'un joueur chaque nuit.',
     team: 'village',
-    recommended: true
+    recommended: true,
+    expansion: 'base'
   },
   {
     id: 'witch',
@@ -43,7 +87,8 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'Witch',
     icon: 'flask',
     description: 'Possède une potion de vie et une potion de mort à utiliser pendant la partie.',
-    team: 'village'
+    team: 'village',
+    expansion: 'base'
   },
   {
     id: 'hunter',
@@ -51,7 +96,8 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'Hunter',
     icon: 'crosshair',
     description: 'Peut emporter quelqu\'un avec lui lorsqu\'il meurt.',
-    team: 'village'
+    team: 'village',
+    expansion: 'base'
   },
   {
     id: 'bodyguard',
@@ -59,7 +105,8 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'Bodyguard',
     icon: 'shield',
     description: 'Peut protéger un joueur chaque nuit.',
-    team: 'village'
+    team: 'village',
+    expansion: 'characters-pack'
   },
   {
     id: 'little-girl',
@@ -67,7 +114,8 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'Little Girl',
     icon: 'eye',
     description: 'Peut espionner les loups-garous pendant la nuit.',
-    team: 'village'
+    team: 'village',
+    expansion: 'new-moon'
   },
   {
     id: 'cupid',
@@ -75,7 +123,8 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'Cupid',
     icon: 'heart',
     description: 'Désigne deux amoureux au début de la partie.',
-    team: 'village'
+    team: 'village',
+    expansion: 'characters-pack'
   },
   {
     id: 'thief',
@@ -83,7 +132,8 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'Thief',
     icon: 'user',
     description: 'Peut choisir son rôle parmi deux cartes supplémentaires.',
-    team: 'village'
+    team: 'village',
+    expansion: 'new-moon'
   },
   {
     id: 'white-werewolf',
@@ -91,7 +141,8 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'White Werewolf',
     icon: 'moon',
     description: 'Loup-garou qui joue contre les autres loups-garous.',
-    team: 'solo'
+    team: 'solo',
+    expansion: 'bonus'
   },
   {
     id: 'elder',
@@ -99,7 +150,8 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'Elder',
     icon: 'user',
     description: 'Peut survivre à la première attaque des loups-garous.',
-    team: 'village'
+    team: 'village',
+    expansion: 'village'
   },
   {
     id: 'medium',
@@ -107,7 +159,80 @@ const defaultCharacters: CharacterType[] = [
     nameEn: 'Medium',
     icon: 'message',
     description: 'Peut parler avec les morts pendant la nuit.',
-    team: 'village'
+    team: 'village',
+    expansion: 'village'
+  },
+  {
+    id: 'big-bad-wolf',
+    name: 'Grand Méchant Loup',
+    nameEn: 'Big Bad Wolf',
+    icon: 'moon',
+    description: 'Peut dévorer une victime supplémentaire quand il est seul.',
+    team: 'werewolf',
+    expansion: 'new-moon'
+  },
+  {
+    id: 'wild-child',
+    name: 'Enfant Sauvage',
+    nameEn: 'Wild Child',
+    icon: 'user',
+    description: 'Choisit un modèle et devient loup-garou si ce dernier meurt.',
+    team: 'village',
+    expansion: 'characters-pack'
+  },
+  {
+    id: 'fox',
+    name: 'Renard',
+    nameEn: 'Fox',
+    icon: 'eye',
+    description: 'Peut flairer un groupe de joueurs et savoir s\'il y a un loup parmi eux.',
+    team: 'village',
+    expansion: 'village'
+  },
+  {
+    id: 'stuttering-judge',
+    name: 'Juge Bègue',
+    nameEn: 'Stuttering Judge',
+    icon: 'user',
+    description: 'Peut provoquer un second vote durant la journée.',
+    team: 'village',
+    expansion: 'characters-pack'
+  },
+  {
+    id: 'two-sisters',
+    name: 'Deux Sœurs',
+    nameEn: 'Two Sisters',
+    icon: 'users',
+    description: 'Se réveillent pour se reconnaître et peuvent échanger des informations.',
+    team: 'village',
+    expansion: 'village'
+  },
+  {
+    id: 'three-brothers',
+    name: 'Trois Frères',
+    nameEn: 'Three Brothers',
+    icon: 'users',
+    description: 'Se réveillent pour se reconnaître et peuvent échanger des informations.',
+    team: 'village',
+    expansion: 'village'
+  },
+  {
+    id: 'pied-piper',
+    name: 'Joueur de Flûte',
+    nameEn: 'Pied Piper',
+    icon: 'user',
+    description: 'Enchante des joueurs chaque nuit pour gagner seul.',
+    team: 'solo',
+    expansion: 'bonus'
+  },
+  {
+    id: 'troublemaker',
+    name: 'Troublemaker',
+    nameEn: 'Troublemaker',
+    icon: 'user',
+    description: 'Échange les rôles de deux joueurs pendant la nuit.',
+    team: 'village',
+    expansion: 'bonus'
   }
 ];
 
@@ -120,6 +245,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
   const [playerCount, setPlayerCount] = useState<number>(8);
   const [selectedCharacters, setSelectedCharacters] = useState<string[]>(['werewolf', 'villager', 'seer']);
   const [characters] = useState<CharacterType[]>(defaultCharacters);
+  const [selectedExpansion, setSelectedExpansion] = useState<string>('all');
 
   const handleCharacterToggle = (id: string) => {
     setSelectedCharacters(prev => {
@@ -133,6 +259,15 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
 
   const handlePlayerCountChange = (value: number[]) => {
     setPlayerCount(value[0]);
+  };
+
+  const handleExpansionChange = (value: string) => {
+    setSelectedExpansion(value);
+  };
+
+  const filteredCharacters = (): CharacterType[] => {
+    if (selectedExpansion === 'all') return characters;
+    return characters.filter(char => char.expansion === selectedExpansion);
   };
 
   const handleStartGame = () => {
@@ -191,7 +326,34 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
         </div>
       </section>
 
-      <section className="animate-fade-up" style={{ animationDelay: '0.1s' }}>
+      <section className="glass-card p-6 rounded-xl animate-fade-up" style={{ animationDelay: '0.1s' }}>
+        <h2 className="text-xl font-semibold mb-4 flex items-center">
+          <PackageOpen className="w-5 h-5 mr-2 text-werewolf-accent" />
+          Extensions
+        </h2>
+        <div className="px-4">
+          <Select 
+            value={selectedExpansion} 
+            onValueChange={handleExpansionChange}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Sélectionnez une extension" />
+            </SelectTrigger>
+            <SelectContent>
+              {expansionPacks.map((pack) => (
+                <SelectItem key={pack.id} value={pack.id}>
+                  {pack.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="mt-2 text-sm text-gray-500">
+            {expansionPacks.find(pack => pack.id === selectedExpansion)?.description}
+          </p>
+        </div>
+      </section>
+
+      <section className="animate-fade-up" style={{ animationDelay: '0.2s' }}>
         <h2 className="text-xl font-semibold mb-4">Sélection des Personnages</h2>
         <p className="text-sm text-gray-500 mb-6">
           Sélectionnez au moins {Math.min(playerCount, 3)} personnages pour une partie à {playerCount} joueurs. 
@@ -199,13 +361,13 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
         </p>
         
         <CharacterList 
-          characters={characters}
+          characters={filteredCharacters()}
           selectedCharacters={selectedCharacters}
           onCharacterToggle={handleCharacterToggle}
         />
       </section>
 
-      <div className="flex justify-center animate-fade-up" style={{ animationDelay: '0.2s' }}>
+      <div className="flex justify-center animate-fade-up" style={{ animationDelay: '0.3s' }}>
         <Button 
           onClick={handleStartGame} 
           className="bg-werewolf-accent hover:bg-werewolf-accent/90 text-white px-8 py-6"

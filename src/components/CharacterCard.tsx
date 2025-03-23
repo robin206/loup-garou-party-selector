@@ -25,6 +25,28 @@ const getIconByName = (iconName: string) => {
   }
 };
 
+const getExpansionColor = (expansion: string): string => {
+  switch (expansion) {
+    case 'base': return 'bg-gray-100 text-gray-700';
+    case 'new-moon': return 'bg-indigo-100 text-indigo-700';
+    case 'characters-pack': return 'bg-emerald-100 text-emerald-700';
+    case 'village': return 'bg-amber-100 text-amber-700';
+    case 'bonus': return 'bg-pink-100 text-pink-700';
+    default: return 'bg-gray-100 text-gray-700';
+  }
+};
+
+const getExpansionName = (expansion: string): string => {
+  switch (expansion) {
+    case 'base': return 'Base';
+    case 'new-moon': return 'Nouvelle Lune';
+    case 'characters-pack': return 'Pack';
+    case 'village': return 'Village';
+    case 'bonus': return 'Bonus';
+    default: return '';
+  }
+};
+
 const CharacterCard: React.FC<CharacterCardProps> = ({ character, isSelected, onSelect }) => {
   const getTeamColor = (team: string): string => {
     switch (team) {
@@ -53,11 +75,16 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isSelected, on
           : character.description
         }
       </p>
-      {character.recommended && (
-        <span className="mt-2 px-2 py-0.5 bg-werewolf-accent/10 text-werewolf-accent rounded-full text-xs font-medium">
-          Recommandé
+      <div className="flex flex-wrap gap-1 mt-2 justify-center">
+        {character.recommended && (
+          <span className="px-2 py-0.5 bg-werewolf-accent/10 text-werewolf-accent rounded-full text-xs font-medium">
+            Recommandé
+          </span>
+        )}
+        <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", getExpansionColor(character.expansion))}>
+          {getExpansionName(character.expansion)}
         </span>
-      )}
+      </div>
     </div>
   );
 };
