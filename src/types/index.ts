@@ -9,16 +9,39 @@ export type CharacterType = {
   minPlayers?: number;
   recommended?: boolean;
   expansion: 'base' | 'new-moon' | 'characters-pack' | 'village' | 'bonus';
+  actionPhase?: 'night' | 'day';
+  actionOrder?: number;
+  actionDescription?: string;
 };
 
 export type GameState = {
   players: number;
   characters: CharacterType[];
   selectedCharacters: string[];
+  currentPhase?: GamePhase;
+  aliveCharacters?: string[];
+  mayor?: string;
+  dayCount?: number;
 };
 
 export type ExpansionType = {
   id: string;
   name: string;
   description: string;
+};
+
+export type GamePhase = 
+  | 'setup'
+  | 'firstDay'
+  | 'firstNight'
+  | 'day'
+  | 'night'
+  | 'gameEnd';
+
+export type GameAction = {
+  id: string;
+  character: string;
+  description: string;
+  phase: GamePhase;
+  order: number;
 };
