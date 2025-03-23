@@ -1,24 +1,23 @@
 
 import React from 'react';
-import { Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Moon, Book } from 'lucide-react';
 
-const Header: React.FC = () => {
+const Header = () => {
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg z-50 px-6 py-4 border-b border-gray-100">
-      <div className="max-w-6xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center space-x-2 text-xl font-semibold text-gray-900">
           <Moon className="h-6 w-6 text-werewolf-accent" />
-          <span className="font-semibold text-xl tracking-tight">Loup Garou</span>
+          <span>Loup Garou</span>
         </Link>
-        <nav className="flex items-center space-x-6">
-          <Link to="/" className="text-sm font-medium hover:text-werewolf-accent transition-colors">
-            Nouvelle Partie
+
+        <div className="flex items-center gap-4">
+          <Link to="/rules" className="flex items-center gap-1 text-gray-600 hover:text-werewolf-accent">
+            <Book className="h-5 w-5" />
+            <span>Règles</span>
           </Link>
-          <Link to="/rules" className="text-sm font-medium hover:text-werewolf-accent transition-colors">
-            Règles
-          </Link>
-        </nav>
+        </div>
       </div>
     </header>
   );

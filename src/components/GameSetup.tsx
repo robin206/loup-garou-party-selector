@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { CharacterType, GameState, ExpansionType } from '@/types';
 import CharacterList from './CharacterList';
 import { toast } from 'sonner';
-import { Users, Play, PackageOpen } from 'lucide-react';
+import { Users, Play, PackageOpen, RefreshCw } from 'lucide-react';
 import { 
   Select,
   SelectContent,
@@ -240,12 +240,30 @@ interface GameSetupProps {
   onStartGame?: (gameState: GameState) => void;
 }
 
+const STORAGE_KEY = 'werewolf-game-selection';
+
 const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
   const navigate = useNavigate();
   const [playerCount, setPlayerCount] = useState<number>(8);
   const [selectedCharacters, setSelectedCharacters] = useState<string[]>(['werewolf', 'villager', 'seer']);
   const [characters] = useState<CharacterType[]>(defaultCharacters);
   const [selectedExpansion, setSelectedExpansion] = useState<string>('all');
+
+  // Load saved character selection on component mount
+  useEffect(() => {
+    const savedSelection = localStorage.getItem(STORAGE_KEY);
+    if (savedSelection) {
+      try {
+        const savedData = JSON.parse(savedSelection);
+        setSelectedCharacters(savedData.selectedCharacters || ['werewolf', 'villager', 'seer']);
+        setPlayerCount(savedData.playerCount || 8);
+        setSelectedExpansion(savedData.selectedExpansion || 'all');
+        toast.info("Sélection précédente chargée");
+      } catch (error) {
+        console.error("Error loading saved selection:", error);
+      }
+    }
+  }, []);
 
   const handleCharacterToggle = (id: string) => {
     setSelectedCharacters(prev => {
@@ -263,6 +281,14 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
 
   const handleExpansionChange = (value: string) => {
     setSelectedExpansion(value);
+  };
+
+  const resetSelection = () => {
+    setSelectedCharacters(['werewolf', 'villager', 'seer']);
+    setPlayerCount(8);
+    setSelectedExpansion('all');
+    localStorage.removeItem(STORAGE_KEY);
+    toast.success("Sélection réinitialisée");
   };
 
   const filteredCharacters = (): CharacterType[] => {
@@ -299,6 +325,13 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
       return;
     }
 
+    // Save selection to localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      selectedCharacters,
+      playerCount,
+      selectedExpansion
+    }));
+
     const gameState: GameState = {
       players: playerCount,
       characters: characters,
@@ -316,10 +349,20 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-10 p-4">
       <section className="glass-card p-6 rounded-xl animate-fade-up">
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          <Users className="w-5 h-5 mr-2 text-werewolf-accent" />
-          Nombre de Joueurs
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold flex items-center">
+            <Users className="w-5 h-5 mr-2 text-werewolf-accent" />
+            Nombre de Joueurs
+          </h2>
+          <Button 
+            onClick={resetSelection} 
+            variant="outline" 
+            size="sm"
+            className="text-werewolf-accent hover:text-werewolf-accent/90"
+          >
+            <RefreshCw className="w-4 h-4 mr-1" /> Réinitialiser
+          </Button>
+        </div>
         <div className="px-4">
           <Slider 
             defaultValue={[8]} 
