@@ -2,7 +2,7 @@
 import React from 'react';
 import { GamePhase, CharacterType } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Crown, SkullIcon, ArrowRight } from 'lucide-react';
+import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users } from 'lucide-react';
 
 interface GameMasterGuideProps {
   characters: CharacterType[];
@@ -73,7 +73,14 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               <ol className="list-decimal list-inside pl-4 space-y-2">
                 {nightActions.map((char, index) => (
                   <li key={index} className="p-2 rounded bg-gray-50">
-                    <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 mt-1">
+                        {getCharacterIcon(char.icon)}
+                      </div>
+                      <div>
+                        <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -87,11 +94,34 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           </div>
         );
       case 'day':
+        const dayActions = getOrderedCharacterActions(characters, 'day');
         return (
           <div>
             <p className="mb-4">1. Annoncez les victimes de la nuit, s'il y en a.</p>
-            <p className="mb-4">2. Laissez les joueurs débattre et voter pour éliminer un joueur.</p>
-            <p className="mb-4">3. Annoncez le joueur éliminé et son rôle.</p>
+            <p className="mb-4">2. Laissez les joueurs débattre pour trouver les Loups-Garous.</p>
+            
+            {dayActions.length > 0 && (
+              <div className="mb-4">
+                <h3 className="font-semibold mb-2">Actions spéciales du jour :</h3>
+                <ol className="list-decimal list-inside pl-4 space-y-2">
+                  {dayActions.map((char, index) => (
+                    <li key={index} className="p-2 rounded bg-gray-50">
+                      <div className="flex items-start gap-2">
+                        <div className="flex-shrink-0 mt-1">
+                          {getCharacterIcon(char.icon)}
+                        </div>
+                        <div>
+                          <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+            
+            <p className="mb-4">3. Procédez au vote pour éliminer un joueur.</p>
+            <p className="mb-4">4. Annoncez le joueur éliminé (sans révéler son rôle).</p>
             <Button 
               onClick={() => onPhaseChange('night')}
               className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4"
@@ -110,7 +140,14 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               <ol className="list-decimal list-inside pl-4 space-y-2">
                 {regularNightActions.map((char, index) => (
                   <li key={index} className="p-2 rounded bg-gray-50">
-                    <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 mt-1">
+                        {getCharacterIcon(char.icon)}
+                      </div>
+                      <div>
+                        <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -128,10 +165,26 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           <div>
             <p className="mb-4">La partie est terminée !</p>
             <p className="mb-4">Annoncez les gagnants et dévoilez les rôles de chaque joueur.</p>
+            <Button 
+              onClick={() => onPhaseChange('setup')}
+              className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4"
+            >
+              Commencer une nouvelle partie <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         );
       default:
         return <p>Instructions non disponibles</p>;
+    }
+  };
+
+  const getCharacterIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'moon': return <Moon className="h-4 w-4 text-werewolf-accent" />;
+      case 'eye': return <span>👁️</span>;
+      case 'user': 
+      case 'users': return <Users className="h-4 w-4 text-blue-500" />;
+      default: return null;
     }
   };
 
@@ -159,12 +212,40 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     }
   };
 
+  const getCurrentTeamCounts = () => {
+    const villageCount = characters.filter(char => char.team === 'village').length;
+    const werewolfCount = characters.filter(char => char.team === 'werewolf').length;
+    const soloCount = characters.filter(char => char.team === 'solo').length;
+    
+    return (
+      <div className="flex justify-around text-sm mb-4 p-2 rounded-lg bg-gray-50">
+        <div className="text-center">
+          <span className="font-medium text-blue-600">Village: </span>
+          <span>{villageCount}</span>
+        </div>
+        <div className="text-center">
+          <span className="font-medium text-werewolf-blood">Loups: </span>
+          <span>{werewolfCount}</span>
+        </div>
+        {soloCount > 0 && (
+          <div className="text-center">
+            <span className="font-medium text-amber-600">Solo: </span>
+            <span>{soloCount}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
       <div className="flex items-center mb-4">
         {getPhaseIcon()}
         <h2 className="text-xl font-bold ml-2">{getPhaseTitle()}</h2>
       </div>
+      
+      {getCurrentTeamCounts()}
+      
       <div className="prose prose-sm">
         {getPhaseInstructions()}
       </div>

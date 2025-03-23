@@ -270,6 +270,12 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
     return characters.filter(char => char.expansion === selectedExpansion);
   };
 
+  const countCharactersByTeam = (team: 'village' | 'werewolf' | 'solo'): number => {
+    return selectedCharacters.filter(charId => 
+      characters.find(c => c.id === charId)?.team === team
+    ).length;
+  };
+
   const handleStartGame = () => {
     if (selectedCharacters.length < 3) {
       toast.error("Veuillez sélectionner au moins 3 rôles pour jouer.");
@@ -281,8 +287,15 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
       return;
     }
 
-    if (!selectedCharacters.includes('werewolf')) {
+    const werewolfCount = countCharactersByTeam('werewolf');
+    if (werewolfCount === 0) {
       toast.error("Vous devez inclure au moins un Loup-Garou pour jouer.");
+      return;
+    }
+
+    const villageCount = countCharactersByTeam('village');
+    if (villageCount === 0) {
+      toast.error("Vous devez inclure au moins un Villageois pour jouer.");
       return;
     }
 
@@ -296,8 +309,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
       onStartGame(gameState);
     }
 
-    toast.success("Partie initialisée! Prêt à distribuer les rôles.");
-    // In a real application, you might want to navigate to a game page or distribute roles
+    toast.success("Partie initialisée! Mode maître du jeu activé.");
     navigate('/game', { state: gameState });
   };
 
@@ -357,7 +369,12 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
         <h2 className="text-xl font-semibold mb-4">Sélection des Personnages</h2>
         <p className="text-sm text-gray-500 mb-6">
           Sélectionnez au moins {Math.min(playerCount, 3)} personnages pour une partie à {playerCount} joueurs. 
+          <br />
+          <strong>Vous pouvez sélectionner plusieurs villageois et plusieurs loups-garous.</strong>
+          <br />
           Personnages sélectionnés: {selectedCharacters.length}/{playerCount}
+          <br />
+          Loups-Garous: {countCharactersByTeam('werewolf')} | Villageois: {countCharactersByTeam('village')} | Rôles spéciaux: {countCharactersByTeam('solo')}
         </p>
         
         <CharacterList 
