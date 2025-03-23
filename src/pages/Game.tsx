@@ -117,7 +117,7 @@ const Game = () => {
                   <div className="text-4xl mb-2">
                     {assignedRoles[currentStep].icon === 'moon' ? '🌙' : 
                      assignedRoles[currentStep].icon === 'eye' ? '👁️' : 
-                     assignedRoles[currentStep].icon === 'flask' ? '⚗️' : 
+                     assignedRoles[currentStep].icon === 'flask' ? '🧪' : 
                      assignedRoles[currentStep].icon === 'crosshair' ? '🎯' : 
                      assignedRoles[currentStep].icon === 'shield' ? '🛡️' : 
                      assignedRoles[currentStep].icon === 'heart' ? '❤️' : 

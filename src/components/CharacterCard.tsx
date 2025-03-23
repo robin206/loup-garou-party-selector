@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Moon, User, Users, ShieldCheck, Flask, Crosshair, Heart, Eye, MessageCircle } from 'lucide-react';
+import { Moon, User, Users, ShieldCheck, Beaker, Crosshair, Heart, Eye, MessageCircle } from 'lucide-react';
 import { CharacterType } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -16,7 +16,7 @@ const getIconByName = (iconName: string) => {
     case 'user': return <User className="h-8 w-8 text-werewolf-400" />;
     case 'users': return <Users className="h-8 w-8 text-werewolf-400" />;
     case 'shield': return <ShieldCheck className="h-8 w-8 text-werewolf-400" />;
-    case 'flask': return <Flask className="h-8 w-8 text-werewolf-400" />;
+    case 'flask': return <Beaker className="h-8 w-8 text-werewolf-400" />;
     case 'crosshair': return <Crosshair className="h-8 w-8 text-werewolf-400" />;
     case 'heart': return <Heart className="h-8 w-8 text-werewolf-400" />;
     case 'eye': return <Eye className="h-8 w-8 text-werewolf-400" />;
