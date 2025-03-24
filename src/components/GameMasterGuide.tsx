@@ -77,7 +77,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
-              <ol className="list-decimal list-inside pl-4 space-y-2">
+              <ol className="list-decimal list-inside pl-4 space-y-2 px-0">
                 {nightActions.map((char, index) => <li key={index} className="p-2 rounded bg-zinc-950 px-0 py-[8px] mx-0">
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 mt-1">
