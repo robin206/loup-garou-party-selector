@@ -1,33 +1,49 @@
 
 import React, { useState, useEffect } from 'react';
-import { Moon } from 'lucide-react';
+import { Volume2, Volume, Music2 } from 'lucide-react';
 import Header from '@/components/Header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-
-const audioOptions = [
-  { value: 'jour.mp3', label: 'Jour - Ambiance village' },
-  { value: 'nuit.mp3', label: 'Nuit - Ambiance mystérieuse' },
-  { value: 'vote.mp3', label: 'Vote - Tension dramatique' },
-  { value: 'suspense.mp3', label: 'Suspense - Moment critique' },
-  { value: 'revelation.mp3', label: 'Révélation - Découverte' }
-];
+import { useAudio } from '@/hooks/useAudio';
+import audioService from '@/services/audioService';
 
 const Config = () => {
-  const [dayMusic, setDayMusic] = useState<string>('jour.mp3');
-  const [nightMusic, setNightMusic] = useState<string>('nuit.mp3');
-  const [voteMusic, setVoteMusic] = useState<string>('vote.mp3');
+  const [dayMusic, setDayMusic] = useState<string>('jour.webm');
+  const [nightMusic, setNightMusic] = useState<string>('nuit.webm');
+  const [voteMusic, setVoteMusic] = useState<string>('vote.webm');
+  const [volume, setVolume] = useState<number>(70);
+  const { getAvailableAudios, playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
+  
+  const availableAudios = getAvailableAudios();
+  
+  // Générer les options d'audio avec des labels améliorés
+  const audioOptions = availableAudios.map(file => {
+    const name = file.replace(/\.(webm|mp3)$/, '');
+    const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+    return { 
+      value: file, 
+      label: `${formattedName}` 
+    };
+  });
   
   // Load saved configuration on mount
   useEffect(() => {
     const savedDayMusic = localStorage.getItem('werewolf-day-music');
     const savedNightMusic = localStorage.getItem('werewolf-night-music');
     const savedVoteMusic = localStorage.getItem('werewolf-vote-music');
+    const savedVolume = localStorage.getItem('werewolf-volume');
     
     if (savedDayMusic) setDayMusic(savedDayMusic);
     if (savedNightMusic) setNightMusic(savedNightMusic);
     if (savedVoteMusic) setVoteMusic(savedVoteMusic);
+    if (savedVolume) {
+      const parsedVolume = parseInt(savedVolume);
+      setVolume(parsedVolume);
+      audioService.setVolume(parsedVolume / 100);
+    }
   }, []);
   
   // Save configuration when changed
@@ -42,6 +58,20 @@ const Config = () => {
     toast.success('Configuration sauvegardée');
   };
   
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    audioService.setVolume(newVolume / 100);
+    localStorage.setItem('werewolf-volume', newVolume.toString());
+    toast.success('Volume sauvegardé');
+  };
+  
+  const testAudio = (playFunction: () => void) => {
+    stopMusic();
+    playFunction();
+    toast.info('Test audio en cours...');
+  };
+  
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
@@ -49,7 +79,7 @@ const Config = () => {
       <main className="flex-1 w-full max-w-4xl mx-auto pt-24 pb-12 px-4">
         <section className="text-center mb-10 space-y-4">
           <div className="inline-flex items-center justify-center p-3 bg-werewolf-accent/10 rounded-full mb-4 animate-fade-in">
-            <Moon className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
+            <Music2 className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
           </div>
           
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl animate-fade-up">
@@ -66,63 +96,132 @@ const Config = () => {
             <div className="grid gap-6">
               <div className="space-y-2">
                 <Label htmlFor="day-music">Musique du Jour</Label>
-                <Select 
-                  value={dayMusic} 
-                  onValueChange={(value) => handleMusicChange(value, setDayMusic)}
-                >
-                  <SelectTrigger id="day-music" className="w-full">
-                    <SelectValue placeholder="Sélectionner une musique" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {audioOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1">
+                    <Select 
+                      value={dayMusic} 
+                      onValueChange={(value) => handleMusicChange(value, setDayMusic)}
+                    >
+                      <SelectTrigger id="day-music" className="w-full">
+                        <SelectValue placeholder="Sélectionner une musique" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {audioOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => testAudio(playDayMusic)}
+                    title="Tester la musique"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </Button>
+                </div>
                 <p className="text-sm text-gray-500">Cette musique sera jouée pendant les phases de jour</p>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="night-music">Musique de la Nuit</Label>
-                <Select 
-                  value={nightMusic} 
-                  onValueChange={(value) => handleMusicChange(value, setNightMusic)}
-                >
-                  <SelectTrigger id="night-music" className="w-full">
-                    <SelectValue placeholder="Sélectionner une musique" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {audioOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1">
+                    <Select 
+                      value={nightMusic} 
+                      onValueChange={(value) => handleMusicChange(value, setNightMusic)}
+                    >
+                      <SelectTrigger id="night-music" className="w-full">
+                        <SelectValue placeholder="Sélectionner une musique" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {audioOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => testAudio(playNightMusic)}
+                    title="Tester la musique"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </Button>
+                </div>
                 <p className="text-sm text-gray-500">Cette musique sera jouée pendant les phases de nuit</p>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="vote-music">Musique du Vote</Label>
-                <Select 
-                  value={voteMusic} 
-                  onValueChange={(value) => handleMusicChange(value, setVoteMusic)}
-                >
-                  <SelectTrigger id="vote-music" className="w-full">
-                    <SelectValue placeholder="Sélectionner une musique" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {audioOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1">
+                    <Select 
+                      value={voteMusic} 
+                      onValueChange={(value) => handleMusicChange(value, setVoteMusic)}
+                    >
+                      <SelectTrigger id="vote-music" className="w-full">
+                        <SelectValue placeholder="Sélectionner une musique" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {audioOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => testAudio(playVoteMusic)}
+                    title="Tester la musique"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </Button>
+                </div>
                 <p className="text-sm text-gray-500">Cette musique sera jouée pendant les phases de vote</p>
               </div>
+
+              <div className="space-y-2 pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="volume-slider">Volume global</Label>
+                  <span className="text-sm font-medium">{volume}%</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Volume className="h-4 w-4 text-gray-500" />
+                  <Slider
+                    id="volume-slider"
+                    defaultValue={[volume]}
+                    max={100}
+                    step={5}
+                    onValueChange={handleVolumeChange}
+                    className="flex-1"
+                  />
+                  <Volume2 className="h-5 w-5 text-gray-700" />
+                </div>
+                <p className="text-sm text-gray-500">Ajustez le volume pour toutes les musiques</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Déposez vos fichiers audio dans le dossier <code>/public/audio/</code></span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => stopMusic()}
+              >
+                Arrêter la musique
+              </Button>
             </div>
           </div>
         </div>

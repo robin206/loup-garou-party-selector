@@ -4,17 +4,17 @@ import audioService from '../services/audioService';
 
 export function useAudio() {
   const playDayMusic = useCallback(() => {
-    const dayMusic = localStorage.getItem('werewolf-day-music') || 'jour.mp3';
+    const dayMusic = localStorage.getItem('werewolf-day-music') || 'jour.webm';
     audioService.playAudio(dayMusic, true);
   }, []);
   
   const playNightMusic = useCallback(() => {
-    const nightMusic = localStorage.getItem('werewolf-night-music') || 'nuit.mp3';
+    const nightMusic = localStorage.getItem('werewolf-night-music') || 'nuit.webm';
     audioService.playAudio(nightMusic, true);
   }, []);
   
   const playVoteMusic = useCallback(() => {
-    const voteMusic = localStorage.getItem('werewolf-vote-music') || 'vote.mp3';
+    const voteMusic = localStorage.getItem('werewolf-vote-music') || 'vote.webm';
     audioService.playAudio(voteMusic, true);
   }, []);
   
@@ -22,10 +22,15 @@ export function useAudio() {
     audioService.stopAudio();
   }, []);
   
+  const getAvailableAudios = useCallback(() => {
+    return audioService.getAvailableAudioFiles();
+  }, []);
+  
   return {
     playDayMusic,
     playNightMusic,
     playVoteMusic,
-    stopMusic
+    stopMusic,
+    getAvailableAudios
   };
 }

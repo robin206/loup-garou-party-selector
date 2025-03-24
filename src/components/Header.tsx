@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Moon, Book, Music } from 'lucide-react';
+import { Moon, Book, Music2 } from 'lucide-react';
 
 const Header = () => {
   return (
@@ -18,7 +18,7 @@ const Header = () => {
             <span>Règles</span>
           </Link>
           <Link to="/config" className="flex items-center gap-1 text-gray-600 hover:text-werewolf-accent">
-            <Music className="h-5 w-5" />
+            <Music2 className="h-5 w-5" />
             <span>Audio</span>
           </Link>
         </div>

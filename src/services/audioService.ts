@@ -92,6 +92,27 @@ class AudioService {
   }
   
   /**
+   * Obtient la liste des fichiers audio disponibles
+   * Remarque: Cette fonction est un placeholder. En réalité, une API backend
+   * serait nécessaire pour lister les fichiers d'un répertoire.
+   */
+  public getAvailableAudioFiles(): string[] {
+    // Comme nous ne pouvons pas lire directement le contenu d'un répertoire côté client,
+    // nous définissons une liste de fichiers audio connus.
+    // Dans une application réelle, vous pourriez avoir une API qui liste les fichiers.
+    return [
+      'jour.webm',
+      'nuit.webm',
+      'vote.webm',
+      'suspense.webm',
+      'revelation.webm',
+      'tension.webm',
+      'victoire.webm',
+      'defaite.webm'
+    ];
+  }
+  
+  /**
    * Définit le volume global
    */
   public setVolume(volume: number): void {
