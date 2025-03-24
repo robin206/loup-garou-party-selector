@@ -98,9 +98,19 @@ class AudioService {
    */
   public getAvailableAudioFiles(): string[] {
     // Comme nous ne pouvons pas lire directement le contenu d'un répertoire côté client,
-    // nous définissons une liste de fichiers audio connus.
-    // Dans une application réelle, vous pourriez avoir une API qui liste les fichiers.
+    // nous définissons une liste de fichiers audio connus qui commencent par "ambiance_"
     return [
+      'ambiance_Violin.mp3',
+      'ambiance_blackpearl.webm',
+      'ambiance_braveheart.webm',
+      'ambiance_clear-haken.webm',
+      'ambiance_cobblevillage.webm',
+      'ambiance_cosmo.webm',
+      'ambiance_dark.mp3',
+      'ambiance_defautnuit.webm',
+      'ambiance_diablo.webm',
+      'ambiance_elwynnforest.webm',
+      'ambiance_naruto.webm',
       'jour.webm',
       'nuit.webm',
       'vote.webm',
@@ -110,6 +120,13 @@ class AudioService {
       'victoire.webm',
       'defaite.webm'
     ];
+  }
+  
+  /**
+   * Obtient uniquement les fichiers audio qui commencent par "ambiance_"
+   */
+  public getAmbianceAudioFiles(): string[] {
+    return this.getAvailableAudioFiles().filter(file => file.startsWith('ambiance_'));
   }
   
   /**

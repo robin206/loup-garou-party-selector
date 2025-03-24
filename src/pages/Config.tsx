@@ -15,13 +15,13 @@ const Config = () => {
   const [nightMusic, setNightMusic] = useState<string>('nuit.webm');
   const [voteMusic, setVoteMusic] = useState<string>('vote.webm');
   const [volume, setVolume] = useState<number>(70);
-  const { getAvailableAudios, playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
+  const { getAmbianceAudios, playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
   
-  const availableAudios = getAvailableAudios();
+  const ambianceAudios = getAmbianceAudios();
   
   // Générer les options d'audio avec des labels améliorés
-  const audioOptions = availableAudios.map(file => {
-    const name = file.replace(/\.(webm|mp3)$/, '');
+  const audioOptions = ambianceAudios.map(file => {
+    const name = file.replace(/^ambiance_/, '').replace(/\.(webm|mp3)$/, '');
     const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
     return { 
       value: file, 

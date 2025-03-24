@@ -26,11 +26,16 @@ export function useAudio() {
     return audioService.getAvailableAudioFiles();
   }, []);
   
+  const getAmbianceAudios = useCallback(() => {
+    return audioService.getAmbianceAudioFiles();
+  }, []);
+  
   return {
     playDayMusic,
     playNightMusic,
     playVoteMusic,
     stopMusic,
-    getAvailableAudios
+    getAvailableAudios,
+    getAmbianceAudios
   };
 }
