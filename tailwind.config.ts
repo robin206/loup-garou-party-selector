@@ -74,7 +74,7 @@ export default {
 					'800': '#262626',
 					'900': '#171717',
 					'950': '#0a0a0a',
-					'accent': '#8B5CF6',
+					'accent': '#ea384c', // Changed to red
 					'night': '#1e1b4b',
 					'blood': '#9f1239'
 				}
