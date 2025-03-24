@@ -3,17 +3,20 @@ import React, { useState } from 'react';
 import CharacterCard from './CharacterCard';
 import { CharacterType } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 interface CharacterListProps {
   characters: CharacterType[];
   selectedCharacters: string[];
   onCharacterToggle: (id: string) => void;
+  getSelectedCount: (id: string) => number;
 }
 
 const CharacterList: React.FC<CharacterListProps> = ({ 
   characters, 
   selectedCharacters, 
-  onCharacterToggle 
+  onCharacterToggle,
+  getSelectedCount
 }) => {
   const [activeTab, setActiveTab] = useState<string>("tous");
 
@@ -40,14 +43,25 @@ const CharacterList: React.FC<CharacterListProps> = ({
         {["tous", "village", "loups", "special"].map((tab) => (
           <TabsContent key={tab} value={tab} className="mt-0">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {filteredCharacters(tab).map((character, index) => (
-                <CharacterCard
-                  key={character.id}
-                  character={character}
-                  isSelected={selectedCharacters.includes(character.id)}
-                  onSelect={onCharacterToggle}
-                />
-              ))}
+              {filteredCharacters(tab).map((character) => {
+                const count = getSelectedCount(character.id);
+                return (
+                  <div key={character.id} className="relative">
+                    <CharacterCard
+                      character={character}
+                      isSelected={count > 0}
+                      onSelect={onCharacterToggle}
+                    />
+                    {count > 0 && (
+                      <Badge 
+                        className="absolute -top-2 -right-2 bg-werewolf-accent"
+                      >
+                        {count}
+                      </Badge>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </TabsContent>
         ))}

@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { CharacterType, GameState, ExpansionType } from '@/types';
 import CharacterList from './CharacterList';
 import { toast } from 'sonner';
-import { Users, Play, PackageOpen, RefreshCw } from 'lucide-react';
+import { Play, PackageOpen, RefreshCw } from 'lucide-react';
 import { 
   Select,
   SelectContent,
@@ -244,10 +243,10 @@ const STORAGE_KEY = 'werewolf-game-selection';
 
 const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
   const navigate = useNavigate();
-  const [playerCount, setPlayerCount] = useState<number>(8);
   const [selectedCharacters, setSelectedCharacters] = useState<string[]>(['werewolf', 'villager', 'seer']);
   const [characters] = useState<CharacterType[]>(defaultCharacters);
   const [selectedExpansion, setSelectedExpansion] = useState<string>('all');
+  const [characterCounts, setCharacterCounts] = useState<Record<string, number>>({});
 
   // Load saved character selection on component mount
   useEffect(() => {
@@ -256,8 +255,15 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
       try {
         const savedData = JSON.parse(savedSelection);
         setSelectedCharacters(savedData.selectedCharacters || ['werewolf', 'villager', 'seer']);
-        setPlayerCount(savedData.playerCount || 8);
         setSelectedExpansion(savedData.selectedExpansion || 'all');
+        
+        // Calculate character counts from saved selection
+        const counts: Record<string, number> = {};
+        savedData.selectedCharacters.forEach((id: string) => {
+          counts[id] = (counts[id] || 0) + 1;
+        });
+        setCharacterCounts(counts);
+        
         toast.info("Sélection précédente chargée");
       } catch (error) {
         console.error("Error loading saved selection:", error);
@@ -267,16 +273,31 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
 
   const handleCharacterToggle = (id: string) => {
     setSelectedCharacters(prev => {
+      // Check if we already have enough of this character
+      const currentCount = characterCounts[id] || 0;
+      
       if (prev.includes(id)) {
-        return prev.filter(charId => charId !== id);
+        // Remove just one instance of this character ID
+        const index = prev.indexOf(id);
+        const newSelection = [...prev.slice(0, index), ...prev.slice(index + 1)];
+        
+        // Update count
+        setCharacterCounts(counts => ({
+          ...counts,
+          [id]: Math.max(0, (counts[id] || 0) - 1)
+        }));
+        
+        return newSelection;
       } else {
+        // Add this character
+        setCharacterCounts(counts => ({
+          ...counts,
+          [id]: (counts[id] || 0) + 1
+        }));
+        
         return [...prev, id];
       }
     });
-  };
-
-  const handlePlayerCountChange = (value: number[]) => {
-    setPlayerCount(value[0]);
   };
 
   const handleExpansionChange = (value: string) => {
@@ -285,8 +306,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
 
   const resetSelection = () => {
     setSelectedCharacters(['werewolf', 'villager', 'seer']);
-    setPlayerCount(8);
     setSelectedExpansion('all');
+    setCharacterCounts({ werewolf: 1, villager: 1, seer: 1 });
     localStorage.removeItem(STORAGE_KEY);
     toast.success("Sélection réinitialisée");
   };
@@ -297,19 +318,26 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
   };
 
   const countCharactersByTeam = (team: 'village' | 'werewolf' | 'solo'): number => {
-    return selectedCharacters.filter(charId => 
-      characters.find(c => c.id === charId)?.team === team
-    ).length;
+    let count = 0;
+    
+    // Count all instances of each character in the selected team
+    selectedCharacters.forEach(charId => {
+      const character = characters.find(c => c.id === charId);
+      if (character?.team === team) {
+        count++;
+      }
+    });
+    
+    return count;
+  };
+
+  const getSelectedCharacterCount = (id: string): number => {
+    return characterCounts[id] || 0;
   };
 
   const handleStartGame = () => {
     if (selectedCharacters.length < 3) {
       toast.error("Veuillez sélectionner au moins 3 rôles pour jouer.");
-      return;
-    }
-
-    if (selectedCharacters.length > playerCount) {
-      toast.error(`Vous avez sélectionné plus de rôles (${selectedCharacters.length}) que de joueurs (${playerCount}).`);
       return;
     }
 
@@ -328,12 +356,11 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
     // Save selection to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       selectedCharacters,
-      playerCount,
       selectedExpansion
     }));
 
     const gameState: GameState = {
-      players: playerCount,
+      players: selectedCharacters.length,
       characters: characters,
       selectedCharacters: selectedCharacters
     };
@@ -348,38 +375,21 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-10 p-4">
-      <section className="glass-card p-6 rounded-xl animate-fade-up">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold flex items-center">
-            <Users className="w-5 h-5 mr-2 text-werewolf-accent" />
-            Nombre de Joueurs
-          </h2>
-          <Button 
-            onClick={resetSelection} 
-            variant="outline" 
-            size="sm"
-            className="text-werewolf-accent hover:text-werewolf-accent/90"
-          >
-            <RefreshCw className="w-4 h-4 mr-1" /> Réinitialiser
-          </Button>
-        </div>
-        <div className="px-4">
-          <Slider 
-            defaultValue={[8]} 
-            max={24} 
-            min={4} 
-            step={1} 
-            value={[playerCount]}
-            onValueChange={handlePlayerCountChange}
-            className="mb-6"
-          />
+      {/* Fixed header showing number of selected characters */}
+      <div className="fixed top-16 left-0 right-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-100 py-2 shadow-sm">
+        <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-500">4</span>
-            <span className="font-medium text-lg">{playerCount} joueurs</span>
-            <span className="text-sm text-gray-500">24</span>
+            <div className="font-medium">
+              <span className="text-werewolf-accent">{selectedCharacters.length}</span> personnages sélectionnés
+            </div>
+            <div className="text-sm">
+              <span className="text-werewolf-accent">{countCharactersByTeam('werewolf')}</span> loups-garous | 
+              <span className="text-werewolf-accent ml-1">{countCharactersByTeam('village')}</span> villageois | 
+              <span className="text-werewolf-accent ml-1">{countCharactersByTeam('solo')}</span> solitaires
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
       <section className="glass-card p-6 rounded-xl animate-fade-up" style={{ animationDelay: '0.1s' }}>
         <h2 className="text-xl font-semibold mb-4 flex items-center">
@@ -409,21 +419,28 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
       </section>
 
       <section className="animate-fade-up" style={{ animationDelay: '0.2s' }}>
-        <h2 className="text-xl font-semibold mb-4">Sélection des Personnages</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Sélection des Personnages</h2>
+          <Button 
+            onClick={resetSelection} 
+            variant="outline" 
+            size="sm"
+            className="text-werewolf-accent hover:text-werewolf-accent/90"
+          >
+            <RefreshCw className="w-4 h-4 mr-1" /> Réinitialiser
+          </Button>
+        </div>
         <p className="text-sm text-gray-500 mb-6">
-          Sélectionnez au moins {Math.min(playerCount, 3)} personnages pour une partie à {playerCount} joueurs. 
+          Sélectionnez au moins 3 personnages pour jouer.
           <br />
           <strong>Vous pouvez sélectionner plusieurs villageois et plusieurs loups-garous.</strong>
-          <br />
-          Personnages sélectionnés: {selectedCharacters.length}/{playerCount}
-          <br />
-          Loups-Garous: {countCharactersByTeam('werewolf')} | Villageois: {countCharactersByTeam('village')} | Rôles spéciaux: {countCharactersByTeam('solo')}
         </p>
         
         <CharacterList 
           characters={filteredCharacters()}
           selectedCharacters={selectedCharacters}
           onCharacterToggle={handleCharacterToggle}
+          getSelectedCount={getSelectedCharacterCount}
         />
       </section>
 

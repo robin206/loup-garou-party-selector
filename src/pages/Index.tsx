@@ -10,7 +10,7 @@ const Index = () => {
       <Header />
       
       <main className="flex-1 w-full max-w-6xl mx-auto pt-24 pb-12 px-4">
-        <section className="text-center mb-12 space-y-4">
+        <section className="text-center mb-10 space-y-4">
           <div className="inline-flex items-center justify-center p-3 bg-werewolf-accent/10 rounded-full mb-4 animate-fade-in">
             <Moon className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
           </div>
