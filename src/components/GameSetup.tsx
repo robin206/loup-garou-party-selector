@@ -51,7 +51,7 @@ const expansionPacks: ExpansionType[] = [
 // Default character data with expansion information
 const defaultCharacters: CharacterType[] = [
   {
-    id: 'werewolf-1',
+    id: 'werewolf',
     name: 'Loup-Garou',
     nameEn: 'Werewolf',
     icon: 'moon',
@@ -61,57 +61,7 @@ const defaultCharacters: CharacterType[] = [
     expansion: 'base'
   },
   {
-    id: 'werewolf-2',
-    name: 'Loup-Garou',
-    nameEn: 'Werewolf',
-    icon: 'moon',
-    description: 'Se réveille la nuit et vote pour éliminer un villageois.',
-    team: 'werewolf',
-    recommended: true,
-    expansion: 'base'
-  },
-  {
-    id: 'werewolf-3',
-    name: 'Loup-Garou',
-    nameEn: 'Werewolf',
-    icon: 'moon',
-    description: 'Se réveille la nuit et vote pour éliminer un villageois.',
-    team: 'werewolf',
-    recommended: true,
-    expansion: 'base'
-  },
-  {
-    id: 'villager-1',
-    name: 'Villageois',
-    nameEn: 'Villager',
-    icon: 'user',
-    description: 'Citoyen ordinaire qui vote le jour pour éliminer les loups-garous.',
-    team: 'village',
-    recommended: true,
-    expansion: 'base'
-  },
-  {
-    id: 'villager-2',
-    name: 'Villageois',
-    nameEn: 'Villager',
-    icon: 'user',
-    description: 'Citoyen ordinaire qui vote le jour pour éliminer les loups-garous.',
-    team: 'village',
-    recommended: true,
-    expansion: 'base'
-  },
-  {
-    id: 'villager-3',
-    name: 'Villageois',
-    nameEn: 'Villager',
-    icon: 'user',
-    description: 'Citoyen ordinaire qui vote le jour pour éliminer les loups-garous.',
-    team: 'village',
-    recommended: true,
-    expansion: 'base'
-  },
-  {
-    id: 'villager-4',
+    id: 'villager',
     name: 'Villageois',
     nameEn: 'Villager',
     icon: 'user',
