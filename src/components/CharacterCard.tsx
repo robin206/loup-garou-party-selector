@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Moon, User, Users, ShieldCheck, Beaker, Crosshair, Heart, Eye, MessageCircle } from 'lucide-react';
 import { CharacterType } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -9,21 +8,6 @@ interface CharacterCardProps {
   isSelected: boolean;
   onSelect: (id: string) => void;
 }
-
-const getIconByName = (iconName: string) => {
-  switch (iconName) {
-    case 'moon': return <Moon className="h-8 w-8 text-werewolf-accent" />;
-    case 'user': return <User className="h-8 w-8 text-werewolf-400" />;
-    case 'users': return <Users className="h-8 w-8 text-werewolf-400" />;
-    case 'shield': return <ShieldCheck className="h-8 w-8 text-werewolf-400" />;
-    case 'flask': return <Beaker className="h-8 w-8 text-werewolf-400" />;
-    case 'crosshair': return <Crosshair className="h-8 w-8 text-werewolf-400" />;
-    case 'heart': return <Heart className="h-8 w-8 text-werewolf-400" />;
-    case 'eye': return <Eye className="h-8 w-8 text-werewolf-400" />;
-    case 'message': return <MessageCircle className="h-8 w-8 text-werewolf-400" />;
-    default: return <User className="h-8 w-8 text-werewolf-400" />;
-  }
-};
 
 const getExpansionColor = (expansion: string): string => {
   switch (expansion) {
@@ -66,7 +50,17 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isSelected, on
       onClick={() => onSelect(character.id)}
     >
       <div className={cn("character-card-image", getTeamColor(character.team))}>
-        {getIconByName(character.icon)}
+        {character.icon && character.icon.startsWith('/') ? (
+          <img 
+            src={character.icon} 
+            alt={character.name} 
+            className="h-12 w-12 object-contain"
+          />
+        ) : (
+          <div className="h-12 w-12 flex items-center justify-center bg-gray-200 rounded-full">
+            <span className="text-sm">{character.name.charAt(0)}</span>
+          </div>
+        )}
       </div>
       <h3 className="text-sm font-semibold mb-1">{character.name}</h3>
       <p className="text-xs text-gray-500 text-center leading-tight">

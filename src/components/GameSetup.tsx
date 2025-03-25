@@ -6,235 +6,18 @@ import CharacterList from './CharacterList';
 import { toast } from 'sonner';
 import { Play, PackageOpen, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { allCharacters, getExpansions } from '@/data/characters';
 
 // Expansion packs data
 const expansionPacks: ExpansionType[] = [{
   id: 'all',
   name: 'Toutes les extensions',
   description: 'Tous les personnages disponibles'
-}, {
-  id: 'base',
-  name: 'Jeu de base',
-  description: 'Le jeu de base avec les personnages essentiels'
-}, {
-  id: 'new-moon',
-  name: 'Nouvelle Lune',
-  description: 'Extension avec de nouveaux rôles puissants'
-}, {
-  id: 'characters-pack',
-  name: 'Pack de Personnages',
-  description: 'Personnages additionnels pour enrichir votre jeu'
-}, {
-  id: 'village',
-  name: 'Le Village',
-  description: 'Extension centrée sur les villageois spéciaux'
-}, {
-  id: 'bonus',
-  name: 'Bonus',
-  description: 'Personnages bonus et variantes'
-}];
-
-// Default character data with expansion information
-const defaultCharacters: CharacterType[] = [{
-  id: 'werewolf-1',
-  name: 'Loup-Garou',
-  nameEn: 'Werewolf',
-  icon: 'moon',
-  description: 'Se réveille la nuit et vote pour éliminer un villageois.',
-  team: 'werewolf',
-  recommended: true,
-  expansion: 'base'
-}, {
-  id: 'werewolf-2',
-  name: 'Loup-Garou',
-  nameEn: 'Werewolf',
-  icon: 'moon',
-  description: 'Se réveille la nuit et vote pour éliminer un villageois.',
-  team: 'werewolf',
-  recommended: true,
-  expansion: 'base'
-}, {
-  id: 'werewolf-3',
-  name: 'Loup-Garou',
-  nameEn: 'Werewolf',
-  icon: 'moon',
-  description: 'Se réveille la nuit et vote pour éliminer un villageois.',
-  team: 'werewolf',
-  recommended: true,
-  expansion: 'base'
-}, {
-  id: 'villager-1',
-  name: 'Villageois',
-  nameEn: 'Villager',
-  icon: 'user',
-  description: 'Citoyen ordinaire qui vote le jour pour éliminer les loups-garous.',
-  team: 'village',
-  recommended: true,
-  expansion: 'base'
-}, {
-  id: 'villager-2',
-  name: 'Villageois',
-  nameEn: 'Villager',
-  icon: 'user',
-  description: 'Citoyen ordinaire qui vote le jour pour éliminer les loups-garous.',
-  team: 'village',
-  recommended: true,
-  expansion: 'base'
-}, {
-  id: 'villager-3',
-  name: 'Villageois',
-  nameEn: 'Villager',
-  icon: 'user',
-  description: 'Citoyen ordinaire qui vote le jour pour éliminer les loups-garous.',
-  team: 'village',
-  recommended: true,
-  expansion: 'base'
-}, {
-  id: 'seer',
-  name: 'Voyante',
-  nameEn: 'Seer',
-  icon: 'eye',
-  description: 'Peut voir l\'identité d\'un joueur chaque nuit.',
-  team: 'village',
-  recommended: true,
-  expansion: 'base'
-}, {
-  id: 'witch',
-  name: 'Sorcière',
-  nameEn: 'Witch',
-  icon: 'flask',
-  description: 'Possède une potion de vie et une potion de mort à utiliser pendant la partie.',
-  team: 'village',
-  expansion: 'base'
-}, {
-  id: 'hunter',
-  name: 'Chasseur',
-  nameEn: 'Hunter',
-  icon: 'crosshair',
-  description: 'Peut emporter quelqu\'un avec lui lorsqu\'il meurt.',
-  team: 'village',
-  expansion: 'base'
-}, {
-  id: 'bodyguard',
-  name: 'Garde du Corps',
-  nameEn: 'Bodyguard',
-  icon: 'shield',
-  description: 'Peut protéger un joueur chaque nuit.',
-  team: 'village',
-  expansion: 'characters-pack'
-}, {
-  id: 'little-girl',
-  name: 'Petite Fille',
-  nameEn: 'Little Girl',
-  icon: 'eye',
-  description: 'Peut espionner les loups-garous pendant la nuit.',
-  team: 'village',
-  expansion: 'new-moon'
-}, {
-  id: 'cupid',
-  name: 'Cupidon',
-  nameEn: 'Cupid',
-  icon: 'heart',
-  description: 'Désigne deux amoureux au début de la partie.',
-  team: 'village',
-  expansion: 'characters-pack'
-}, {
-  id: 'thief',
-  name: 'Voleur',
-  nameEn: 'Thief',
-  icon: 'user',
-  description: 'Peut choisir son rôle parmi deux cartes supplémentaires.',
-  team: 'village',
-  expansion: 'new-moon'
-}, {
-  id: 'white-werewolf',
-  name: 'Loup-Garou Blanc',
-  nameEn: 'White Werewolf',
-  icon: 'moon',
-  description: 'Loup-garou qui joue contre les autres loups-garous.',
-  team: 'solo',
-  expansion: 'bonus'
-}, {
-  id: 'elder',
-  name: 'Ancien',
-  nameEn: 'Elder',
-  icon: 'user',
-  description: 'Peut survivre à la première attaque des loups-garous.',
-  team: 'village',
-  expansion: 'village'
-}, {
-  id: 'medium',
-  name: 'Médium',
-  nameEn: 'Medium',
-  icon: 'message',
-  description: 'Peut parler avec les morts pendant la nuit.',
-  team: 'village',
-  expansion: 'village'
-}, {
-  id: 'big-bad-wolf',
-  name: 'Grand Méchant Loup',
-  nameEn: 'Big Bad Wolf',
-  icon: 'moon',
-  description: 'Peut dévorer une victime supplémentaire quand il est seul.',
-  team: 'werewolf',
-  expansion: 'new-moon'
-}, {
-  id: 'wild-child',
-  name: 'Enfant Sauvage',
-  nameEn: 'Wild Child',
-  icon: 'user',
-  description: 'Choisit un modèle et devient loup-garou si ce dernier meurt.',
-  team: 'village',
-  expansion: 'characters-pack'
-}, {
-  id: 'fox',
-  name: 'Renard',
-  nameEn: 'Fox',
-  icon: 'eye',
-  description: 'Peut flairer un groupe de joueurs et savoir s\'il y a un loup parmi eux.',
-  team: 'village',
-  expansion: 'village'
-}, {
-  id: 'stuttering-judge',
-  name: 'Juge Bègue',
-  nameEn: 'Stuttering Judge',
-  icon: 'user',
-  description: 'Peut provoquer un second vote durant la journée.',
-  team: 'village',
-  expansion: 'characters-pack'
-}, {
-  id: 'two-sisters',
-  name: 'Deux Sœurs',
-  nameEn: 'Two Sisters',
-  icon: 'users',
-  description: 'Se réveillent pour se reconnaître et peuvent échanger des informations.',
-  team: 'village',
-  expansion: 'village'
-}, {
-  id: 'three-brothers',
-  name: 'Trois Frères',
-  nameEn: 'Three Brothers',
-  icon: 'users',
-  description: 'Se réveillent pour se reconnaître et peuvent échanger des informations.',
-  team: 'village',
-  expansion: 'village'
-}, {
-  id: 'pied-piper',
-  name: 'Joueur de Flûte',
-  nameEn: 'Pied Piper',
-  icon: 'user',
-  description: 'Enchante des joueurs chaque nuit pour gagner seul.',
-  team: 'solo',
-  expansion: 'bonus'
-}, {
-  id: 'troublemaker',
-  name: 'Troublemaker',
-  nameEn: 'Troublemaker',
-  icon: 'user',
-  description: 'Échange les rôles de deux joueurs pendant la nuit.',
-  team: 'village',
-  expansion: 'bonus'
-}];
+}, ...getExpansions().map(exp => ({
+  id: exp.id,
+  name: exp.name,
+  description: `Extension ${exp.name}`
+}))];
 
 interface GameSetupProps {
   onStartGame?: (gameState: GameState) => void;
@@ -244,8 +27,8 @@ const GameSetup: React.FC<GameSetupProps> = ({
   onStartGame
 }) => {
   const navigate = useNavigate();
-  const [selectedCharacters, setSelectedCharacters] = useState<string[]>(['werewolf', 'villager', 'seer']);
-  const [characters] = useState<CharacterType[]>(defaultCharacters);
+  const [selectedCharacters, setSelectedCharacters] = useState<string[]>([]);
+  const [characters] = useState<CharacterType[]>(allCharacters);
   const [selectedExpansion, setSelectedExpansion] = useState<string>('all');
   const [characterCounts, setCharacterCounts] = useState<Record<string, number>>({});
   const [viewMode, setViewMode] = useState<'detailed' | 'simple'>('detailed');
@@ -255,7 +38,7 @@ const GameSetup: React.FC<GameSetupProps> = ({
     if (savedSelection) {
       try {
         const savedData = JSON.parse(savedSelection);
-        setSelectedCharacters(savedData.selectedCharacters || ['werewolf', 'villager', 'seer']);
+        setSelectedCharacters(savedData.selectedCharacters || []);
         setSelectedExpansion(savedData.selectedExpansion || 'all');
 
         const counts: Record<string, number> = {};
@@ -267,8 +50,18 @@ const GameSetup: React.FC<GameSetupProps> = ({
       } catch (error) {
         console.error("Error loading saved selection:", error);
       }
+    } else {
+      // Si pas de sélection précédente, recommandation de base
+      const initialRecs = characters.filter(c => c.recommended).slice(0, 3);
+      setSelectedCharacters(initialRecs.map(c => c.id));
+      initialRecs.forEach(c => {
+        setCharacterCounts(prev => ({
+          ...prev,
+          [c.id]: 1
+        }));
+      });
     }
-  }, []);
+  }, [characters]);
 
   const handleCharacterToggle = (id: string) => {
     setSelectedCharacters(prev => {
@@ -296,12 +89,12 @@ const GameSetup: React.FC<GameSetupProps> = ({
   };
 
   const resetSelection = () => {
-    setSelectedCharacters(['werewolf', 'villager', 'seer']);
+    setSelectedCharacters([]);
     setSelectedExpansion('all');
     setCharacterCounts({
-      werewolf: 1,
-      villager: 1,
-      seer: 1
+      werewolf: 0,
+      villager: 0,
+      seer: 0
     });
     localStorage.removeItem(STORAGE_KEY);
     toast.success("Sélection réinitialisée");

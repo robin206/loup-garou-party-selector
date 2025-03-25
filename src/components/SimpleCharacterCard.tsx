@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Moon, User, Users, ShieldCheck, Beaker, Crosshair, Heart, Eye, MessageCircle } from 'lucide-react';
 import { CharacterType } from '@/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -11,21 +10,6 @@ interface SimpleCharacterCardProps {
   onSelect: (id: string) => void;
   selectedCount: number;
 }
-
-const getIconByName = (iconName: string) => {
-  switch (iconName) {
-    case 'moon': return <Moon className="h-6 w-6 text-werewolf-accent" />;
-    case 'user': return <User className="h-6 w-6 text-werewolf-400" />;
-    case 'users': return <Users className="h-6 w-6 text-werewolf-400" />;
-    case 'shield': return <ShieldCheck className="h-6 w-6 text-werewolf-400" />;
-    case 'flask': return <Beaker className="h-6 w-6 text-werewolf-400" />;
-    case 'crosshair': return <Crosshair className="h-6 w-6 text-werewolf-400" />;
-    case 'heart': return <Heart className="h-6 w-6 text-werewolf-400" />;
-    case 'eye': return <Eye className="h-6 w-6 text-werewolf-400" />;
-    case 'message': return <MessageCircle className="h-6 w-6 text-werewolf-400" />;
-    default: return <User className="h-6 w-6 text-werewolf-400" />;
-  }
-};
 
 const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({ 
   character, 
@@ -43,7 +27,17 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
       onClick={() => onSelect(character.id)}
     >
       <div className="character-icon w-12 h-12 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full">
-        {getIconByName(character.icon)}
+        {character.icon && character.icon.startsWith('/') ? (
+          <img 
+            src={character.icon} 
+            alt={character.name} 
+            className="h-10 w-10 object-contain"
+          />
+        ) : (
+          <div className="w-10 h-10 flex items-center justify-center bg-gray-300 dark:bg-gray-700 rounded-full">
+            <span className="text-sm font-medium">{character.name.charAt(0)}</span>
+          </div>
+        )}
       </div>
       
       <h3 className="text-sm font-medium text-center">{character.name}</h3>
