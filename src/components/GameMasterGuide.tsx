@@ -136,7 +136,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
               <ol className="list-decimal list-inside pl-4 space-y-2">
-                {regularNightActions.map((char, index) => <li key={index} className="p-2 rounded bg-gray-50">
+                {regularNightActions.map((char, index) => <li key={index} className="p-2 rounded bg-zinc-950">
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 mt-1">
                         {getCharacterIcon(char.icon)}
