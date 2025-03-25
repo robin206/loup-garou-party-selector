@@ -107,7 +107,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             {dayActions.length > 0 && <div className="mb-4">
                 <h3 className="font-semibold mb-2">Actions spéciales du jour :</h3>
                 <ol className="list-decimal list-inside pl-4 space-y-2">
-                  {dayActions.map((char, index) => <li key={index} className="p-2 rounded bg-gray-50">
+                  {dayActions.map((char, index) => <li key={index} className="p-2 rounded bg-gray-950">
                       <div className="flex items-start gap-2">
                         <div className="flex-shrink-0 mt-1">
                           {getCharacterIcon(char.icon)}
