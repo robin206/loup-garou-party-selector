@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import Game from "./pages/Game";
 import Rules from "./pages/Rules";
 import Config from "./pages/Config";
+import Setup from "./pages/Setup";
+import Distribution from "./pages/Distribution";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ const App = () => (
             <Route path="/game" element={<Game />} />
             <Route path="/rules" element={<Rules />} />
             <Route path="/config" element={<Config />} />
+            <Route path="/setup" element={<Setup />} />
+            <Route path="/distribution" element={<Distribution />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

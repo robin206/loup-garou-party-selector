@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CharacterType, GameState } from '../types';
 import { getCharactersByIds } from '../data/characters';
-import Button from '../components/Button';
-import Card from '../components/Card';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { shuffleCharacters } from '../utils/gameUtils';
 
 const Distribution: React.FC = () => {
@@ -72,8 +72,10 @@ const Distribution: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <Card>
         {currentStep === -1 ? (
-          <div className="text-center space-y-6 py-8">
-            <h1 className="text-2xl font-bold">Distribution des cartes</h1>
+          <CardContent className="text-center space-y-6 py-8">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">Distribution des cartes</CardTitle>
+            </CardHeader>
             <p className="text-gray-300">
               Chaque joueur va recevoir une carte de personnage.
               <br />Passez le téléphone à chaque joueur à tour de rôle.
@@ -82,9 +84,9 @@ const Distribution: React.FC = () => {
               <Button onClick={startDistribution}>Commencer la distribution</Button>
               <Button onClick={handleShuffle} variant="secondary">Mélanger à nouveau</Button>
             </div>
-          </div>
+          </CardContent>
         ) : (
-          <div className="text-center space-y-6 py-8">
+          <CardContent className="text-center space-y-6 py-8">
             {!showCharacter ? (
               <>
                 <h2 className="text-xl font-bold">Joueur {currentStep + 1}</h2>
@@ -122,7 +124,7 @@ const Distribution: React.FC = () => {
             <div className="text-sm text-gray-500 mt-6">
               {`${currentStep + 1} / ${shuffledCharacters.length}`}
             </div>
-          </div>
+          </CardContent>
         )}
       </Card>
     </div>
