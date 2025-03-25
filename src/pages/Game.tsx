@@ -4,6 +4,7 @@ import { useLocation, Navigate } from 'react-router-dom';
 import { GameState, CharacterType, GamePhase } from '@/types';
 import Header from '@/components/Header';
 import GameMasterGuide from '@/components/GameMasterGuide';
+import SoundSampler from '@/components/SoundSampler';
 import { toast } from 'sonner';
 
 const Game = () => {
@@ -184,7 +185,7 @@ const Game = () => {
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
       
-      <main className="flex-1 w-full max-w-6xl mx-auto pt-24 pb-12 px-4 flex flex-col items-center justify-center">
+      <main className="flex-1 w-full max-w-6xl mx-auto pt-24 pb-24 px-4 flex flex-col items-center justify-center">
         <div className="w-full flex flex-col items-center">
           <GameMasterGuide 
             characters={selectedGameCharacters}
@@ -194,6 +195,10 @@ const Game = () => {
           />
         </div>
       </main>
+
+      <div className="sticky bottom-0 left-0 right-0 w-full">
+        <SoundSampler />
+      </div>
     </div>
   );
 };
