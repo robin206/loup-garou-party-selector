@@ -203,15 +203,15 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     return <div className="flex justify-around text-sm mb-4 p-2 rounded-lg bg-gray-50">
         <div className="text-center">
           <span className="font-medium text-blue-600">Village: </span>
-          <span>{villageCount}</span>
+          <span className="text-zinc-950">{villageCount}</span>
         </div>
         <div className="text-center">
           <span className="font-medium text-werewolf-blood">Loups: </span>
-          <span>{werewolfCount}</span>
+          <span className="text-zinc-950">{werewolfCount}</span>
         </div>
         {soloCount > 0 && <div className="text-center">
             <span className="font-medium text-amber-600">Solo: </span>
-            <span>{soloCount}</span>
+            <span className="text-zinc-950">{soloCount}</span>
           </div>}
       </div>;
   };
