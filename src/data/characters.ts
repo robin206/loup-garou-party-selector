@@ -1,4 +1,3 @@
-
 import { CharacterType } from '../types';
 
 // Base game characters
@@ -289,7 +288,10 @@ export const charactersPackCharacters: CharacterType[] = [
     team: 'village',
     minPlayers: 9,
     recommended: false,
-    expansion: 'characters-pack'
+    expansion: 'characters-pack',
+    actionPhase: 'day',
+    actionOrder: 95,
+    actionDescription: 'La Servante dévouée peut échanger son rôle avec le joueur éliminé.'
   },
   {
     id: 'three-brothers',

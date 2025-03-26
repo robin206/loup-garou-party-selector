@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users } from 'lucide-react';
 import AudioButton from './AudioButton';
 import { useAudio } from '@/hooks/useAudio';
+
 interface GameMasterGuideProps {
   characters: CharacterType[];
   phase: GamePhase;
   onPhaseChange: (phase: GamePhase) => void;
   dayCount: number;
 }
+
 const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   characters,
   phase,
@@ -22,6 +24,9 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     playVoteMusic,
     stopMusic
   } = useAudio();
+
+  const hasDevotedServant = characters.some(char => char.id === 'devoted-servant');
+
   const getPhaseTitle = () => {
     switch (phase) {
       case 'setup':
@@ -40,6 +45,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return 'Phase inconnue';
     }
   };
+
   const getPhaseInstructions = () => {
     switch (phase) {
       case 'setup':
@@ -122,6 +128,14 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             
             <p className="mb-4">3. Procédez au vote pour éliminer un joueur.</p>
             <p className="mb-4">4. Annoncez le joueur éliminé (sans révéler son rôle).</p>
+            
+            {hasDevotedServant && (
+              <p className="mb-4 p-2 rounded bg-amber-900/20 border border-amber-800/30">
+                <span className="font-medium">5. Action de la Servante dévouée:</span> Si la Servante dévouée est en jeu, 
+                demandez-lui discrètement si elle souhaite échanger son rôle avec le joueur éliminé.
+              </p>
+            )}
+            
             <Button onClick={() => onPhaseChange('night')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Passer à la nuit <Moon className="ml-2 h-4 w-4" />
             </Button>
@@ -164,6 +178,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return <p>Instructions non disponibles</p>;
     }
   };
+
   const getCharacterIcon = (iconName: string) => {
     switch (iconName) {
       case 'moon':
@@ -177,9 +192,11 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return null;
     }
   };
+
   const getOrderedCharacterActions = (chars: CharacterType[], phase: 'night' | 'day') => {
     return chars.filter(char => char.actionPhase === phase).sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
   };
+
   const getPhaseIcon = () => {
     switch (phase) {
       case 'firstDay':
@@ -196,6 +213,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return null;
     }
   };
+
   const getCurrentTeamCounts = () => {
     const villageCount = characters.filter(char => char.team === 'village').length;
     const werewolfCount = characters.filter(char => char.team === 'werewolf').length;
@@ -215,6 +233,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           </div>}
       </div>;
   };
+
   return <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
       <div className="flex items-center mb-4">
         {getPhaseIcon()}
@@ -228,4 +247,5 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       </div>
     </div>;
 };
+
 export default GameMasterGuide;
