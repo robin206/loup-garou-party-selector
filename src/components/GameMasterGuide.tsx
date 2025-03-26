@@ -60,8 +60,8 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       case 'firstDay':
         return <div>
             <div className="mb-4 flex gap-2">
-              <AudioButton label="Ambiance Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
-              <AudioButton label="Ambiance Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
+              <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
+              <AudioButton label="Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
             </div>
             <p className="mb-4">1. Demandez à tous les joueurs d'ouvrir les yeux.</p>
             <p className="mb-4">2. Annoncez l'élection du maire :</p>
@@ -78,7 +78,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         const nightActions = getOrderedCharacterActions(characters, 'night');
         return <div>
             <div className="mb-4">
-              <AudioButton label="Ambiance Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
+              <AudioButton label="Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
             </div>
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
@@ -104,8 +104,8 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         const dayActions = getOrderedCharacterActions(characters, 'day');
         return <div>
             <div className="mb-4 flex gap-2">
-              <AudioButton label="Ambiance Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
-              <AudioButton label="Ambiance Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
+              <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
+              <AudioButton label="Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
             </div>
             <p className="mb-4">1. Annoncez les victimes de la nuit, s'il y en a.</p>
             <p className="mb-4">2. Laissez les joueurs débattre pour trouver les Loups-Garous.</p>
@@ -144,7 +144,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         const regularNightActions = getOrderedCharacterActions(characters, 'night');
         return <div>
             <div className="mb-4">
-              <AudioButton label="Ambiance Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
+              <AudioButton label="Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
             </div>
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
