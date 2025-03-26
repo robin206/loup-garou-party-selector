@@ -2,6 +2,7 @@
 import React from 'react';
 import { CharacterType } from '@/types';
 import { cn } from '@/lib/utils';
+import TooltipWrapper from './TooltipWrapper';
 
 interface CharacterCardProps {
   character: CharacterType;
@@ -42,44 +43,46 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isSelected, on
   };
 
   return (
-    <div 
-      className={cn(
-        "character-card glass-card animate-scale-in",
-        isSelected && "selected ring-2 ring-werewolf-accent"
-      )}
-      onClick={() => onSelect(character.id)}
-    >
-      <div className={cn("character-card-image", getTeamColor(character.team))}>
-        {character.icon && character.icon.startsWith('/') ? (
-          <img 
-            src={character.icon} 
-            alt={character.name} 
-            className="h-12 w-12 object-contain"
-          />
-        ) : (
-          <div className="h-12 w-12 flex items-center justify-center bg-gray-200 rounded-full">
-            <span className="text-sm">{character.name.charAt(0)}</span>
-          </div>
+    <TooltipWrapper character={character}>
+      <div 
+        className={cn(
+          "character-card glass-card animate-scale-in",
+          isSelected && "selected ring-2 ring-werewolf-accent"
         )}
-      </div>
-      <h3 className="text-sm font-semibold mb-1">{character.name}</h3>
-      <p className="text-xs text-gray-500 text-center leading-tight">
-        {character.description.length > 70 
-          ? `${character.description.substring(0, 70)}...` 
-          : character.description
-        }
-      </p>
-      <div className="flex flex-wrap gap-1 mt-2 justify-center">
-        {character.recommended && (
-          <span className="px-2 py-0.5 bg-werewolf-accent/10 text-werewolf-accent rounded-full text-xs font-medium">
-            Recommandé
+        onClick={() => onSelect(character.id)}
+      >
+        <div className={cn("character-card-image", getTeamColor(character.team))}>
+          {character.icon && character.icon.startsWith('/') ? (
+            <img 
+              src={character.icon} 
+              alt={character.name} 
+              className="h-12 w-12 object-contain"
+            />
+          ) : (
+            <div className="h-12 w-12 flex items-center justify-center bg-gray-200 rounded-full">
+              <span className="text-sm">{character.name.charAt(0)}</span>
+            </div>
+          )}
+        </div>
+        <h3 className="text-sm font-semibold mb-1">{character.name}</h3>
+        <p className="text-xs text-gray-500 text-center leading-tight">
+          {character.description.length > 70 
+            ? `${character.description.substring(0, 70)}...` 
+            : character.description
+          }
+        </p>
+        <div className="flex flex-wrap gap-1 mt-2 justify-center">
+          {character.recommended && (
+            <span className="px-2 py-0.5 bg-werewolf-accent/10 text-werewolf-accent rounded-full text-xs font-medium">
+              Recommandé
+            </span>
+          )}
+          <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", getExpansionColor(character.expansion))}>
+            {getExpansionName(character.expansion)}
           </span>
-        )}
-        <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", getExpansionColor(character.expansion))}>
-          {getExpansionName(character.expansion)}
-        </span>
+        </div>
       </div>
-    </div>
+    </TooltipWrapper>
   );
 };
 

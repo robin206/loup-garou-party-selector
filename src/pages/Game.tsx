@@ -5,6 +5,7 @@ import { GameState, CharacterType, GamePhase } from '@/types';
 import Header from '@/components/Header';
 import GameMasterGuide from '@/components/GameMasterGuide';
 import SoundSampler from '@/components/SoundSampler';
+import CharactersList from '@/components/CharactersList'; 
 import { toast } from 'sonner';
 
 const Game = () => {
@@ -193,6 +194,12 @@ const Game = () => {
             onPhaseChange={handlePhaseChange}
             dayCount={dayCount}
           />
+          
+          {selectedGameCharacters.length > 0 && (
+            <div className="mt-6 w-full max-w-md">
+              <CharactersList characters={selectedGameCharacters} />
+            </div>
+          )}
         </div>
       </main>
 
