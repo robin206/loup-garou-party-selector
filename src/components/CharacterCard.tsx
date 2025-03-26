@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CharacterType } from '@/types';
 import { cn } from '@/lib/utils';
@@ -8,6 +7,7 @@ interface CharacterCardProps {
   character: CharacterType;
   isSelected: boolean;
   onSelect: (id: string) => void;
+  isAlive?: boolean;
 }
 
 const getExpansionColor = (expansion: string): string => {
@@ -32,7 +32,12 @@ const getExpansionName = (expansion: string): string => {
   }
 };
 
-const CharacterCard: React.FC<CharacterCardProps> = ({ character, isSelected, onSelect }) => {
+const CharacterCard: React.FC<CharacterCardProps> = ({ 
+  character, 
+  isSelected, 
+  onSelect,
+  isAlive = true
+}) => {
   const getTeamColor = (team: string): string => {
     switch (team) {
       case 'werewolf': return 'from-werewolf-blood/10 to-werewolf-blood/20';
@@ -43,11 +48,12 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isSelected, on
   };
 
   return (
-    <TooltipWrapper character={character}>
+    <TooltipWrapper character={character} isAlive={isAlive}>
       <div 
         className={cn(
           "character-card glass-card animate-scale-in",
-          isSelected && "selected ring-2 ring-werewolf-accent"
+          isSelected && "selected ring-2 ring-werewolf-accent",
+          !isAlive && "grayscale opacity-70"
         )}
         onClick={() => onSelect(character.id)}
       >

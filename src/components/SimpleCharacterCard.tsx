@@ -10,21 +10,24 @@ interface SimpleCharacterCardProps {
   isSelected: boolean;
   onSelect: (id: string) => void;
   selectedCount: number;
+  isAlive?: boolean;
 }
 
 const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({ 
   character, 
   isSelected, 
   onSelect,
-  selectedCount 
+  selectedCount,
+  isAlive = true
 }) => {
   return (
-    <TooltipWrapper character={character}>
+    <TooltipWrapper character={character} isAlive={isAlive}>
       <div 
         className={cn(
           "simple-character-card p-2 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm cursor-pointer transition-all",
           "hover:shadow-md hover:-translate-y-1 flex flex-col items-center gap-2",
-          isSelected && "ring-2 ring-werewolf-accent bg-werewolf-accent/5"
+          isSelected && "ring-2 ring-werewolf-accent bg-werewolf-accent/5",
+          !isAlive && "grayscale opacity-70"
         )}
         onClick={() => onSelect(character.id)}
       >
