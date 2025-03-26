@@ -53,12 +53,12 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           <div>
             <div className="mb-4 flex gap-2">
               <AudioButton 
-                label="Ambiance Jour" 
+                label="Jour" 
                 playMusic={playDayMusic} 
                 stopMusic={stopMusic} 
               />
               <AudioButton 
-                label="Ambiance Vote" 
+                label="Vote" 
                 playMusic={playVoteMusic} 
                 stopMusic={stopMusic} 
               />
@@ -84,7 +84,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           <div>
             <div className="mb-4">
               <AudioButton 
-                label="Ambiance Nuit" 
+                label="Nuit" 
                 playMusic={playNightMusic} 
                 stopMusic={stopMusic} 
               />
@@ -121,12 +121,12 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           <div>
             <div className="mb-4 flex gap-2">
               <AudioButton 
-                label="Ambiance Jour" 
+                label="Jour" 
                 playMusic={playDayMusic} 
                 stopMusic={stopMusic} 
               />
               <AudioButton 
-                label="Ambiance Vote" 
+                label="Vote" 
                 playMusic={playVoteMusic} 
                 stopMusic={stopMusic} 
               />
@@ -170,7 +170,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           <div>
             <div className="mb-4">
               <AudioButton 
-                label="Ambiance Nuit" 
+                label="Nuit" 
                 playMusic={playNightMusic} 
                 stopMusic={stopMusic} 
               />
