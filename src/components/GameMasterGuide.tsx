@@ -12,56 +12,56 @@ interface GameMasterGuideProps {
   dayCount: number;
 }
 
-const GameMasterGuide: React.FC<GameMasterGuideProps> = ({ 
-  characters, 
-  phase, 
+const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
+  characters,
+  phase,
   onPhaseChange,
   dayCount
 }) => {
-  const { playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
-  
+  const {
+    playDayMusic,
+    playNightMusic,
+    playVoteMusic,
+    stopMusic
+  } = useAudio();
+
+  const hasDevotedServant = characters.some(char => char.id === 'devoted-servant');
+
   const getPhaseTitle = () => {
     switch (phase) {
-      case 'setup': return 'Préparation de la partie';
-      case 'firstDay': return 'Premier jour - Élection du maire';
-      case 'firstNight': return 'Première nuit';
-      case 'day': return `Jour ${dayCount}`;
-      case 'night': return `Nuit ${dayCount}`;
-      case 'gameEnd': return 'Fin de la partie';
-      default: return 'Phase inconnue';
+      case 'setup':
+        return 'Préparation de la partie';
+      case 'firstDay':
+        return 'Premier jour - Élection du maire';
+      case 'firstNight':
+        return 'Première nuit';
+      case 'day':
+        return `Jour ${dayCount}`;
+      case 'night':
+        return `Nuit ${dayCount}`;
+      case 'gameEnd':
+        return 'Fin de la partie';
+      default:
+        return 'Phase inconnue';
     }
   };
 
   const getPhaseInstructions = () => {
     switch (phase) {
       case 'setup':
-        return (
-          <div>
+        return <div>
             <p className="mb-4">1. Distribuez les cartes aux joueurs.</p>
             <p className="mb-4">2. Demandez à chaque joueur de consulter son rôle discrètement.</p>
             <p className="mb-4">3. Demandez à tous les joueurs de fermer les yeux.</p>
-            <Button 
-              onClick={() => onPhaseChange('firstDay')}
-              className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4"
-            >
+            <Button onClick={() => onPhaseChange('firstDay')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Commencer le premier jour <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </div>
-        );
+          </div>;
       case 'firstDay':
-        return (
-          <div>
+        return <div>
             <div className="mb-4 flex gap-2">
-              <AudioButton 
-                label="Jour" 
-                playMusic={playDayMusic} 
-                stopMusic={stopMusic} 
-              />
-              <AudioButton 
-                label="Vote" 
-                playMusic={playVoteMusic} 
-                stopMusic={stopMusic} 
-              />
+              <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
+              <AudioButton label="Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
             </div>
             <p className="mb-4">1. Demandez à tous les joueurs d'ouvrir les yeux.</p>
             <p className="mb-4">2. Annoncez l'élection du maire :</p>
@@ -70,31 +70,21 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               <li>Procédez au vote (le maire aura une voix prépondérante en cas d'égalité)</li>
             </ul>
             <p className="mb-4">3. Annoncez le maire élu.</p>
-            <Button 
-              onClick={() => onPhaseChange('firstNight')}
-              className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4"
-            >
+            <Button onClick={() => onPhaseChange('firstNight')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Passer à la première nuit <Moon className="ml-2 h-4 w-4" />
             </Button>
-          </div>
-        );
+          </div>;
       case 'firstNight':
         const nightActions = getOrderedCharacterActions(characters, 'night');
-        return (
-          <div>
+        return <div>
             <div className="mb-4">
-              <AudioButton 
-                label="Nuit" 
-                playMusic={playNightMusic} 
-                stopMusic={stopMusic} 
-              />
+              <AudioButton label="Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
             </div>
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
-              <ol className="list-decimal list-inside pl-4 space-y-2">
-                {nightActions.map((char, index) => (
-                  <li key={index} className="p-2 rounded bg-gray-50">
+              <ol className="list-decimal list-inside pl-4 space-y-2 px-0">
+                {nightActions.map((char, index) => <li key={index} className="p-2 rounded bg-zinc-950 px-0 py-[8px] mx-0">
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 mt-1">
                         {getCharacterIcon(char.icon)}
@@ -103,43 +93,27 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                         <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
                       </div>
                     </div>
-                  </li>
-                ))}
+                  </li>)}
               </ol>
             </div>
-            <Button 
-              onClick={() => onPhaseChange('day')}
-              className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4"
-            >
+            <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Passer au jour suivant <Sun className="ml-2 h-4 w-4" />
             </Button>
-          </div>
-        );
+          </div>;
       case 'day':
         const dayActions = getOrderedCharacterActions(characters, 'day');
-        return (
-          <div>
+        return <div>
             <div className="mb-4 flex gap-2">
-              <AudioButton 
-                label="Jour" 
-                playMusic={playDayMusic} 
-                stopMusic={stopMusic} 
-              />
-              <AudioButton 
-                label="Vote" 
-                playMusic={playVoteMusic} 
-                stopMusic={stopMusic} 
-              />
+              <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
+              <AudioButton label="Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
             </div>
             <p className="mb-4">1. Annoncez les victimes de la nuit, s'il y en a.</p>
             <p className="mb-4">2. Laissez les joueurs débattre pour trouver les Loups-Garous.</p>
             
-            {dayActions.length > 0 && (
-              <div className="mb-4">
+            {dayActions.length > 0 && <div className="mb-4">
                 <h3 className="font-semibold mb-2">Actions spéciales du jour :</h3>
                 <ol className="list-decimal list-inside pl-4 space-y-2">
-                  {dayActions.map((char, index) => (
-                    <li key={index} className="p-2 rounded bg-gray-50">
+                  {dayActions.map((char, index) => <li key={index} className="p-2 rounded bg-gray-950">
                       <div className="flex items-start gap-2">
                         <div className="flex-shrink-0 mt-1">
                           {getCharacterIcon(char.icon)}
@@ -148,39 +122,35 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                           <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
                         </div>
                       </div>
-                    </li>
-                  ))}
+                    </li>)}
                 </ol>
-              </div>
-            )}
+              </div>}
             
             <p className="mb-4">3. Procédez au vote pour éliminer un joueur.</p>
             <p className="mb-4">4. Annoncez le joueur éliminé (sans révéler son rôle).</p>
-            <Button 
-              onClick={() => onPhaseChange('night')}
-              className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4"
-            >
+            
+            {hasDevotedServant && (
+              <p className="mb-4 p-2 rounded bg-amber-900/20 border border-amber-800/30">
+                <span className="font-medium">5. Action de la Servante dévouée:</span> Si la Servante dévouée est en jeu, 
+                demandez-lui discrètement si elle souhaite échanger son rôle avec le joueur éliminé.
+              </p>
+            )}
+            
+            <Button onClick={() => onPhaseChange('night')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Passer à la nuit <Moon className="ml-2 h-4 w-4" />
             </Button>
-          </div>
-        );
+          </div>;
       case 'night':
         const regularNightActions = getOrderedCharacterActions(characters, 'night');
-        return (
-          <div>
+        return <div>
             <div className="mb-4">
-              <AudioButton 
-                label="Nuit" 
-                playMusic={playNightMusic} 
-                stopMusic={stopMusic} 
-              />
+              <AudioButton label="Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
             </div>
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
               <ol className="list-decimal list-inside pl-4 space-y-2">
-                {regularNightActions.map((char, index) => (
-                  <li key={index} className="p-2 rounded bg-gray-50">
+                {regularNightActions.map((char, index) => <li key={index} className="p-2 rounded bg-zinc-950">
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 mt-1">
                         {getCharacterIcon(char.icon)}
@@ -189,31 +159,21 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                         <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
                       </div>
                     </div>
-                  </li>
-                ))}
+                  </li>)}
               </ol>
             </div>
-            <Button 
-              onClick={() => onPhaseChange('day')}
-              className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4"
-            >
+            <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Passer au jour suivant <Sun className="ml-2 h-4 w-4" />
             </Button>
-          </div>
-        );
+          </div>;
       case 'gameEnd':
-        return (
-          <div>
+        return <div>
             <p className="mb-4">La partie est terminée !</p>
             <p className="mb-4">Annoncez les gagnants et dévoilez les rôles de chaque joueur.</p>
-            <Button 
-              onClick={() => onPhaseChange('setup')}
-              className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4"
-            >
+            <Button onClick={() => onPhaseChange('setup')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Commencer une nouvelle partie <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </div>
-        );
+          </div>;
       default:
         return <p>Instructions non disponibles</p>;
     }
@@ -221,18 +181,20 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
 
   const getCharacterIcon = (iconName: string) => {
     switch (iconName) {
-      case 'moon': return <Moon className="h-4 w-4 text-werewolf-accent" />;
-      case 'eye': return <span>👁️</span>;
-      case 'user': 
-      case 'users': return <Users className="h-4 w-4 text-blue-500" />;
-      default: return null;
+      case 'moon':
+        return <Moon className="h-4 w-4 text-werewolf-accent" />;
+      case 'eye':
+        return <span>👁️</span>;
+      case 'user':
+      case 'users':
+        return <Users className="h-4 w-4 text-blue-500" />;
+      default:
+        return null;
     }
   };
 
   const getOrderedCharacterActions = (chars: CharacterType[], phase: 'night' | 'day') => {
-    return chars
-      .filter(char => char.actionPhase === phase)
-      .sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
+    return chars.filter(char => char.actionPhase === phase).sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
   };
 
   const getPhaseIcon = () => {
@@ -256,29 +218,23 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     const villageCount = characters.filter(char => char.team === 'village').length;
     const werewolfCount = characters.filter(char => char.team === 'werewolf').length;
     const soloCount = characters.filter(char => char.team === 'solo').length;
-    
-    return (
-      <div className="flex justify-around text-sm mb-4 p-2 rounded-lg bg-gray-50">
+    return <div className="flex justify-around text-sm mb-4 p-2 rounded-lg bg-gray-50">
         <div className="text-center">
           <span className="font-medium text-blue-600">Village: </span>
-          <span>{villageCount}</span>
+          <span className="text-zinc-950">{villageCount}</span>
         </div>
         <div className="text-center">
           <span className="font-medium text-werewolf-blood">Loups: </span>
-          <span>{werewolfCount}</span>
+          <span className="text-zinc-950">{werewolfCount}</span>
         </div>
-        {soloCount > 0 && (
-          <div className="text-center">
+        {soloCount > 0 && <div className="text-center">
             <span className="font-medium text-amber-600">Solo: </span>
-            <span>{soloCount}</span>
-          </div>
-        )}
-      </div>
-    );
+            <span className="text-zinc-950">{soloCount}</span>
+          </div>}
+      </div>;
   };
 
-  return (
-    <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
+  return <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
       <div className="flex items-center mb-4">
         {getPhaseIcon()}
         <h2 className="text-xl font-bold ml-2">{getPhaseTitle()}</h2>
@@ -289,8 +245,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       <div className="prose prose-sm">
         {getPhaseInstructions()}
       </div>
-    </div>
-  );
+    </div>;
 };
 
 export default GameMasterGuide;

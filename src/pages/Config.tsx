@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Volume2, Volume, Music2 } from 'lucide-react';
+import { Volume2, Volume, Music2, ArrowLeft } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
@@ -9,8 +10,13 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useAudio } from '@/hooks/useAudio';
 import audioService from '@/services/audioService';
+import { GameState } from '@/types';
 
 const Config = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const gameState = location.state as GameState;
+  
   const [dayMusic, setDayMusic] = useState<string>('jour.webm');
   const [nightMusic, setNightMusic] = useState<string>('nuit.webm');
   const [voteMusic, setVoteMusic] = useState<string>('vote.webm');
@@ -28,6 +34,14 @@ const Config = () => {
       label: `${formattedName}` 
     };
   });
+  
+  const handleBackToGame = () => {
+    if (gameState) {
+      navigate('/game', { state: gameState });
+    } else {
+      navigate('/');
+    }
+  };
   
   // Load saved configuration on mount
   useEffect(() => {
@@ -77,6 +91,18 @@ const Config = () => {
       <Header />
       
       <main className="flex-1 w-full max-w-4xl mx-auto pt-24 pb-12 px-4">
+        <div className="flex justify-between items-center mb-6">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1" 
+            onClick={handleBackToGame}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {gameState ? "Retour au jeu" : "Retour"}
+          </Button>
+        </div>
+        
         <section className="text-center mb-10 space-y-4">
           <div className="inline-flex items-center justify-center p-3 bg-werewolf-accent/10 rounded-full mb-4 animate-fade-in">
             <Music2 className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />

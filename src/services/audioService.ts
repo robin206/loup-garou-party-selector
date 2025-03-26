@@ -22,6 +22,21 @@ class AudioService {
   }
   
   /**
+   * Joue un son du sampler sans interrompre la musique de fond
+   */
+  public playSampleSound(soundName: string): void {
+    try {
+      const sampleSound = new Audio(`/audio/sampler/${soundName}`);
+      sampleSound.volume = this.volume;
+      sampleSound.play().catch(error => {
+        console.error('Erreur lors de la lecture du son:', error);
+      });
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'élément audio pour le sampler:', error);
+    }
+  }
+  
+  /**
    * Arrête l'audio en cours avec un fondu
    */
   public stopAudio(): void {

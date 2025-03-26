@@ -1,23 +1,34 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Moon, Book, Music2 } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Skull, Book, Music2 } from 'lucide-react';
 
 const Header = () => {
+  const location = useLocation();
+  const gameState = location.state;
+  
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2 text-xl font-semibold text-gray-900">
-          <Moon className="h-6 w-6 text-werewolf-accent" />
+        <Link to="/" className="flex items-center space-x-2 text-xl font-semibold text-gray-100">
+          <Skull className="h-6 w-6 text-werewolf-accent" />
           <span>Loup Garou</span>
         </Link>
 
         <div className="flex items-center gap-4">
-          <Link to="/rules" className="flex items-center gap-1 text-gray-600 hover:text-werewolf-accent">
+          <Link 
+            to="/rules" 
+            state={gameState} 
+            className="flex items-center gap-1 text-gray-300 hover:text-werewolf-accent"
+          >
             <Book className="h-5 w-5" />
             <span>Règles</span>
           </Link>
-          <Link to="/config" className="flex items-center gap-1 text-gray-600 hover:text-werewolf-accent">
+          <Link 
+            to="/config" 
+            state={gameState} 
+            className="flex items-center gap-1 text-gray-300 hover:text-werewolf-accent"
+          >
             <Music2 className="h-5 w-5" />
             <span>Audio</span>
           </Link>

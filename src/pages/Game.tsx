@@ -4,6 +4,8 @@ import { useLocation, Navigate } from 'react-router-dom';
 import { GameState, CharacterType, GamePhase } from '@/types';
 import Header from '@/components/Header';
 import GameMasterGuide from '@/components/GameMasterGuide';
+import SoundSampler from '@/components/SoundSampler';
+import CharactersList from '@/components/CharactersList'; 
 import { toast } from 'sonner';
 
 const Game = () => {
@@ -19,6 +21,7 @@ const Game = () => {
   const [gamePhase, setGamePhase] = useState<GamePhase>('setup');
   const [dayCount, setDayCount] = useState<number>(1);
   const [selectedGameCharacters, setSelectedGameCharacters] = useState<CharacterType[]>([]);
+  const [aliveCharacters, setAliveCharacters] = useState<string[]>([]);
 
   // Prepare characters with action information
   useEffect(() => {
@@ -165,6 +168,7 @@ const Game = () => {
       });
       
       setSelectedGameCharacters(updatedCharacters);
+      setAliveCharacters(selectedCharacters); // Initially, all characters are alive
       toast.success(`${players} joueurs prêts à jouer avec ${selectedCharacters.length} rôles différents!`);
     }
   }, [characters, selectedCharacters, players]);
@@ -180,20 +184,47 @@ const Game = () => {
     toast.success(`Phase changée: ${newPhase}`);
   };
 
+  const handleKillCharacter = (characterId: string) => {
+    if (aliveCharacters.includes(characterId)) {
+      // Kill character
+      setAliveCharacters(prev => prev.filter(id => id !== characterId));
+      toast.error(`Le personnage ${selectedGameCharacters.find(c => c.id === characterId)?.name} a été éliminé`);
+    } else {
+      // Revive character
+      setAliveCharacters(prev => [...prev, characterId]);
+      toast.success(`Le personnage ${selectedGameCharacters.find(c => c.id === characterId)?.name} a été ressuscité`);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
       
-      <main className="flex-1 w-full max-w-6xl mx-auto pt-24 pb-12 px-4 flex flex-col items-center justify-center">
+      <main className="flex-1 w-full max-w-6xl mx-auto pt-24 pb-24 px-4 flex flex-col items-center justify-center">
         <div className="w-full flex flex-col items-center">
           <GameMasterGuide 
             characters={selectedGameCharacters}
             phase={gamePhase}
             onPhaseChange={handlePhaseChange}
             dayCount={dayCount}
+            aliveCharacters={aliveCharacters}
           />
+          
+          {selectedGameCharacters.length > 0 && (
+            <div className="mt-6 w-full max-w-md">
+              <CharactersList 
+                characters={selectedGameCharacters}
+                aliveCharacters={aliveCharacters}
+                onKillCharacter={handleKillCharacter}
+              />
+            </div>
+          )}
         </div>
       </main>
+
+      <div className="sticky bottom-0 left-0 right-0 w-full">
+        <SoundSampler />
+      </div>
     </div>
   );
 };

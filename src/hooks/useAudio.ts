@@ -30,12 +30,17 @@ export function useAudio() {
     return audioService.getAmbianceAudioFiles();
   }, []);
   
+  const playSampleSound = useCallback((soundName: string) => {
+    audioService.playSampleSound(soundName);
+  }, []);
+  
   return {
     playDayMusic,
     playNightMusic,
     playVoteMusic,
     stopMusic,
     getAvailableAudios,
-    getAmbianceAudios
+    getAmbianceAudios,
+    playSampleSound
   };
 }
