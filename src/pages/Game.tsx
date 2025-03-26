@@ -57,26 +57,12 @@ const Game = () => {
             actionOrder: 10, 
             actionDescription: 'Si le Chasseur est tué, il doit immédiatement désigner un joueur qui mourra avec lui.'
           };
-        } else if (char.id === 'little-girl') {
-          return {
-            ...char, 
-            actionPhase: 'night' as const, 
-            actionOrder: 15, 
-            actionDescription: 'La Petite Fille peut espionner les Loups-Garous pendant leur tour.'
-          };
         } else if (char.id === 'cupid') {
           return {
             ...char, 
             actionPhase: 'night' as const, 
             actionOrder: 5, 
             actionDescription: 'Lors de la première nuit uniquement, demandez à Cupidon de désigner deux amoureux.'
-          };
-        } else if (char.id === 'bodyguard') {
-          return {
-            ...char, 
-            actionPhase: 'night' as const, 
-            actionOrder: 25, 
-            actionDescription: 'Demandez au Garde du Corps de désigner un joueur qu\'il souhaite protéger cette nuit.'
           };
         } else if (char.id === 'white-werewolf') {
           return {
@@ -134,33 +120,12 @@ const Game = () => {
             actionOrder: 40, 
             actionDescription: 'Le Joueur de Flûte peut enchanter 2 joueurs chaque nuit.'
           };
-        } else if (char.id === 'troublemaker') {
-          return {
-            ...char, 
-            actionPhase: 'night' as const, 
-            actionOrder: 45, 
-            actionDescription: 'Le Troublemaker peut échanger les rôles de deux joueurs.'
-          };
         } else if (char.id === 'elder') {
           return {
             ...char, 
             actionPhase: 'night' as const, 
             actionOrder: 50, 
             actionDescription: 'L\'Ancien peut survivre à la première attaque des loups-garous.'
-          };
-        } else if (char.id === 'medium') {
-          return {
-            ...char, 
-            actionPhase: 'night' as const, 
-            actionOrder: 55, 
-            actionDescription: 'Le Médium peut parler avec le dernier joueur éliminé pendant la nuit.'
-          };
-        } else if (char.id === 'villager') {
-          return {
-            ...char, 
-            actionPhase: 'day' as const, 
-            actionOrder: 50, 
-            actionDescription: 'Les Villageois participent au vote pendant la journée.'
           };
         }
         // Return character with default values if not specifically configured
