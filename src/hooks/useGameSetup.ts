@@ -57,24 +57,45 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
   }, [characters]);
 
   const handleCharacterToggle = (id: string) => {
-    setSelectedCharacters(prev => {
-      const currentCount = characterCounts[id] || 0;
-      if (prev.includes(id)) {
-        const index = prev.indexOf(id);
-        const newSelection = [...prev.slice(0, index), ...prev.slice(index + 1)];
-        setCharacterCounts(counts => ({
-          ...counts,
-          [id]: Math.max(0, (counts[id] || 0) - 1)
-        }));
-        return newSelection;
-      } else {
-        setCharacterCounts(counts => ({
-          ...counts,
-          [id]: (counts[id] || 0) + 1
-        }));
-        return [...prev, id];
-      }
-    });
+    // If already selected, toggle it off completely
+    if (characterCounts[id] > 0) {
+      setSelectedCharacters(prev => prev.filter(charId => charId !== id));
+      setCharacterCounts(prev => ({ ...prev, [id]: 0 }));
+    } else {
+      // If not selected, add one
+      setSelectedCharacters(prev => [...prev, id]);
+      setCharacterCounts(prev => ({ ...prev, [id]: 1 }));
+    }
+  };
+
+  const handleIncreaseCharacter = (id: string) => {
+    setSelectedCharacters(prev => [...prev, id]);
+    setCharacterCounts(prev => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1
+    }));
+  };
+
+  const handleDecreaseCharacter = (id: string) => {
+    const currentCount = characterCounts[id] || 0;
+    if (currentCount <= 1) {
+      // If this is the last one, remove it completely
+      setSelectedCharacters(prev => prev.filter(charId => charId !== id));
+      setCharacterCounts(prev => ({ ...prev, [id]: 0 }));
+    } else {
+      // Remove just one instance
+      setSelectedCharacters(prev => {
+        const index = prev.lastIndexOf(id);
+        if (index !== -1) {
+          return [...prev.slice(0, index), ...prev.slice(index + 1)];
+        }
+        return prev;
+      });
+      setCharacterCounts(prev => ({
+        ...prev,
+        [id]: Math.max(0, (prev[id] || 0) - 1)
+      }));
+    }
   };
 
   const handleExpansionChange = (value: string) => {
@@ -164,6 +185,8 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
     selectedCharactersCount: selectedCharacters.length,
     getSelectedCharacterCount,
     handleCharacterToggle,
+    handleIncreaseCharacter,
+    handleDecreaseCharacter,
     handleExpansionChange,
     resetSelection,
     toggleViewMode,

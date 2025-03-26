@@ -23,6 +23,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
     selectedCharactersCount,
     getSelectedCharacterCount,
     handleCharacterToggle,
+    handleIncreaseCharacter,
+    handleDecreaseCharacter,
     handleExpansionChange,
     resetSelection,
     toggleViewMode,
@@ -50,7 +52,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
         />
         
         <p className="text-sm text-gray-500 mb-6">
-          Sélectionnez au moins 3 personnages pour jouer.
+          Sélectionnez au moins 3 personnages pour jouer. Vous pouvez ajouter plusieurs exemplaires du même rôle.
           <br />
           <strong>Vous pouvez sélectionner plusieurs villageois et plusieurs loups-garous.</strong>
         </p>
@@ -61,6 +63,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
           onCharacterToggle={handleCharacterToggle} 
           getSelectedCount={getSelectedCharacterCount}
           viewMode={viewMode}
+          onIncreaseCharacter={handleIncreaseCharacter}
+          onDecreaseCharacter={handleDecreaseCharacter}
         />
       </section>
 

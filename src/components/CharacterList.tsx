@@ -4,7 +4,7 @@ import CharacterCard from './CharacterCard';
 import SimpleCharacterCard from './SimpleCharacterCard';
 import { CharacterType } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface CharacterListProps {
   characters: CharacterType[];
@@ -12,6 +12,8 @@ interface CharacterListProps {
   onCharacterToggle: (id: string) => void;
   getSelectedCount: (id: string) => number;
   viewMode: 'detailed' | 'simple';
+  onIncreaseCharacter?: (id: string) => void;
+  onDecreaseCharacter?: (id: string) => void;
 }
 
 const CharacterList: React.FC<CharacterListProps> = ({ 
@@ -19,7 +21,9 @@ const CharacterList: React.FC<CharacterListProps> = ({
   selectedCharacters, 
   onCharacterToggle,
   getSelectedCount,
-  viewMode
+  viewMode,
+  onIncreaseCharacter,
+  onDecreaseCharacter
 }) => {
   const [activeTab, setActiveTab] = useState<string>("tous");
 
@@ -60,6 +64,9 @@ const CharacterList: React.FC<CharacterListProps> = ({
                         character={character}
                         isSelected={count > 0}
                         onSelect={onCharacterToggle}
+                        selectedCount={count}
+                        onIncrease={onIncreaseCharacter}
+                        onDecrease={onDecreaseCharacter}
                       />
                     ) : (
                       <SimpleCharacterCard
@@ -67,14 +74,9 @@ const CharacterList: React.FC<CharacterListProps> = ({
                         isSelected={count > 0}
                         onSelect={onCharacterToggle}
                         selectedCount={count}
+                        onIncrease={onIncreaseCharacter}
+                        onDecrease={onDecreaseCharacter}
                       />
-                    )}
-                    {viewMode === 'detailed' && count > 0 && (
-                      <Badge 
-                        className="absolute -top-2 -right-2 bg-werewolf-accent"
-                      >
-                        {count}
-                      </Badge>
                     )}
                   </div>
                 );
@@ -86,8 +88,5 @@ const CharacterList: React.FC<CharacterListProps> = ({
     </div>
   );
 };
-
-// Import cn function
-import { cn } from "@/lib/utils";
 
 export default CharacterList;

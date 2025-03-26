@@ -3,6 +3,8 @@ import React from 'react';
 import { CharacterType } from '@/types';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Plus, Minus } from 'lucide-react';
 import TooltipWrapper from './TooltipWrapper';
 
 interface SimpleCharacterCardProps {
@@ -11,6 +13,8 @@ interface SimpleCharacterCardProps {
   onSelect: (id: string) => void;
   selectedCount: number;
   isAlive?: boolean;
+  onIncrease?: (id: string) => void;
+  onDecrease?: (id: string) => void;
 }
 
 const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({ 
@@ -18,8 +22,17 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
   isSelected, 
   onSelect,
   selectedCount,
-  isAlive = true
+  isAlive = true,
+  onIncrease,
+  onDecrease
 }) => {
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Only trigger selection if not clicking on the counter buttons
+    if (!(e.target instanceof HTMLButtonElement)) {
+      onSelect(character.id);
+    }
+  };
+
   return (
     <TooltipWrapper character={character} isAlive={isAlive}>
       <div 
@@ -29,7 +42,7 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
           isSelected && "ring-2 ring-werewolf-accent bg-werewolf-accent/5",
           !isAlive && "grayscale opacity-70"
         )}
-        onClick={() => onSelect(character.id)}
+        onClick={handleCardClick}
       >
         <div className="character-icon w-12 h-12 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full">
           {character.icon && character.icon.startsWith('/') ? (
@@ -47,10 +60,38 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
         
         <h3 className="text-sm font-medium text-center">{character.name}</h3>
         
-        {isSelected && selectedCount > 0 && (
-          <Badge variant="secondary" className="absolute -top-2 -right-2 bg-werewolf-accent text-white">
-            {selectedCount}
-          </Badge>
+        {isSelected && (
+          <div className="mt-1 flex items-center justify-center gap-1">
+            {onDecrease && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDecrease(character.id);
+                }}
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+            )}
+            <Badge variant="secondary" className="bg-werewolf-accent text-white h-6 min-w-6 flex items-center justify-center">
+              {selectedCount}
+            </Badge>
+            {onIncrease && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onIncrease(character.id);
+                }}
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
         )}
       </div>
     </TooltipWrapper>
