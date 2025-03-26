@@ -1,14 +1,41 @@
 
 import React from 'react';
-import { Moon } from 'lucide-react';
+import { Moon, ArrowLeft } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
+import { Button } from '@/components/ui/button';
+import { GameState } from '@/types';
 
 const Rules = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const gameState = location.state as GameState;
+  
+  const handleBackToGame = () => {
+    if (gameState) {
+      navigate('/game', { state: gameState });
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
       
       <main className="flex-1 w-full max-w-4xl mx-auto pt-24 pb-12 px-4">
+        <div className="flex justify-between items-center mb-6">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1" 
+            onClick={handleBackToGame}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {gameState ? "Retour au jeu" : "Retour"}
+          </Button>
+        </div>
+        
         <section className="text-center mb-10 space-y-4">
           <div className="inline-flex items-center justify-center p-3 bg-werewolf-accent/10 rounded-full mb-4 animate-fade-in">
             <Moon className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
