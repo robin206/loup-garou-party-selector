@@ -84,7 +84,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                       <div className="flex-shrink-0 mt-1">
                         {getCharacterIcon(char.icon)}
                       </div>
-                      <div>
+                      <div className="display:inline;">
                         <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
                       </div>
                     </div>
