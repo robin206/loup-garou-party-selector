@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users } from 'lucide-react';
 import AudioButton from './AudioButton';
 import { useAudio } from '@/hooks/useAudio';
+
 interface GameMasterGuideProps {
   characters: CharacterType[];
   phase: GamePhase;
@@ -11,6 +12,7 @@ interface GameMasterGuideProps {
   dayCount: number;
   aliveCharacters?: string[];
 }
+
 const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   characters,
   phase,
@@ -24,7 +26,9 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     playVoteMusic,
     stopMusic
   } = useAudio();
+
   const hasDevotedServant = characters.some(char => char.id === 'devoted-servant');
+
   const getPhaseTitle = () => {
     switch (phase) {
       case 'setup':
@@ -43,6 +47,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return 'Phase inconnue';
     }
   };
+
   const getPhaseInstructions = () => {
     switch (phase) {
       case 'setup':
@@ -87,7 +92,8 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                         {getCharacterIcon(char.icon)}
                       </div>
                       <div className="display:inline;">
-                        <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
+                        <div className="font-medium">{char.name}:</div>
+                        <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
                       </div>
                     </div>
                   </li>)}
@@ -116,7 +122,8 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                           {getCharacterIcon(char.icon)}
                         </div>
                         <div>
-                          <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
+                          <div className="font-medium">{char.name}:</div>
+                          <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
                         </div>
                       </div>
                     </li>)}
@@ -151,7 +158,8 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                         {getCharacterIcon(char.icon)}
                       </div>
                       <div>
-                        <span className="font-medium">{char.name}:</span> {char.actionDescription || `Action de ${char.name}`}
+                        <div className="font-medium">{char.name}:</div>
+                        <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
                       </div>
                     </div>
                   </li>)}
@@ -173,6 +181,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return <p>Instructions non disponibles</p>;
     }
   };
+
   const getCharacterIcon = (iconName: string) => {
     switch (iconName) {
       case 'moon':
@@ -186,6 +195,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return null;
     }
   };
+
   const getOrderedCharacterActions = (chars: CharacterType[], phase: 'night' | 'day') => {
     const uniqueCharIds = new Set<string>();
     const uniqueChars: CharacterType[] = [];
@@ -197,6 +207,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     });
     return uniqueChars.sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
   };
+
   const getPhaseIcon = () => {
     switch (phase) {
       case 'firstDay':
@@ -213,6 +224,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return null;
     }
   };
+
   const getCurrentTeamCounts = () => {
     const teamCounts: Record<string, number> = {
       village: 0,
@@ -240,6 +252,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           </div>}
       </div>;
   };
+
   return <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
       <div className="flex items-center mb-4">
         {getPhaseIcon()}
@@ -253,4 +266,5 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       </div>
     </div>;
 };
+
 export default GameMasterGuide;
