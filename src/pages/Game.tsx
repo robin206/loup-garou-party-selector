@@ -11,7 +11,6 @@ const Game = () => {
   const location = useLocation();
   const gameState = location.state as GameState;
   
-  // If no game state is provided, redirect to the home page
   if (!gameState) {
     return <Navigate to="/" replace />;
   }
@@ -22,29 +21,22 @@ const Game = () => {
   const [selectedGameCharacters, setSelectedGameCharacters] = useState<CharacterType[]>([]);
   const [aliveCharacters, setAliveCharacters] = useState<string[]>([]);
 
-  // Prepare characters with action information and handle multiple instances
   useEffect(() => {
     if (characters && selectedCharacters && selectedCharacters.length > 0) {
-      // Count occurrences of each character ID
       const characterCounts: Record<string, number> = {};
       selectedCharacters.forEach(charId => {
         characterCounts[charId] = (characterCounts[charId] || 0) + 1;
       });
       
-      // Create an expanded array with multiple instances of the same character
       const expandedCharacters: CharacterType[] = [];
       
-      // For each character ID in the counts
       Object.entries(characterCounts).forEach(([charId, count]) => {
         const character = characters.find(c => c.id === charId);
         if (!character) return;
         
-        // Create character with action information
         const updatedCharacter = createCharacterWithActions(character);
         
-        // Add the required number of instances of this character
         for (let i = 0; i < count; i++) {
-          // Create a unique ID for each instance by adding an index
           const instanceId = count > 1 ? `${charId}-${i+1}` : charId;
           expandedCharacters.push({
             ...updatedCharacter,
@@ -55,7 +47,6 @@ const Game = () => {
       
       setSelectedGameCharacters(expandedCharacters);
       
-      // Initialize alive characters with all instanceIds
       const aliveIds = expandedCharacters.map(char => char.instanceId || char.id);
       setAliveCharacters(aliveIds);
       
@@ -63,7 +54,6 @@ const Game = () => {
     }
   }, [characters, selectedCharacters, players]);
 
-  // Helper function to add action information to characters
   const createCharacterWithActions = (char: CharacterType): CharacterType => {
     if (char.id === 'werewolf') {
       return {
@@ -164,14 +154,12 @@ const Game = () => {
         actionDescription: 'L\'Ancien peut survivre à la première attaque des loups-garous.'
       };
     }
-    // Return character with default values if not specifically configured
     return char;
   };
 
   const handlePhaseChange = (newPhase: GamePhase) => {
     setGamePhase(newPhase);
     
-    // Increment day count when moving from night to day
     if (newPhase === 'day' && gamePhase === 'night') {
       setDayCount(prevCount => prevCount + 1);
     }
@@ -181,12 +169,10 @@ const Game = () => {
 
   const handleKillCharacter = (characterId: string) => {
     if (aliveCharacters.includes(characterId)) {
-      // Kill character
       setAliveCharacters(prev => prev.filter(id => id !== characterId));
       const characterName = selectedGameCharacters.find(c => c.instanceId === characterId || c.id === characterId)?.name;
       toast.error(`Le personnage ${characterName} a été éliminé`);
     } else {
-      // Revive character
       setAliveCharacters(prev => [...prev, characterId]);
       const characterName = selectedGameCharacters.find(c => c.instanceId === characterId || c.id === characterId)?.name;
       toast.success(`Le personnage ${characterName} a été ressuscité`);
@@ -204,6 +190,7 @@ const Game = () => {
             phase={gamePhase}
             onPhaseChange={handlePhaseChange}
             dayCount={dayCount}
+            aliveCharacters={aliveCharacters}
           />
           
           {selectedGameCharacters.length > 0 && (

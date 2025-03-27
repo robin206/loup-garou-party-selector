@@ -4,6 +4,7 @@ import { CharacterType } from '@/types';
 import TooltipWrapper from './TooltipWrapper';
 import { cn } from '@/lib/utils';
 import CharacterDetailsDialog from './CharacterDetailsDialog';
+import { Users } from 'lucide-react';
 
 interface CharactersListProps {
   characters: CharacterType[];
@@ -27,6 +28,21 @@ const CharactersList: React.FC<CharactersListProps> = ({
   const werewolfChars = characters.filter(char => char.team === 'werewolf');
   const soloChars = characters.filter(char => char.team === 'solo');
 
+  // Calculate alive character counts
+  const aliveVillageCount = villageChars.filter(char => 
+    aliveCharacters.includes(char.instanceId || char.id)
+  ).length;
+  
+  const aliveWerewolfCount = werewolfChars.filter(char => 
+    aliveCharacters.includes(char.instanceId || char.id)
+  ).length;
+  
+  const aliveSoloCount = soloChars.filter(char => 
+    aliveCharacters.includes(char.instanceId || char.id)
+  ).length;
+  
+  const totalAliveCount = aliveVillageCount + aliveWerewolfCount + aliveSoloCount;
+
   const iconSize = size === 'sm' ? 'w-8 h-8' : 'w-10 h-10';
   const containerClass = size === 'sm' ? 'gap-1' : 'gap-2';
   
@@ -47,7 +63,31 @@ const CharactersList: React.FC<CharactersListProps> = ({
 
   return (
     <div className={cn("glass-card p-2 rounded-xl", className)}>
-      <h3 className="text-xs font-semibold mb-2 text-gray-400">Personnages en jeu</h3>
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-xs font-semibold text-gray-400">Personnages en jeu</h3>
+        <div className="flex items-center text-xs bg-zinc-900/60 px-2 py-1 rounded-full">
+          <Users className="h-3 w-3 mr-1 text-werewolf-accent" />
+          <span className="font-medium">{totalAliveCount}</span>
+          <span className="text-gray-400 mx-1">joueurs vivants</span>
+        </div>
+      </div>
+      
+      <div className="flex justify-between mb-3 text-xs">
+        <div className="flex flex-col items-center bg-blue-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
+          <span className="text-blue-500 font-medium">Village</span>
+          <span className="text-white">{aliveVillageCount}/{villageChars.length}</span>
+        </div>
+        <div className="flex flex-col items-center bg-red-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
+          <span className="text-werewolf-blood font-medium">Loups</span>
+          <span className="text-white">{aliveWerewolfCount}/{werewolfChars.length}</span>
+        </div>
+        {soloChars.length > 0 && (
+          <div className="flex flex-col items-center bg-amber-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
+            <span className="text-amber-500 font-medium">Solo</span>
+            <span className="text-white">{aliveSoloCount}/{soloChars.length}</span>
+          </div>
+        )}
+      </div>
       
       <div className="space-y-2">
         {werewolfChars.length > 0 && (
