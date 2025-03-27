@@ -1,4 +1,3 @@
-
 export type CharacterType = {
   id: string;
   name: string;
@@ -12,6 +11,7 @@ export type CharacterType = {
   actionPhase?: 'night' | 'day';
   actionOrder?: number;
   actionDescription?: string;
+  instanceId?: string; // Added for multiple instances of the same character
 };
 
 export type GameState = {

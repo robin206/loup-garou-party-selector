@@ -4,17 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users } from 'lucide-react';
 import AudioButton from './AudioButton';
 import { useAudio } from '@/hooks/useAudio';
+
 interface GameMasterGuideProps {
   characters: CharacterType[];
   phase: GamePhase;
   onPhaseChange: (phase: GamePhase) => void;
   dayCount: number;
+  aliveCharacters?: string[];
 }
+
 const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   characters,
   phase,
   onPhaseChange,
-  dayCount
+  dayCount,
+  aliveCharacters = []
 }) => {
   const {
     playDayMusic,
@@ -22,7 +26,9 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     playVoteMusic,
     stopMusic
   } = useAudio();
+  
   const hasDevotedServant = characters.some(char => char.id === 'devoted-servant');
+
   const getPhaseTitle = () => {
     switch (phase) {
       case 'setup':
@@ -41,6 +47,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return 'Phase inconnue';
     }
   };
+
   const getPhaseInstructions = () => {
     switch (phase) {
       case 'setup':
@@ -171,6 +178,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return <p>Instructions non disponibles</p>;
     }
   };
+
   const getCharacterIcon = (iconName: string) => {
     switch (iconName) {
       case 'moon':
@@ -184,9 +192,21 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return null;
     }
   };
+
   const getOrderedCharacterActions = (chars: CharacterType[], phase: 'night' | 'day') => {
-    return chars.filter(char => char.actionPhase === phase).sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
+    const uniqueCharIds = new Set<string>();
+    const uniqueChars: CharacterType[] = [];
+    
+    chars.forEach(char => {
+      if (!uniqueCharIds.has(char.id) && char.actionPhase === phase) {
+        uniqueCharIds.add(char.id);
+        uniqueChars.push(char);
+      }
+    });
+    
+    return uniqueChars.sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
   };
+
   const getPhaseIcon = () => {
     switch (phase) {
       case 'firstDay':
@@ -203,26 +223,39 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return null;
     }
   };
+
   const getCurrentTeamCounts = () => {
-    const villageCount = characters.filter(char => char.team === 'village').length;
-    const werewolfCount = characters.filter(char => char.team === 'werewolf').length;
-    const soloCount = characters.filter(char => char.team === 'solo').length;
-    return <div className="flex justify-around text-sm mb-4 p-2 rounded-lg bg-gray-50">
+    const teamCounts: Record<string, number> = { village: 0, werewolf: 0, solo: 0 };
+    
+    characters.forEach(char => {
+      const isAlive = aliveCharacters.includes(char.instanceId || char.id);
+      if (isAlive) {
+        teamCounts[char.team]++;
+      }
+    });
+    
+    return (
+      <div className="flex justify-around text-sm mb-4 p-2 rounded-lg bg-gray-50">
         <div className="text-center">
           <span className="font-medium text-blue-600">Village: </span>
-          <span className="text-zinc-950">{villageCount}</span>
+          <span className="text-zinc-950">{teamCounts.village}</span>
         </div>
         <div className="text-center">
           <span className="font-medium text-werewolf-blood">Loups: </span>
-          <span className="text-zinc-950">{werewolfCount}</span>
+          <span className="text-zinc-950">{teamCounts.werewolf}</span>
         </div>
-        {soloCount > 0 && <div className="text-center">
+        {teamCounts.solo > 0 && (
+          <div className="text-center">
             <span className="font-medium text-amber-600">Solo: </span>
-            <span className="text-zinc-950">{soloCount}</span>
-          </div>}
-      </div>;
+            <span className="text-zinc-950">{teamCounts.solo}</span>
+          </div>
+        )}
+      </div>
+    );
   };
-  return <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
+
+  return (
+    <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
       <div className="flex items-center mb-4">
         {getPhaseIcon()}
         <h2 className="text-xl font-bold ml-2">{getPhaseTitle()}</h2>
@@ -233,6 +266,8 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       <div className="prose prose-sm">
         {getPhaseInstructions()}
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default GameMasterGuide;

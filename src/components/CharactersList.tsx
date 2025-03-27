@@ -40,7 +40,8 @@ const CharactersList: React.FC<CharactersListProps> = ({
     setSelectedCharacter(null);
   };
   
-  const isAlive = (characterId: string) => {
+  const isAlive = (character: CharacterType) => {
+    const characterId = character.instanceId || character.id;
     return aliveCharacters.includes(characterId);
   };
 
@@ -53,12 +54,16 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <div className="team-container">
             <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
             <div className={cn("flex flex-wrap", containerClass)}>
-              {werewolfChars.map(character => (
-                <TooltipWrapper key={character.id} character={character} side="top">
+              {werewolfChars.map((character, index) => (
+                <TooltipWrapper 
+                  key={character.instanceId || `${character.id}-${index}`} 
+                  character={character} 
+                  side="top"
+                >
                   <div 
                     className={cn(
                       "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
-                      isAlive(character.id) 
+                      isAlive(character) 
                         ? "border-werewolf-blood/30" 
                         : "border-gray-600/30 grayscale opacity-70",
                       iconSize
@@ -81,12 +86,16 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <div className="team-container">
             <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
             <div className={cn("flex flex-wrap", containerClass)}>
-              {villageChars.map(character => (
-                <TooltipWrapper key={character.id} character={character} side="top">
+              {villageChars.map((character, index) => (
+                <TooltipWrapper 
+                  key={character.instanceId || `${character.id}-${index}`} 
+                  character={character} 
+                  side="top"
+                >
                   <div 
                     className={cn(
                       "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
-                      isAlive(character.id) 
+                      isAlive(character) 
                         ? "border-blue-500/30" 
                         : "border-gray-600/30 grayscale opacity-70",
                       iconSize
@@ -109,12 +118,16 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <div className="team-container">
             <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
             <div className={cn("flex flex-wrap", containerClass)}>
-              {soloChars.map(character => (
-                <TooltipWrapper key={character.id} character={character} side="top">
+              {soloChars.map((character, index) => (
+                <TooltipWrapper 
+                  key={character.instanceId || `${character.id}-${index}`} 
+                  character={character} 
+                  side="top"
+                >
                   <div 
                     className={cn(
                       "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
-                      isAlive(character.id) 
+                      isAlive(character) 
                         ? "border-amber-500/30" 
                         : "border-gray-600/30 grayscale opacity-70",
                       iconSize
@@ -139,8 +152,8 @@ const CharactersList: React.FC<CharactersListProps> = ({
           character={selectedCharacter}
           isOpen={!!selectedCharacter}
           onClose={handleCloseDialog}
-          onKillCharacter={onKillCharacter}
-          isAlive={isAlive(selectedCharacter.id)}
+          onKillCharacter={() => onKillCharacter(selectedCharacter.instanceId || selectedCharacter.id)}
+          isAlive={isAlive(selectedCharacter)}
         />
       )}
     </div>
