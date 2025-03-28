@@ -83,7 +83,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             </Button>
           </div>;
       case 'firstNight':
-        const nightActions = getOrderedCharacterActions(characters, 'night');
+        const nightActions = getOrderedCharacterActions(characters, 'night', true, aliveCharacters);
         return <div>
             <div className="mb-4">
               <AudioButton label="Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
@@ -92,17 +92,19 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
               <ol className="list-decimal list-inside pl-4 space-y-2 px-0">
-                {nightActions.map((char, index) => <li key={index} className="p-2 rounded bg-zinc-950 mx-0 py-[6px] px-[8px]">
+                {nightActions.map((char, index) => (
+                  <li key={index} className="p-2 rounded bg-zinc-950 mx-0 py-[6px] px-[8px]">
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 mt-1">
                         {getCharacterIcon(char.icon)}
                       </div>
                       <div className="display:inline;">
-                        <div className="font-medium">{char.name}:</div>
+                        <div className="font-medium">{char.name} :</div>
                         <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
                       </div>
                     </div>
-                  </li>)}
+                  </li>
+                ))}
               </ol>
             </div>
             <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
@@ -110,7 +112,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             </Button>
           </div>;
       case 'day':
-        const dayActions = getOrderedCharacterActions(characters, 'day');
+        const dayActions = getOrderedCharacterActions(characters, 'day', false, aliveCharacters);
         return <div>
             <div className="mb-4 flex gap-2">
               <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
@@ -127,17 +129,19 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             {dayActions.length > 0 && <div className="mb-4">
                 <h3 className="font-semibold mb-2">Actions spéciales du jour :</h3>
                 <ol className="list-decimal list-inside pl-4 space-y-2">
-                  {dayActions.map((char, index) => <li key={index} className="p-2 rounded bg-gray-950">
+                  {dayActions.map((char, index) => (
+                    <li key={index} className="p-2 rounded bg-gray-950">
                       <div className="flex items-start gap-2">
                         <div className="flex-shrink-0 mt-1">
                           {getCharacterIcon(char.icon)}
                         </div>
                         <div>
-                          <div className="font-medium">{char.name}:</div>
+                          <div className="font-medium">{char.name} :</div>
                           <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
                         </div>
                       </div>
-                    </li>)}
+                    </li>
+                  ))}
                 </ol>
               </div>}
             
@@ -154,7 +158,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             </Button>
           </div>;
       case 'night':
-        const regularNightActions = getOrderedCharacterActions(characters, 'night');
+        const regularNightActions = getOrderedCharacterActions(characters, 'night', false, aliveCharacters);
         return <div>
             <div className="mb-4">
               <AudioButton label="Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
@@ -163,17 +167,19 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
               <ol className="list-decimal list-inside pl-4 space-y-2">
-                {regularNightActions.map((char, index) => <li key={index} className="p-2 rounded bg-zinc-950">
+                {regularNightActions.map((char, index) => (
+                  <li key={index} className="p-2 rounded bg-zinc-950">
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 mt-1">
                         {getCharacterIcon(char.icon)}
                       </div>
                       <div>
-                        <div className="font-medium">{char.name}:</div>
+                        <div className="font-medium">{char.name} :</div>
                         <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
                       </div>
                     </div>
-                  </li>)}
+                  </li>
+                ))}
               </ol>
             </div>
             <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
@@ -207,15 +213,34 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     }
   };
 
-  const getOrderedCharacterActions = (chars: CharacterType[], phase: 'night' | 'day') => {
+  const getOrderedCharacterActions = (
+    chars: CharacterType[], 
+    phase: 'night' | 'day', 
+    isFirstNight: boolean = false,
+    aliveChars: string[] = []
+  ) => {
     const uniqueCharIds = new Set<string>();
     const uniqueChars: CharacterType[] = [];
+    
     chars.forEach(char => {
-      if (!uniqueCharIds.has(char.id) && char.actionPhase === phase) {
-        uniqueCharIds.add(char.id);
-        uniqueChars.push(char);
-      }
+      if (uniqueCharIds.has(char.id)) return;
+      
+      const isAlive = aliveChars.includes(char.instanceId || char.id);
+      if (!isAlive) return;
+      
+      if (char.actionPhase !== phase) return;
+      
+      const isFirstNightOnly = 
+        char.id === 'cupid' || 
+        char.id === 'wild-child' || 
+        char.id === 'defender';
+        
+      if (!isFirstNight && isFirstNightOnly) return;
+      
+      uniqueCharIds.add(char.id);
+      uniqueChars.push(char);
     });
+    
     return uniqueChars.sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
   };
 
