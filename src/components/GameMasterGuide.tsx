@@ -233,7 +233,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       const isFirstNightOnly = 
         char.id === 'cupid' || 
         char.id === 'wild-child' || 
-        char.id === 'defender';
+        char.id === 'thief';
         
       if (!isFirstNight && isFirstNightOnly) return;
       
