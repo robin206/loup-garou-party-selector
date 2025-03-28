@@ -1,3 +1,4 @@
+
 export type CharacterType = {
   id: string;
   name: string;
@@ -22,6 +23,13 @@ export type GameState = {
   aliveCharacters?: string[];
   mayor?: string;
   dayCount?: number;
+  characterLinks?: CharacterLinks; // Added for linked characters
+};
+
+export type CharacterLinks = {
+  cupidLinks: [string, string] | null; // Two characters linked by Cupid
+  wildChildModel: string | null; // Character ID that the Wild Child has chosen as a model
+  linkedCharactersVisible?: boolean; // Whether to show linked characters in the UI
 };
 
 export type ExpansionType = {

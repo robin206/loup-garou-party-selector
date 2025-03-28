@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
-import { GameState, CharacterType, GamePhase } from '@/types';
+import { GameState, CharacterType, GamePhase, CharacterLinks } from '@/types';
 import Header from '@/components/Header';
 import GameMasterGuide from '@/components/GameMasterGuide';
 import SoundSampler from '@/components/SoundSampler';
@@ -20,6 +21,11 @@ const Game = () => {
   const [dayCount, setDayCount] = useState<number>(1);
   const [selectedGameCharacters, setSelectedGameCharacters] = useState<CharacterType[]>([]);
   const [aliveCharacters, setAliveCharacters] = useState<string[]>([]);
+  const [characterLinks, setCharacterLinks] = useState<CharacterLinks>({
+    cupidLinks: null,
+    wildChildModel: null,
+    linkedCharactersVisible: true
+  });
 
   useEffect(() => {
     if (characters && selectedCharacters && selectedCharacters.length > 0) {
@@ -172,10 +178,87 @@ const Game = () => {
       setAliveCharacters(prev => prev.filter(id => id !== characterId));
       const characterName = selectedGameCharacters.find(c => c.instanceId === characterId || c.id === characterId)?.name;
       toast.error(`Le personnage ${characterName} a été éliminé`);
+      
+      // Check if this character was part of a Cupid link
+      if (characterLinks.cupidLinks && characterLinks.cupidLinks.includes(characterId)) {
+        toast.warning(`Un personnage lié par Cupidon est mort!`, {
+          description: "N'oubliez pas que son amoureux doit mourir de chagrin.",
+          duration: 8000,
+        });
+      }
+      
+      // Check if this character was the Wild Child model
+      if (characterLinks.wildChildModel === characterId) {
+        toast.warning(`Le modèle de l'Enfant Sauvage est mort!`, {
+          description: "L'Enfant Sauvage devient un Loup-Garou.",
+          duration: 8000,
+        });
+      }
     } else {
       setAliveCharacters(prev => [...prev, characterId]);
       const characterName = selectedGameCharacters.find(c => c.instanceId === characterId || c.id === characterId)?.name;
       toast.success(`Le personnage ${characterName} a été ressuscité`);
+    }
+  };
+
+  const handleLinkCharacter = (type: 'cupid' | 'wildChild', characterId: string, targetId: string) => {
+    if (type === 'cupid') {
+      if (!targetId) {
+        // Remove Cupid links
+        setCharacterLinks(prev => ({
+          ...prev,
+          cupidLinks: null
+        }));
+        toast.info('Lien amoureux retiré');
+        return;
+      }
+      
+      // If Cupid already has one link, complete the pair
+      if (characterLinks.cupidLinks && characterLinks.cupidLinks.length === 1) {
+        setCharacterLinks(prev => ({
+          ...prev,
+          cupidLinks: [...(prev.cupidLinks || []), targetId] as [string, string]
+        }));
+        
+        const char1 = selectedGameCharacters.find(c => (c.instanceId || c.id) === characterLinks.cupidLinks![0]);
+        const char2 = selectedGameCharacters.find(c => (c.instanceId || c.id) === targetId);
+        
+        if (char1 && char2) {
+          toast.success(`${char1.name} et ${char2.name} sont maintenant amoureux!`);
+        }
+      } else {
+        // Start a new pair with the first lover
+        setCharacterLinks(prev => ({
+          ...prev,
+          cupidLinks: [characterId] as any
+        }));
+        
+        toast.info('Premier amoureux sélectionné, choisissez maintenant le second');
+      }
+    } 
+    
+    if (type === 'wildChild') {
+      if (!targetId) {
+        // Remove Wild Child model
+        setCharacterLinks(prev => ({
+          ...prev,
+          wildChildModel: null
+        }));
+        toast.info('Modèle de l\'Enfant Sauvage retiré');
+        return;
+      }
+      
+      // Set the Wild Child model
+      setCharacterLinks(prev => ({
+        ...prev,
+        wildChildModel: targetId
+      }));
+      
+      const model = selectedGameCharacters.find(c => (c.instanceId || c.id) === targetId);
+      
+      if (model) {
+        toast.success(`${model.name} est maintenant le modèle de l'Enfant Sauvage!`);
+      }
     }
   };
 
@@ -199,6 +282,8 @@ const Game = () => {
                 characters={selectedGameCharacters}
                 aliveCharacters={aliveCharacters}
                 onKillCharacter={handleKillCharacter}
+                characterLinks={characterLinks}
+                onLinkCharacter={handleLinkCharacter}
               />
             </div>
           )}
