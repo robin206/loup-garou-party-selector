@@ -181,18 +181,17 @@ const Game = () => {
       
       // Check if this character was part of a Cupid link
       if (characterLinks.cupidLinks && characterLinks.cupidLinks.includes(characterId)) {
-        toast.warning(`Un personnage lié par Cupidon est mort!`, {
-          description: "N'oubliez pas que son amoureux doit mourir de chagrin.",
-          duration: 8000,
-        });
-      }
-      
-      // Check if this character was the Wild Child model
-      if (characterLinks.wildChildModel === characterId) {
-        toast.warning(`Le modèle de l'Enfant Sauvage est mort!`, {
-          description: "L'Enfant Sauvage devient un Loup-Garou.",
-          duration: 8000,
-        });
+        // Find the other lover
+        const otherLoverId = characterLinks.cupidLinks.find(id => id !== characterId);
+        if (otherLoverId) {
+          const otherLover = selectedGameCharacters.find(c => (c.instanceId || c.id) === otherLoverId);
+          if (otherLover) {
+            toast.warning(`L'amoureux de ${characterName} doit mourir de chagrin!`, {
+              description: `N'oubliez pas d'éliminer ${otherLover.name} aussi.`,
+              duration: 8000,
+            });
+          }
+        }
       }
     } else {
       setAliveCharacters(prev => [...prev, characterId]);
@@ -242,6 +241,29 @@ const Game = () => {
     } 
     
     if (type === 'wildChild') {
+      if (targetId === 'convert-to-werewolf') {
+        // Special case: convert Wild Child to werewolf
+        const wildChild = selectedGameCharacters.find(c => (c.instanceId || c.id) === characterId);
+        
+        if (wildChild) {
+          // Update the Wild Child's team
+          setSelectedGameCharacters(prev => 
+            prev.map(c => 
+              (c.instanceId || c.id) === characterId 
+                ? { ...c, team: 'werewolf' as const } 
+                : c
+            )
+          );
+          
+          toast.warning(`${wildChild.name} est maintenant un Loup-Garou!`, {
+            description: "Son modèle a été tué et il a rejoint le camp des Loups-Garous.",
+            duration: 5000,
+          });
+        }
+        
+        return;
+      }
+      
       if (!targetId) {
         // Remove Wild Child model
         setCharacterLinks(prev => ({
@@ -302,4 +324,3 @@ const Game = () => {
 };
 
 export default Game;
-

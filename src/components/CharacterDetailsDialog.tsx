@@ -75,40 +75,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
   
   const canLinkCharacters = isAlive && (isWildChild || isCupid);
   
-  // Check if this character is linked
-  const isLinkedByCupid = characterLinks?.cupidLinks ? 
-    characterLinks.cupidLinks.includes(character.instanceId || character.id) : false;
-  
-  const isWildChildModel = characterLinks?.wildChildModel === (character.instanceId || character.id);
-  
-  // Get the names of linked characters for display
-  const getLinkedCharacterNames = () => {
-    if (!characterLinks) return [];
-    
-    const names: {type: 'cupid' | 'wildChild', name: string}[] = [];
-    
-    if (isLinkedByCupid && characterLinks.cupidLinks) {
-      // Find the other character in the cupid link
-      const otherCharId = characterLinks.cupidLinks.find(id => id !== (character.instanceId || character.id));
-      if (otherCharId) {
-        const otherChar = gameCharacters.find(c => (c.instanceId || c.id) === otherCharId);
-        if (otherChar) {
-          names.push({ type: 'cupid', name: otherChar.name });
-        }
-      }
-    }
-    
-    if (isWildChildModel) {
-      // Find the Wild Child character
-      const wildChild = gameCharacters.find(c => c.id === 'wild-child');
-      if (wildChild) {
-        names.push({ type: 'wildChild', name: wildChild.name });
-      }
-    }
-    
-    return names;
-  };
-  
+  // Handle link character selection
   const handleLinkCharacter = (targetId: string) => {
     if (!linkSelectionOpen || !onLinkCharacter) return;
     
@@ -116,8 +83,6 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
     setLinkSelectionOpen(null);
     toast.success(`Personnage lié avec succès !`);
   };
-  
-  const linkedCharacters = getLinkedCharacterNames();
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -130,22 +95,10 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                 <Skull className="h-3 w-3" /> Éliminé
               </span>
             )}
-            {isLinkedByCupid && (
-              <span className="text-xs bg-pink-500 text-white px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                <Heart className="h-3 w-3" /> Amoureux
-              </span>
-            )}
-            {isWildChildModel && (
-              <span className="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                <Leaf className="h-3 w-3" /> Modèle
-              </span>
-            )}
           </DialogTitle>
           <DialogDescription>
             <div className="mt-3 flex flex-col items-center">
-              <div className={`w-32 h-32 rounded-full overflow-hidden border-4 ${isAlive ? 'border-werewolf-accent' : 'border-gray-400'} 
-                ${isLinkedByCupid ? 'ring-2 ring-pink-500' : ''} 
-                ${isWildChildModel ? 'ring-2 ring-green-500' : ''}`}>
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-werewolf-accent">
                 <img 
                   src={character.icon} 
                   alt={character.name} 
@@ -165,36 +118,22 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                 <p className="text-sm">{playingTip}</p>
               </div>
               
-              {linkedCharacters.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-pink-500">Liens:</h3>
-                  <ul className="text-sm">
-                    {linkedCharacters.map((link, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        {link.type === 'cupid' ? (
-                          <Heart className="h-3 w-3 text-pink-500" />
-                        ) : (
-                          <Leaf className="h-3 w-3 text-green-500" />
-                        )}
-                        {link.type === 'cupid' ? 'Amoureux avec' : 'Modèle pour'} {link.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
               {linkSelectionOpen && (
                 <div className="mt-3">
                   <h3 className="text-sm font-medium mb-2">
-                    {linkSelectionOpen === 'cupid' ? 'Choisir un amoureux' : 'Choisir un modèle'}
+                    {linkSelectionOpen === 'cupid' ? 'Choisir les amoureux' : 'Choisir un modèle'}
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
                     {gameCharacters
-                      .filter(c => 
-                        (c.instanceId || c.id) !== (character.instanceId || character.id) && 
-                        !((linkSelectionOpen === 'cupid' && characterLinks?.cupidLinks?.includes(c.instanceId || c.id)) ||
-                          (linkSelectionOpen === 'wildChild' && characterLinks?.wildChildModel === (c.instanceId || c.id)))
-                      )
+                      .filter(c => {
+                        // For Wild Child, don't select self
+                        if (linkSelectionOpen === 'wildChild') {
+                          return (c.instanceId || c.id) !== (character.instanceId || character.id);
+                        }
+                        
+                        // For Cupid, include all characters
+                        return true;
+                      })
                       .map(char => (
                         <Button 
                           key={char.instanceId || char.id}
@@ -241,16 +180,17 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                   <Leaf className="mr-2 h-4 w-4 text-green-500" /> Choisir modèle
                 </Button>
               )}
-              {(isLinkedByCupid || isWildChildModel) && (
+              {((isCupid && characterLinks?.cupidLinks) || 
+                (isWildChild && characterLinks?.wildChildModel)) && (
                 <Button 
                   variant="outline" 
                   className="w-full text-red-500"
                   onClick={() => {
                     if (onLinkCharacter) {
-                      if (isLinkedByCupid) {
+                      if (isCupid && characterLinks?.cupidLinks) {
                         onLinkCharacter('cupid', '', '');
                       }
-                      if (isWildChildModel) {
+                      if (isWildChild && characterLinks?.wildChildModel) {
                         onLinkCharacter('wildChild', '', '');
                       }
                     }

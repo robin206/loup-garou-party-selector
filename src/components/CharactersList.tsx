@@ -4,7 +4,7 @@ import { CharacterType, CharacterLinks } from '@/types';
 import TooltipWrapper from './TooltipWrapper';
 import { cn } from '@/lib/utils';
 import CharacterDetailsDialog from './CharacterDetailsDialog';
-import { Users, Heart, Leaf } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CharactersListProps {
@@ -68,7 +68,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
 
   // Check if character is linked by Cupid or is a Wild Child model
   const isLinkedByCupid = (character: CharacterType) => {
-    if (!characterLinks?.cupidLinks) return false;
+    if (!characterLinks?.cupidLinks || !Array.isArray(characterLinks.cupidLinks)) return false;
     return characterLinks.cupidLinks.includes(character.instanceId || character.id);
   };
 
@@ -100,6 +100,13 @@ const CharactersList: React.FC<CharactersListProps> = ({
           toast.warning(`⚠️ N'oubliez pas: ${wildChild.name} devient loup-garou car son modèle est mort !`, {
             duration: 5000,
           });
+          
+          // Move Wild Child to werewolf team
+          if (wildChild && onLinkCharacter) {
+            const wildChildId = wildChild.instanceId || wildChild.id;
+            // Signal that the Wild Child's model was killed
+            onLinkCharacter('wildChild', wildChildId, 'convert-to-werewolf');
+          }
         }
       }
     }
@@ -111,6 +118,21 @@ const CharactersList: React.FC<CharactersListProps> = ({
       handleLinkedCharacterDeath(character);
     }
     onKillCharacter(characterId);
+  };
+
+  // Helper to get the border color for linked characters
+  const getCharacterBorderClass = (character: CharacterType) => {
+    const characterId = character.instanceId || character.id;
+    
+    if (isLinkedByCupid(character)) {
+      return "ring-2 ring-pink-500";
+    }
+    
+    if (isWildChildModel(character)) {
+      return "ring-2 ring-green-500";
+    }
+    
+    return "";
   };
 
   return (
@@ -151,11 +173,12 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
                     isAlive(character) 
                       ? "border-werewolf-blood/30" 
                       : "border-gray-600/30 grayscale opacity-70",
-                    iconSize
+                    iconSize,
+                    getCharacterBorderClass(character)
                   )}
                   onClick={() => handleCharacterClick(character)}
                 >
@@ -164,16 +187,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
                     alt={character.name} 
                     className="w-full h-full object-contain p-1" 
                   />
-                  {isLinkedByCupid(character) && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full flex items-center justify-center">
-                      <Heart className="h-2 w-2 text-white" />
-                    </div>
-                  )}
-                  {isWildChildModel(character) && (
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
-                      <Leaf className="h-2 w-2 text-white" />
-                    </div>
-                  )}
                 </div>
               </TooltipWrapper>
             ))}
@@ -193,11 +206,12 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
                     isAlive(character) 
                       ? "border-blue-500/30" 
                       : "border-gray-600/30 grayscale opacity-70",
-                    iconSize
+                    iconSize,
+                    getCharacterBorderClass(character)
                   )}
                   onClick={() => handleCharacterClick(character)}
                 >
@@ -206,16 +220,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
                     alt={character.name} 
                     className="w-full h-full object-contain p-1" 
                   />
-                  {isLinkedByCupid(character) && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full flex items-center justify-center">
-                      <Heart className="h-2 w-2 text-white" />
-                    </div>
-                  )}
-                  {isWildChildModel(character) && (
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
-                      <Leaf className="h-2 w-2 text-white" />
-                    </div>
-                  )}
                 </div>
               </TooltipWrapper>
             ))}
@@ -235,11 +239,12 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
                     isAlive(character) 
                       ? "border-amber-500/30" 
                       : "border-gray-600/30 grayscale opacity-70",
-                    iconSize
+                    iconSize,
+                    getCharacterBorderClass(character)
                   )}
                   onClick={() => handleCharacterClick(character)}
                 >
@@ -248,16 +253,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
                     alt={character.name} 
                     className="w-full h-full object-contain p-1" 
                   />
-                  {isLinkedByCupid(character) && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full flex items-center justify-center">
-                      <Heart className="h-2 w-2 text-white" />
-                    </div>
-                  )}
-                  {isWildChildModel(character) && (
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
-                      <Leaf className="h-2 w-2 text-white" />
-                    </div>
-                  )}
                 </div>
               </TooltipWrapper>
             ))}
