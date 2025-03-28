@@ -215,12 +215,15 @@ const Game = () => {
       
       // If Cupid already has one link, complete the pair
       if (characterLinks.cupidLinks && characterLinks.cupidLinks.length === 1) {
+        // Fix for error: Create a properly typed tuple with two strings
+        const newLinks: [string, string] = [characterLinks.cupidLinks[0], targetId];
+        
         setCharacterLinks(prev => ({
           ...prev,
-          cupidLinks: [...(prev.cupidLinks || []), targetId] as [string, string]
+          cupidLinks: newLinks
         }));
         
-        const char1 = selectedGameCharacters.find(c => (c.instanceId || c.id) === characterLinks.cupidLinks![0]);
+        const char1 = selectedGameCharacters.find(c => (c.instanceId || c.id) === newLinks[0]);
         const char2 = selectedGameCharacters.find(c => (c.instanceId || c.id) === targetId);
         
         if (char1 && char2) {
@@ -228,9 +231,10 @@ const Game = () => {
         }
       } else {
         // Start a new pair with the first lover
+        // Create a new array with just the first element - this is just the first step
         setCharacterLinks(prev => ({
           ...prev,
-          cupidLinks: [characterId] as any
+          cupidLinks: [characterId] as any // We'll properly type this as [string, string] when we add the second lover
         }));
         
         toast.info('Premier amoureux sélectionné, choisissez maintenant le second');
@@ -298,3 +302,4 @@ const Game = () => {
 };
 
 export default Game;
+

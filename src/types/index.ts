@@ -27,7 +27,7 @@ export type GameState = {
 };
 
 export type CharacterLinks = {
-  cupidLinks: [string, string] | null; // Two characters linked by Cupid
+  cupidLinks: [string, string] | null | string[]; // Allow a transitional state with string[]
   wildChildModel: string | null; // Character ID that the Wild Child has chosen as a model
   linkedCharactersVisible?: boolean; // Whether to show linked characters in the UI
 };
