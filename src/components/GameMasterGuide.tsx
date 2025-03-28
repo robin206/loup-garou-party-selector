@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users } from 'lucide-react';
 import AudioButton from './AudioButton';
 import { useAudio } from '@/hooks/useAudio';
+import Timer from './Timer';
 
 interface GameMasterGuideProps {
   characters: CharacterType[];
@@ -65,6 +66,11 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
               <AudioButton label="Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
             </div>
+            
+            <div className="mb-4">
+              <Timer defaultMinutes={5} />
+            </div>
+            
             <p className="mb-4">1. Demandez à tous les joueurs d'ouvrir les yeux.</p>
             <p className="mb-4">2. Annoncez l'élection du maire :</p>
             <ul className="list-disc list-inside mb-4 pl-4">
@@ -110,6 +116,11 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
               <AudioButton label="Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
             </div>
+            
+            <div className="mb-4">
+              <Timer defaultMinutes={5} />
+            </div>
+            
             <p className="mb-4">1. Annoncez les victimes de la nuit, s'il y en a.</p>
             <p className="mb-4">2. Laissez les joueurs débattre pour trouver les Loups-Garous.</p>
             
