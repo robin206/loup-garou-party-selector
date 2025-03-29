@@ -53,3 +53,12 @@ export type GameAction = {
   phase: GamePhase;
   order: number;
 };
+
+export type GameNotification = {
+  id: string;
+  message: string;
+  type: 'warning' | 'info' | 'error' | 'success';
+  icon?: React.ReactNode;
+  duration?: number; // Time in milliseconds before the notification is automatically removed
+  timestamp: number; // To sort notifications by time
+};

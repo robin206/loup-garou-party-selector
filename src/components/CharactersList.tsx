@@ -4,7 +4,7 @@ import { CharacterType, CharacterLinks } from '@/types';
 import TooltipWrapper from './TooltipWrapper';
 import { cn } from '@/lib/utils';
 import CharacterDetailsDialog from './CharacterDetailsDialog';
-import { Users } from 'lucide-react';
+import { Users, Heart, Leaf } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CharactersListProps {
@@ -49,7 +49,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
   const totalAliveCount = aliveVillageCount + aliveWerewolfCount + aliveSoloCount;
 
   // Increased size for character icons
-  const iconSize = size === 'sm' ? 'w-10 h-10' : 'w-12 h-12';
+  const iconSize = size === 'sm' ? 'w-14 h-14' : 'w-16 h-16';
   const containerClass = size === 'sm' ? 'gap-1' : 'gap-2';
   
   const handleCharacterClick = (character: CharacterType) => {
@@ -123,10 +123,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
 
   // Helper to get the border color for linked characters
   const getCharacterBorderClass = (character: CharacterType) => {
-    if (isLinkedByCupid(character)) {
-      return "ring-4 ring-pink-500";
-    }
-    
     if (isWildChildModel(character) || 
         (character.id === 'wild-child' && characterLinks?.wildChildModel)) {
       return "ring-4 ring-green-500";
@@ -173,7 +169,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
                     isAlive(character) 
                       ? "border-werewolf-blood/30" 
                       : "border-gray-600/30 grayscale opacity-70",
@@ -190,6 +186,11 @@ const CharactersList: React.FC<CharactersListProps> = ({
                       character.id === 'wild-child' && character.team === 'werewolf' && "animate-pulse-subtle"
                     )} 
                   />
+                  {isLinkedByCupid(character) && isAlive(character) && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Heart className="w-8 h-8 text-pink-500 fill-pink-500 opacity-50" />
+                    </div>
+                  )}
                 </div>
               </TooltipWrapper>
             ))}
@@ -209,7 +210,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
                     isAlive(character) 
                       ? "border-blue-500/30" 
                       : "border-gray-600/30 grayscale opacity-70",
@@ -223,6 +224,11 @@ const CharactersList: React.FC<CharactersListProps> = ({
                     alt={character.name} 
                     className="w-full h-full object-contain p-1" 
                   />
+                  {isLinkedByCupid(character) && isAlive(character) && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Heart className="w-8 h-8 text-pink-500 fill-pink-500 opacity-50" />
+                    </div>
+                  )}
                 </div>
               </TooltipWrapper>
             ))}
@@ -242,7 +248,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
                     isAlive(character) 
                       ? "border-amber-500/30" 
                       : "border-gray-600/30 grayscale opacity-70",
@@ -256,6 +262,11 @@ const CharactersList: React.FC<CharactersListProps> = ({
                     alt={character.name} 
                     className="w-full h-full object-contain p-1" 
                   />
+                  {isLinkedByCupid(character) && isAlive(character) && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Heart className="w-8 h-8 text-pink-500 fill-pink-500 opacity-50" />
+                    </div>
+                  )}
                 </div>
               </TooltipWrapper>
             ))}

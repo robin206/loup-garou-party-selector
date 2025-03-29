@@ -1,12 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
-import { GameState, CharacterType, GamePhase, CharacterLinks } from '@/types';
+import { GameState, CharacterType, GamePhase, CharacterLinks, GameNotification } from '@/types';
 import Header from '@/components/Header';
 import GameMasterGuide from '@/components/GameMasterGuide';
 import SoundSampler from '@/components/SoundSampler';
-import CharactersList from '@/components/CharactersList'; 
+import CharactersList from '@/components/CharactersList';
+import GameNotifications from '@/components/GameNotifications';
+import { Heart, Skull, Leaf } from 'lucide-react';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 const Game = () => {
   const location = useLocation();
@@ -26,6 +28,9 @@ const Game = () => {
     wildChildModel: null,
     linkedCharactersVisible: true
   });
+  const [gameNotifications, setGameNotifications] = useState<GameNotification[]>([]);
+
+  const WILD_CHILD_ANIMATION_DURATION = 20000; // 20 seconds
 
   useEffect(() => {
     if (characters && selectedCharacters && selectedCharacters.length > 0) {
@@ -173,23 +178,64 @@ const Game = () => {
     toast.success(`Phase changée: ${newPhase}`);
   };
 
+  const addNotification = (notification: Omit<GameNotification, 'id' | 'timestamp'>) => {
+    const id = uuidv4();
+    const newNotification: GameNotification = {
+      ...notification,
+      id,
+      timestamp: Date.now()
+    };
+
+    setGameNotifications(prev => [...prev, newNotification]);
+
+    if (notification.duration) {
+      setTimeout(() => {
+        dismissNotification(id);
+      }, notification.duration);
+    }
+  };
+
+  const dismissNotification = (id: string) => {
+    setGameNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
   const handleKillCharacter = (characterId: string) => {
     if (aliveCharacters.includes(characterId)) {
       setAliveCharacters(prev => prev.filter(id => id !== characterId));
-      const characterName = selectedGameCharacters.find(c => c.instanceId === characterId || c.id === characterId)?.name;
-      toast.error(`Le personnage ${characterName} a été éliminé`);
+      const character = selectedGameCharacters.find(c => c.instanceId === characterId || c.id === characterId);
       
-      // Check if this character was part of a Cupid link
-      if (characterLinks.cupidLinks && characterLinks.cupidLinks.includes(characterId)) {
-        // Find the other lover
-        const otherLoverId = characterLinks.cupidLinks.find(id => id !== characterId);
-        if (otherLoverId) {
-          const otherLover = selectedGameCharacters.find(c => (c.instanceId || c.id) === otherLoverId);
-          if (otherLover) {
-            toast.warning(`L'amoureux de ${characterName} doit mourir de chagrin!`, {
-              description: `N'oubliez pas d'éliminer ${otherLover.name} aussi.`,
-              duration: 8000,
+      if (character) {
+        toast.error(`Le personnage ${character.name} a été éliminé`);
+        
+        if (characterLinks.cupidLinks && characterLinks.cupidLinks.includes(characterId)) {
+          const otherLoverId = characterLinks.cupidLinks.find(id => id !== characterId);
+          if (otherLoverId) {
+            const otherLover = selectedGameCharacters.find(c => (c.instanceId || c.id) === otherLoverId);
+            if (otherLover) {
+              addNotification({
+                message: `${character.name} était amoureux. ${otherLover.name} doit mourir de chagrin !`,
+                type: 'warning',
+                icon: <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />,
+                duration: 30000
+              });
+            }
+          }
+        }
+        
+        if (characterLinks.wildChildModel === characterId) {
+          const wildChild = selectedGameCharacters.find(c => c.id === 'wild-child');
+          if (wildChild) {
+            addNotification({
+              message: `Le modèle de l'Enfant Sauvage est mort ! L'Enfant Sauvage rejoint maintenant le camp des Loups-Garous.`,
+              type: 'warning',
+              icon: <Leaf className="h-5 w-5 text-green-500" />,
+              duration: WILD_CHILD_ANIMATION_DURATION + 5000
             });
+            
+            if (wildChild && onLinkCharacter) {
+              const wildChildId = wildChild.instanceId || wildChild.id;
+              onLinkCharacter('wildChild', wildChildId, 'convert-to-werewolf');
+            }
           }
         }
       }
@@ -203,7 +249,6 @@ const Game = () => {
   const handleLinkCharacter = (type: 'cupid' | 'wildChild', characterId: string, targetId: string) => {
     if (type === 'cupid') {
       if (!targetId) {
-        // Remove Cupid links
         setCharacterLinks(prev => ({
           ...prev,
           cupidLinks: []
@@ -212,7 +257,6 @@ const Game = () => {
         return;
       }
       
-      // If Cupid already has complete links (2 lovers), reset and start over
       if (characterLinks.cupidLinks && characterLinks.cupidLinks.length === 2) {
         setCharacterLinks(prev => ({
           ...prev,
@@ -223,9 +267,7 @@ const Game = () => {
         return;
       }
       
-      // If Cupid already has one link, complete the pair
       if (characterLinks.cupidLinks && characterLinks.cupidLinks.length === 1) {
-        // Check if trying to select the same character twice
         if (characterLinks.cupidLinks[0] === targetId) {
           toast.error('Vous ne pouvez pas sélectionner le même personnage deux fois');
           return;
@@ -243,9 +285,15 @@ const Game = () => {
         
         if (char1 && char2) {
           toast.success(`${char1.name} et ${char2.name} sont maintenant amoureux!`);
+          
+          addNotification({
+            message: `${char1.name} et ${char2.name} sont maintenant amoureux ! Si l'un d'eux meurt, l'autre mourra de chagrin.`,
+            type: 'info',
+            icon: <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />,
+            duration: 15000
+          });
         }
       } else {
-        // Start a new pair with the first lover
         setCharacterLinks(prev => ({
           ...prev,
           cupidLinks: [targetId]
@@ -257,22 +305,24 @@ const Game = () => {
     
     if (type === 'wildChild') {
       if (targetId === 'convert-to-werewolf') {
-        // Special case: convert Wild Child to werewolf
         const wildChild = selectedGameCharacters.find(c => (c.instanceId || c.id) === characterId);
         
         if (wildChild) {
-          // Update the Wild Child's team with animation effect
           setSelectedGameCharacters(prev => 
             prev.map(c => 
               (c.instanceId || c.id) === characterId 
-                ? { ...c, team: 'werewolf' as const } 
+                ? { 
+                    ...c, 
+                    team: 'werewolf' as const,
+                    className: 'animate-wild-child-transformation'
+                  } 
                 : c
             )
           );
           
           toast.warning(`${wildChild.name} est maintenant un Loup-Garou!`, {
             description: "Son modèle a été tué et il a rejoint le camp des Loups-Garous.",
-            duration: 5000,
+            duration: WILD_CHILD_ANIMATION_DURATION,
           });
         }
         
@@ -280,7 +330,6 @@ const Game = () => {
       }
       
       if (!targetId) {
-        // Remove Wild Child model
         setCharacterLinks(prev => ({
           ...prev,
           wildChildModel: null
@@ -289,7 +338,6 @@ const Game = () => {
         return;
       }
       
-      // Set the Wild Child model
       setCharacterLinks(prev => ({
         ...prev,
         wildChildModel: targetId
@@ -299,6 +347,13 @@ const Game = () => {
       
       if (model) {
         toast.success(`${model.name} est maintenant le modèle de l'Enfant Sauvage!`);
+        
+        addNotification({
+          message: `${model.name} est le modèle de l'Enfant Sauvage. Si le modèle meurt, l'Enfant Sauvage deviendra un Loup-Garou.`,
+          type: 'info',
+          icon: <Leaf className="h-5 w-5 text-green-500" />,
+          duration: 15000
+        });
       }
     }
   };
@@ -325,6 +380,11 @@ const Game = () => {
                 onKillCharacter={handleKillCharacter}
                 characterLinks={characterLinks}
                 onLinkCharacter={handleLinkCharacter}
+              />
+              
+              <GameNotifications 
+                notifications={gameNotifications} 
+                onDismiss={dismissNotification} 
               />
             </div>
           )}

@@ -11,9 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { 
   Skull, 
-  Heart, 
-  Unlink, 
-  Leaf
+  Leaf, 
+  Unlink 
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -124,7 +123,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                     {gameCharacters
                       .filter(c => {
                         if (linkSelectionOpen === 'wildChild') {
-                          return (c.instanceId || c.id) !== (character.instanceId || character.id);
+                          return (c.instanceId || c.id) !== (character.instanceId || c.id);
                         }
                         return true;
                       })
@@ -161,7 +160,11 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                   onClick={() => setLinkSelectionOpen('cupid')}
                   disabled={characterLinks?.cupidLinks?.length === 2}
                 >
-                  <Heart className="mr-2 h-4 w-4 text-pink-500" /> Lier amoureux
+                  <img 
+                    src="/img/perso_amoureux.svg" 
+                    alt="Amoureux" 
+                    className="mr-2 h-4 w-4 text-pink-500" 
+                  /> Lier amoureux
                 </Button>
               )}
               {isWildChild && (
