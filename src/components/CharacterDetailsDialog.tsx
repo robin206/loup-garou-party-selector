@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CharacterType, CharacterLinks } from '@/types';
 import { 
@@ -14,8 +13,7 @@ import {
   Skull, 
   Heart, 
   Unlink, 
-  Leaf, 
-  Link as LinkIcon
+  Leaf
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -75,7 +73,6 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
   
   const canLinkCharacters = isAlive && (isWildChild || isCupid);
   
-  // Handle link character selection
   const handleLinkCharacter = (targetId: string) => {
     if (!linkSelectionOpen || !onLinkCharacter) return;
     
@@ -126,12 +123,9 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                   <div className="grid grid-cols-2 gap-2">
                     {gameCharacters
                       .filter(c => {
-                        // For Wild Child, don't select self
                         if (linkSelectionOpen === 'wildChild') {
                           return (c.instanceId || c.id) !== (character.instanceId || character.id);
                         }
-                        
-                        // For Cupid, include all characters
                         return true;
                       })
                       .map(char => (
@@ -165,7 +159,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                   variant="outline" 
                   className="w-full"
                   onClick={() => setLinkSelectionOpen('cupid')}
-                  disabled={characterLinks?.cupidLinks !== null && characterLinks?.cupidLinks !== undefined}
+                  disabled={characterLinks?.cupidLinks?.length === 2}
                 >
                   <Heart className="mr-2 h-4 w-4 text-pink-500" /> Lier amoureux
                 </Button>
@@ -180,7 +174,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                   <Leaf className="mr-2 h-4 w-4 text-green-500" /> Choisir modèle
                 </Button>
               )}
-              {((isCupid && characterLinks?.cupidLinks) || 
+              {((isCupid && characterLinks?.cupidLinks?.length) || 
                 (isWildChild && characterLinks?.wildChildModel)) && (
                 <Button 
                   variant="outline" 

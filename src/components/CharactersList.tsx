@@ -48,7 +48,8 @@ const CharactersList: React.FC<CharactersListProps> = ({
   
   const totalAliveCount = aliveVillageCount + aliveWerewolfCount + aliveSoloCount;
 
-  const iconSize = size === 'sm' ? 'w-8 h-8' : 'w-10 h-10';
+  // Increased size for character icons
+  const iconSize = size === 'sm' ? 'w-10 h-10' : 'w-12 h-12';
   const containerClass = size === 'sm' ? 'gap-1' : 'gap-2';
   
   const handleCharacterClick = (character: CharacterType) => {
@@ -122,14 +123,13 @@ const CharactersList: React.FC<CharactersListProps> = ({
 
   // Helper to get the border color for linked characters
   const getCharacterBorderClass = (character: CharacterType) => {
-    const characterId = character.instanceId || character.id;
-    
     if (isLinkedByCupid(character)) {
-      return "ring-2 ring-pink-500";
+      return "ring-4 ring-pink-500";
     }
     
-    if (isWildChildModel(character)) {
-      return "ring-2 ring-green-500";
+    if (isWildChildModel(character) || 
+        (character.id === 'wild-child' && characterLinks?.wildChildModel)) {
+      return "ring-4 ring-green-500";
     }
     
     return "";
@@ -185,7 +185,10 @@ const CharactersList: React.FC<CharactersListProps> = ({
                   <img 
                     src={character.icon} 
                     alt={character.name} 
-                    className="w-full h-full object-contain p-1" 
+                    className={cn(
+                      "w-full h-full object-contain p-1",
+                      character.id === 'wild-child' && character.team === 'werewolf' && "animate-pulse-subtle"
+                    )} 
                   />
                 </div>
               </TooltipWrapper>

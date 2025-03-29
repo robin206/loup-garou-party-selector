@@ -22,7 +22,7 @@ const Game = () => {
   const [selectedGameCharacters, setSelectedGameCharacters] = useState<CharacterType[]>([]);
   const [aliveCharacters, setAliveCharacters] = useState<string[]>([]);
   const [characterLinks, setCharacterLinks] = useState<CharacterLinks>({
-    cupidLinks: null,
+    cupidLinks: [],
     wildChildModel: null,
     linkedCharactersVisible: true
   });
@@ -206,16 +206,32 @@ const Game = () => {
         // Remove Cupid links
         setCharacterLinks(prev => ({
           ...prev,
-          cupidLinks: null
+          cupidLinks: []
         }));
         toast.info('Lien amoureux retiré');
         return;
       }
       
+      // If Cupid already has complete links (2 lovers), reset and start over
+      if (characterLinks.cupidLinks && characterLinks.cupidLinks.length === 2) {
+        setCharacterLinks(prev => ({
+          ...prev,
+          cupidLinks: [targetId]
+        }));
+        
+        toast.info('Nouvelle sélection d\'amoureux commencée');
+        return;
+      }
+      
       // If Cupid already has one link, complete the pair
       if (characterLinks.cupidLinks && characterLinks.cupidLinks.length === 1) {
-        // Fix for error: Create a properly typed tuple with two strings
-        const newLinks: [string, string] = [characterLinks.cupidLinks[0], targetId];
+        // Check if trying to select the same character twice
+        if (characterLinks.cupidLinks[0] === targetId) {
+          toast.error('Vous ne pouvez pas sélectionner le même personnage deux fois');
+          return;
+        }
+        
+        const newLinks = [characterLinks.cupidLinks[0], targetId];
         
         setCharacterLinks(prev => ({
           ...prev,
@@ -230,10 +246,9 @@ const Game = () => {
         }
       } else {
         // Start a new pair with the first lover
-        // Create a new array with just the first element - this is just the first step
         setCharacterLinks(prev => ({
           ...prev,
-          cupidLinks: [characterId] as any // We'll properly type this as [string, string] when we add the second lover
+          cupidLinks: [targetId]
         }));
         
         toast.info('Premier amoureux sélectionné, choisissez maintenant le second');
@@ -246,7 +261,7 @@ const Game = () => {
         const wildChild = selectedGameCharacters.find(c => (c.instanceId || c.id) === characterId);
         
         if (wildChild) {
-          // Update the Wild Child's team
+          // Update the Wild Child's team with animation effect
           setSelectedGameCharacters(prev => 
             prev.map(c => 
               (c.instanceId || c.id) === characterId 
