@@ -56,20 +56,20 @@ const GameNotifications: React.FC<GameNotificationsProps> = ({ notifications, on
               {getIconForType(notification.type, notification.icon)}
             </span>
             <div>
-              <AlertTitle className="text-sm">
+              <AlertTitle className="text-sm text-black font-semibold">
                 {notification.type === 'warning' && 'Attention'}
                 {notification.type === 'error' && 'Erreur'}
                 {notification.type === 'success' && 'Succès'}
                 {notification.type === 'info' && 'Information'}
               </AlertTitle>
-              <AlertDescription className="text-sm">
+              <AlertDescription className="text-sm text-black">
                 {notification.message}
               </AlertDescription>
             </div>
           </div>
           <button 
             onClick={() => onDismiss(notification.id)} 
-            className="text-gray-500 hover:text-gray-700"
+            className="text-black hover:text-gray-700"
           >
             ×
           </button>

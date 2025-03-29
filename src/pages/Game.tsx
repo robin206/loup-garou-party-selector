@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { GameState, CharacterType, GamePhase, CharacterLinks, GameNotification } from '@/types';
@@ -188,7 +189,11 @@ const Game = () => {
 
     setGameNotifications(prev => [...prev, newNotification]);
 
-    if (notification.duration) {
+    // We now only set timeouts for automatic dismissal if duration is specified
+    // and it's not a critical notification (lover death or wild child transformation)
+    if (notification.duration && 
+        !notification.message.includes('amoureux') && 
+        !notification.message.includes('Enfant Sauvage')) {
       setTimeout(() => {
         dismissNotification(id);
       }, notification.duration);
@@ -215,8 +220,7 @@ const Game = () => {
               addNotification({
                 message: `${character.name} était amoureux. ${otherLover.name} doit mourir de chagrin !`,
                 type: 'warning',
-                icon: <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />,
-                duration: 30000
+                icon: <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
               });
             }
           }
@@ -228,13 +232,12 @@ const Game = () => {
             addNotification({
               message: `Le modèle de l'Enfant Sauvage est mort ! L'Enfant Sauvage rejoint maintenant le camp des Loups-Garous.`,
               type: 'warning',
-              icon: <Leaf className="h-5 w-5 text-green-500" />,
-              duration: WILD_CHILD_ANIMATION_DURATION + 5000
+              icon: <Leaf className="h-5 w-5 text-green-500" />
             });
             
-            if (wildChild && onLinkCharacter) {
+            if (wildChild) {
               const wildChildId = wildChild.instanceId || wildChild.id;
-              onLinkCharacter('wildChild', wildChildId, 'convert-to-werewolf');
+              handleLinkCharacter('wildChild', wildChildId, 'convert-to-werewolf');
             }
           }
         }
