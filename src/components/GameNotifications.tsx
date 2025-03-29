@@ -18,13 +18,13 @@ const GameNotifications: React.FC<GameNotificationsProps> = ({ notifications, on
     
     switch (type) {
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+        return <AlertTriangle className="h-5 w-5 text-amber-950" />;
       case 'error':
         return <AlertTriangle className="h-5 w-5 text-red-500" />;
       case 'success':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
       default:
-        return <InfoIcon className="h-5 w-5 text-blue-500" />;
+        return <InfoIcon className="h-5 w-5 text-blue-950" />;
     }
   };
 
