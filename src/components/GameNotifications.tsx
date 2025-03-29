@@ -18,7 +18,7 @@ const GameNotifications: React.FC<GameNotificationsProps> = ({ notifications, on
     
     switch (type) {
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-amber-950" />;
+        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
       case 'error':
         return <AlertTriangle className="h-5 w-5 text-red-500" />;
       case 'success':
@@ -31,13 +31,13 @@ const GameNotifications: React.FC<GameNotificationsProps> = ({ notifications, on
   const getAlertClass = (type: GameNotification['type']) => {
     switch (type) {
       case 'warning':
-        return 'border-amber-500/30 bg-amber-500/10';
+        return 'border-amber-500/30 bg-amber-500/70';
       case 'error':
-        return 'border-red-500/30 bg-red-500/10';
+        return 'border-red-500/30 bg-red-500/70';
       case 'success':
-        return 'border-green-500/30 bg-green-500/10';
+        return 'border-green-500/30 bg-green-500/70';
       default:
-        return 'border-blue-500/30 bg-blue-500/10';
+        return 'border-blue-500/30 bg-blue-500/70';
     }
   };
 
