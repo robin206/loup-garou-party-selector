@@ -188,7 +188,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
                   />
                   {isLinkedByCupid(character) && isAlive(character) && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-8 h-8 text-pink-500 fill-pink-500 opacity-30" />
+                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>
                   )}
                 </div>
