@@ -173,7 +173,6 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   return (
     <div className={`${className} w-full bg-black border-t border-werewolf-accent/30 p-4 flex items-center justify-center gap-4 backdrop-blur-lg bg-opacity-70`}>
       <div className="text-white text-sm font-medium mr-2 flex items-center">
-        Effets sonores:
         {offlineMode && (
           <span className="ml-2 text-xs bg-yellow-600 text-white px-2 py-0.5 rounded-full">
             Mode hors ligne
@@ -218,16 +217,6 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
           <span className="text-xs text-gray-300">Tonnerre</span>
         </button>
       </div>
-
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        onClick={toggleMute} 
-        className="text-white hover:bg-gray-800"
-        title={muted ? "Activer le son" : "Couper le son"}
-      >
-        {muted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
-      </Button>
     </div>
   );
 };
