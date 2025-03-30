@@ -1,139 +1,95 @@
 
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CharacterType, GameState } from '../types';
-import { allCharacters } from '../data/characters';
-import CharacterSelection from '../components/CharacterSelection';
-import SelectedCharactersList from '../components/SelectedCharactersList';
-import NumberInput from '../components/NumberInput';
-import Button from '../components/Button';
-import Card from '../components/Card';
-import { getRecommendedCharacters } from '../utils/gameUtils';
+import React from 'react';
+import { useGameSetup } from '@/hooks/useGameSetup';
+import Header from '@/components/Header';
+import { GameSetup } from '@/components/GameSetup';
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import StartGameButton from '@/components/game-setup/StartGameButton';
+import SelectionStats from '@/components/game-setup/SelectionStats';
+import SelectionToolbar from '@/components/game-setup/SelectionToolbar';
+import ExpansionSelector from '@/components/game-setup/ExpansionSelector';
 
-const Setup: React.FC = () => {
+const Setup = () => {
   const navigate = useNavigate();
-  const [gameState, setGameState] = useState<GameState>(() => {
-    const savedState = localStorage.getItem('werewolf-game');
-    if (savedState) {
-      return JSON.parse(savedState);
-    }
-    return {
-      players: 8,
-      characters: allCharacters,
-      selectedCharacters: [],
-    };
-  });
+  const { 
+    selectedCharacters,
+    selectedExpansion,
+    viewMode,
+    expansionPacks,
+    filteredCharacters,
+    teamCounts,
+    selectedCharactersCount,
+    getSelectedCharacterCount,
+    handleCharacterToggle,
+    handleIncreaseCharacter,
+    handleDecreaseCharacter,
+    handleExpansionChange,
+    resetSelection,
+    toggleViewMode,
+    handleStartGame,
+    hasActiveGame,
+    handleContinueGame
+  } = useGameSetup();
 
-  useEffect(() => {
-    localStorage.setItem('werewolf-game', JSON.stringify(gameState));
-  }, [gameState]);
-
-  const handlePlayersChange = (players: number) => {
-    setGameState(prev => ({ ...prev, players }));
-  };
-
-  const handleCharacterSelect = (character: CharacterType) => {
-    setGameState(prev => ({
-      ...prev,
-      selectedCharacters: [...prev.selectedCharacters, character.id],
-    }));
-  };
-
-  const handleCharacterRemove = (characterId: string) => {
-    const index = gameState.selectedCharacters.lastIndexOf(characterId);
-    if (index !== -1) {
-      setGameState(prev => ({
-        ...prev,
-        selectedCharacters: [
-          ...prev.selectedCharacters.slice(0, index),
-          ...prev.selectedCharacters.slice(index + 1),
-        ],
-      }));
-    }
-  };
-
-  const selectRecommendedCharacters = () => {
-    const recommended = getRecommendedCharacters(gameState.players);
-    setGameState(prev => ({
-      ...prev,
-      selectedCharacters: recommended.map(c => c.id),
-    }));
-  };
-
-  const startGame = () => {
-    if (gameState.selectedCharacters.length < gameState.players) {
-      alert(`Il faut sélectionner au moins ${gameState.players} personnages pour commencer la partie.`);
-      return;
-    }
-    
-    if (gameState.selectedCharacters.length > gameState.players) {
-      alert(`Vous avez sélectionné ${gameState.selectedCharacters.length} personnages, mais il n'y a que ${gameState.players} joueurs.`);
-      return;
-    }
-    
-    navigate('/distribution');
-  };
-
-  const clearSelectedCharacters = () => {
-    setGameState(prev => ({
-      ...prev,
-      selectedCharacters: [],
-    }));
+  const handleBack = () => {
+    navigate('/');
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
-      <Card title="Configuration de la partie">
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-xl font-bold mb-4">Nombre de joueurs</h2>
-            <NumberInput
-              value={gameState.players}
-              onChange={handlePlayersChange}
-              min={3}
-              max={40}
-              className="w-full sm:w-1/2 lg:w-1/3"
-            />
-          </div>
-          
-          <div className="flex flex-wrap gap-4">
-            <Button onClick={selectRecommendedCharacters}>
-              Sélection recommandée
-            </Button>
-            <Button onClick={clearSelectedCharacters} variant="secondary">
-              Réinitialiser
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <h2 className="text-xl font-bold mb-4">Sélection des personnages</h2>
-              <CharacterSelection
-                selectedCharacters={gameState.selectedCharacters}
-                onCharacterSelect={handleCharacterSelect}
-                onCharacterRemove={handleCharacterRemove}
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
+      <Header />
+      
+      <main className="w-full max-w-4xl mx-auto pt-24 pb-24 px-4 flex flex-col">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-semibold">Sélection des cartes</h1>
+          <Button variant="outline" onClick={handleBack} size="sm">
+            Retour
+          </Button>
+        </div>
+        
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="w-full lg:w-3/4">
+              <ExpansionSelector 
+                expansions={expansionPacks}
+                selectedExpansion={selectedExpansion}
+                onExpansionChange={handleExpansionChange}
+              />
+              
+              <GameSetup 
+                characters={filteredCharacters}
+                onCharacterToggle={handleCharacterToggle}
+                onCharacterIncrease={handleIncreaseCharacter}
+                onCharacterDecrease={handleDecreaseCharacter}
+                getSelectedCount={getSelectedCharacterCount}
+                viewMode={viewMode}
               />
             </div>
             
-            <div>
-              <SelectedCharactersList
-                selectedCharacters={gameState.selectedCharacters}
-                onRemoveCharacter={handleCharacterRemove}
+            <div className="w-full lg:w-1/4 space-y-6">
+              <SelectionStats 
+                selectedCount={selectedCharactersCount}
+                teamCounts={teamCounts}
               />
               
-              <div className="mt-6">
-                <Button
-                  onClick={startGame}
-                  disabled={gameState.selectedCharacters.length !== gameState.players}
-                  fullWidth
-                >
-                  Commencer la partie
-                </Button>
-              </div>
+              <SelectionToolbar 
+                viewMode={viewMode}
+                onToggleViewMode={toggleViewMode}
+                onResetSelection={resetSelection}
+              />
+              
+              <StartGameButton 
+                onStartGame={handleStartGame}
+                playersCount={selectedCharactersCount}
+                disabled={selectedCharactersCount < 3}
+                hasActiveGame={hasActiveGame}
+                onContinueGame={handleContinueGame}
+              />
             </div>
           </div>
         </div>
-      </Card>
+      </main>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 export type CharacterType = {
   id: string;
   name: string;
@@ -14,6 +13,7 @@ export type CharacterType = {
   actionDescription?: string;
   instanceId?: string; // Added for multiple instances of the same character
   playerName?: string; // Added for associating player names with characters
+  className?: string; // For special animations or styling
 };
 
 export type GameState = {
@@ -26,6 +26,7 @@ export type GameState = {
   dayCount?: number;
   characterLinks?: CharacterLinks; // Added for linked characters
   showPlayerNames?: boolean; // To control visibility of player names
+  gameCharacters?: CharacterType[]; // Added to store full expanded characters with player names
 };
 
 export type CharacterLinks = {

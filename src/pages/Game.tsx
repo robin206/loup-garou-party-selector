@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
+import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { GameState, CharacterType, GamePhase, CharacterLinks, GameNotification } from '@/types';
 import Header from '@/components/Header';
 import GameMasterGuide from '@/components/GameMasterGuide';
@@ -10,63 +10,97 @@ import { Heart, Skull, Leaf, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useAudio } from '@/hooks/useAudio';
+import { Button } from '@/components/ui/button';
+
+const GAME_STATE_STORAGE_KEY = 'werewolf-game-current-state';
 
 const Game = () => {
   const location = useLocation();
-  const gameState = location.state as GameState;
+  const navigate = useNavigate();
   const { playHunterWarning } = useAudio();
   
-  if (!gameState) {
+  const initialGameState = location.state as GameState || JSON.parse(localStorage.getItem(GAME_STATE_STORAGE_KEY) || 'null');
+  
+  if (!initialGameState) {
     return <Navigate to="/" replace />;
   }
 
-  const { players, characters, selectedCharacters } = gameState;
-  const [gamePhase, setGamePhase] = useState<GamePhase>('setup');
-  const [dayCount, setDayCount] = useState<number>(1);
+  const { players, characters, selectedCharacters } = initialGameState;
+  const [gamePhase, setGamePhase] = useState<GamePhase>(initialGameState.currentPhase || 'setup');
+  const [dayCount, setDayCount] = useState<number>(initialGameState.dayCount || 1);
   const [selectedGameCharacters, setSelectedGameCharacters] = useState<CharacterType[]>([]);
-  const [aliveCharacters, setAliveCharacters] = useState<string[]>([]);
-  const [characterLinks, setCharacterLinks] = useState<CharacterLinks>({
+  const [aliveCharacters, setAliveCharacters] = useState<string[]>(initialGameState.aliveCharacters || []);
+  const [characterLinks, setCharacterLinks] = useState<CharacterLinks>(initialGameState.characterLinks || {
     cupidLinks: [],
     wildChildModel: null,
     linkedCharactersVisible: true
   });
   const [gameNotifications, setGameNotifications] = useState<GameNotification[]>([]);
-  const [showPlayerNames, setShowPlayerNames] = useState<boolean>(false);
+  const [showPlayerNames, setShowPlayerNames] = useState<boolean>(initialGameState.showPlayerNames || false);
 
   const WILD_CHILD_ANIMATION_DURATION = 20000; // 20 seconds
 
   useEffect(() => {
     if (characters && selectedCharacters && selectedCharacters.length > 0) {
-      const characterCounts: Record<string, number> = {};
-      selectedCharacters.forEach(charId => {
-        characterCounts[charId] = (characterCounts[charId] || 0) + 1;
-      });
-      
-      const expandedCharacters: CharacterType[] = [];
-      
-      Object.entries(characterCounts).forEach(([charId, count]) => {
-        const character = characters.find(c => c.id === charId);
-        if (!character) return;
+      if (initialGameState && initialGameState.gameCharacters) {
+        setSelectedGameCharacters(initialGameState.gameCharacters);
         
-        const updatedCharacter = createCharacterWithActions(character);
-        
-        for (let i = 0; i < count; i++) {
-          const instanceId = count > 1 ? `${charId}-${i+1}` : charId;
-          expandedCharacters.push({
-            ...updatedCharacter,
-            instanceId
-          });
+        if (!initialGameState.aliveCharacters) {
+          const aliveIds = initialGameState.gameCharacters.map(char => char.instanceId || char.id);
+          setAliveCharacters(aliveIds);
         }
-      });
-      
-      setSelectedGameCharacters(expandedCharacters);
-      
-      const aliveIds = expandedCharacters.map(char => char.instanceId || char.id);
-      setAliveCharacters(aliveIds);
-      
-      toast.success(`${players} joueurs prêts à jouer avec ${selectedCharacters.length} rôles!`);
+        
+        toast.success(`Partie restaurée avec ${players} joueurs et ${selectedCharacters.length} rôles!`);
+      } else {
+        const characterCounts: Record<string, number> = {};
+        selectedCharacters.forEach(charId => {
+          characterCounts[charId] = (characterCounts[charId] || 0) + 1;
+        });
+        
+        const expandedCharacters: CharacterType[] = [];
+        
+        Object.entries(characterCounts).forEach(([charId, count]) => {
+          const character = characters.find(c => c.id === charId);
+          if (!character) return;
+          
+          const updatedCharacter = createCharacterWithActions(character);
+          
+          for (let i = 0; i < count; i++) {
+            const instanceId = count > 1 ? `${charId}-${i+1}` : charId;
+            expandedCharacters.push({
+              ...updatedCharacter,
+              instanceId
+            });
+          }
+        });
+        
+        setSelectedGameCharacters(expandedCharacters);
+        
+        const aliveIds = expandedCharacters.map(char => char.instanceId || char.id);
+        setAliveCharacters(aliveIds);
+        
+        toast.success(`${players} joueurs prêts à jouer avec ${selectedCharacters.length} rôles!`);
+      }
     }
-  }, [characters, selectedCharacters, players]);
+  }, [characters, selectedCharacters, players, initialGameState]);
+
+  useEffect(() => {
+    if (selectedGameCharacters.length > 0) {
+      const currentGameState: GameState = {
+        players,
+        characters,
+        selectedCharacters,
+        currentPhase: gamePhase,
+        dayCount,
+        aliveCharacters,
+        characterLinks,
+        showPlayerNames,
+        gameCharacters: selectedGameCharacters
+      };
+      
+      localStorage.setItem(GAME_STATE_STORAGE_KEY, JSON.stringify(currentGameState));
+    }
+  }, [gamePhase, dayCount, aliveCharacters, characterLinks, showPlayerNames, selectedGameCharacters, players, characters, selectedCharacters]);
 
   const createCharacterWithActions = (char: CharacterType): CharacterType => {
     if (char.id === 'werewolf') {
@@ -387,6 +421,12 @@ const Game = () => {
   const togglePlayerNames = () => {
     setShowPlayerNames(prev => !prev);
   };
+  
+  const handleEndGame = () => {
+    localStorage.removeItem(GAME_STATE_STORAGE_KEY);
+    toast.success("Partie terminée et sauvegarde effacée");
+    navigate("/", { replace: true });
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
@@ -419,6 +459,18 @@ const Game = () => {
                 notifications={gameNotifications} 
                 onDismiss={dismissNotification} 
               />
+              
+              <div className="mt-10 flex justify-center">
+                <Button
+                  variant="destructive"
+                  size="lg"
+                  onClick={handleEndGame}
+                  className="w-full"
+                >
+                  <Skull className="mr-2 h-5 w-5" />
+                  Terminer la partie
+                </Button>
+              </div>
             </div>
           )}
         </div>

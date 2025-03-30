@@ -6,6 +6,7 @@ import { allCharacters, getExpansions } from '@/data/characters';
 import { toast } from 'sonner';
 
 const STORAGE_KEY = 'werewolf-game-selection';
+const GAME_STATE_STORAGE_KEY = 'werewolf-game-current-state';
 
 // Expansion packs data
 const expansionPacks: ExpansionType[] = [{
@@ -25,8 +26,14 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
   const [selectedExpansion, setSelectedExpansion] = useState<string>('all');
   const [characterCounts, setCharacterCounts] = useState<Record<string, number>>({});
   const [viewMode, setViewMode] = useState<'detailed' | 'simple'>('detailed');
+  const [hasActiveGame, setHasActiveGame] = useState<boolean>(false);
 
   useEffect(() => {
+    // Check if there's an active game
+    const activeGame = localStorage.getItem(GAME_STATE_STORAGE_KEY);
+    setHasActiveGame(!!activeGame);
+
+    // Load saved selection
     const savedSelection = localStorage.getItem(STORAGE_KEY);
     if (savedSelection) {
       try {
@@ -169,6 +176,24 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
     });
   };
 
+  const handleContinueGame = () => {
+    try {
+      const gameState = JSON.parse(localStorage.getItem(GAME_STATE_STORAGE_KEY) || '{}');
+      if (gameState && gameState.players) {
+        toast.success("Reprise de la partie en cours...");
+        navigate('/game', { state: gameState });
+      } else {
+        toast.error("Impossible de reprendre la partie");
+        localStorage.removeItem(GAME_STATE_STORAGE_KEY);
+        setHasActiveGame(false);
+      }
+    } catch (e) {
+      toast.error("Erreur lors de la reprise de la partie");
+      localStorage.removeItem(GAME_STATE_STORAGE_KEY);
+      setHasActiveGame(false);
+    }
+  };
+
   const teamCounts = {
     werewolf: countCharactersByTeam('werewolf'),
     village: countCharactersByTeam('village'),
@@ -190,6 +215,8 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
     handleExpansionChange,
     resetSelection,
     toggleViewMode,
-    handleStartGame
+    handleStartGame,
+    hasActiveGame,
+    handleContinueGame
   };
 };
