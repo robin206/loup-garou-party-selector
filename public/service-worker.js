@@ -7,9 +7,11 @@ const RESOURCES_TO_CACHE = [
   '/',
   '/index.html',
   '/favicon.ico',
+  '/manifest.json',
   
   // JavaScript et CSS principaux
-  '/src/main.tsx',
+  '/assets/index-*.js', // Pattern pour les fichiers JS générés
+  '/assets/index-*.css', // Pattern pour les fichiers CSS générés
   
   // Images
   '/img/sampler_loup.svg',
@@ -84,18 +86,23 @@ const RESOURCES_TO_CACHE = [
 
 // Installation du service worker et mise en cache des ressources
 self.addEventListener('install', (event) => {
+  // Priorité: forcer le remplacement immédiat du précédent service worker
+  self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Cache ouvert');
+        console.log('Cache ouvert et préchargement des ressources');
         return cache.addAll(RESOURCES_TO_CACHE);
       })
-      .then(() => self.skipWaiting())
   );
 });
 
 // Activation du service worker et nettoyage des anciens caches
 self.addEventListener('activate', (event) => {
+  // Priorité: prendre le contrôle de toutes les pages clientes immédiatement
+  event.waitUntil(self.clients.claim());
+  
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -108,46 +115,67 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
-  self.clients.claim();
 });
 
-// Stratégie de cache "Cache First" avec fallback sur le réseau
+// Stratégie de cache "Cache First, Network Fallback" pour le offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Si la ressource est dans le cache, on la retourne
+        // Si la ressource est dans le cache, on la retourne immédiatement
         if (response) {
           return response;
         }
 
-        // Sinon, on fait la requête réseau
-        return fetch(event.request)
-          .then((response) => {
-            // Si la réponse n'est pas valide, on retourne la réponse telle quelle
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+        // Sinon, on essaie de la récupérer depuis le réseau
+        return fetch(event.request.clone())
+          .then((networkResponse) => {
+            // Pas de mise en cache si la réponse n'est pas valide
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
             }
 
-            // On clone la réponse car elle ne peut être utilisée qu'une fois
-            const responseToCache = response.clone();
-
-            // On met en cache la nouvelle ressource
+            // Mise en cache de la nouvelle ressource récupérée
+            const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME)
               .then((cache) => {
                 cache.put(event.request, responseToCache);
+                console.log('Ressource mise en cache:', event.request.url);
               });
 
-            return response;
+            return networkResponse;
           })
-          .catch(() => {
-            // En cas d'erreur réseau, si c'est une image, on retourne une image par défaut
+          .catch((error) => {
+            // En mode offline avec une ressource non mise en cache
+            console.error('Erreur de récupération:', error);
+            
+            // Si c'est une image, retourner une image par défaut
             if (event.request.url.match(/\.(jpg|jpeg|png|gif|svg)$/i)) {
               return caches.match('/placeholder.svg');
             }
             
-            return new Response('Erreur de connexion - Mode hors ligne');
+            // Pour les autres types, retourner un message d'erreur
+            return new Response('Application en mode hors ligne - Ressource non disponible', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({
+                'Content-Type': 'text/plain'
+              })
+            });
           });
       })
   );
 });
+
+// Log les erreurs non interceptées
+self.addEventListener('error', function(event) {
+  console.error('Service Worker error:', event.message);
+});
+
+// Gestion des messages
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+

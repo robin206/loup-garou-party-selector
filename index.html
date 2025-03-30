@@ -20,6 +20,12 @@
     <!-- Ajout du manifeste pour PWA -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#333333" />
+    
+    <!-- Apple PWA specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Loup Garou">
+    <link rel="apple-touch-icon" href="/img/favicon.ico">
   </head>
 
   <body>
@@ -28,17 +34,36 @@
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Script d'enregistrement du Service Worker -->
+    <!-- Script d'enregistrement du Service Worker amélioré -->
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-              console.log('Service Worker enregistré avec succès:', registration.scope);
-            })
-            .catch(error => {
-              console.log('Échec de l\'enregistrement du Service Worker:', error);
+        window.addEventListener('load', async () => {
+          try {
+            const registration = await navigator.serviceWorker.register('/service-worker.js');
+            console.log('Service Worker enregistré avec succès:', registration.scope);
+            
+            // Vérifier si une mise à jour est disponible
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('Nouvelle version disponible! Veuillez rafraîchir la page.');
+                }
+              });
             });
+            
+          } catch (error) {
+            console.error('Échec de l\'enregistrement du Service Worker:', error);
+          }
+        });
+        
+        // Gestion des mises à jour
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
         });
       }
     </script>
