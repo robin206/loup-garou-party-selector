@@ -13,6 +13,7 @@ export type CharacterType = {
   actionOrder?: number;
   actionDescription?: string;
   instanceId?: string; // Added for multiple instances of the same character
+  playerName?: string; // Added for associating player names with characters
 };
 
 export type GameState = {
@@ -24,6 +25,7 @@ export type GameState = {
   mayor?: string;
   dayCount?: number;
   characterLinks?: CharacterLinks; // Added for linked characters
+  showPlayerNames?: boolean; // To control visibility of player names
 };
 
 export type CharacterLinks = {

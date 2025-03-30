@@ -96,6 +96,15 @@ export function useAudio() {
     }
   }, []);
   
+  const playHunterWarning = useCallback(() => {
+    try {
+      // On utilise le son du loup comme alerte pour le Chasseur
+      audioService.playSampleSound('sampler_loup.ogg');
+    } catch (error) {
+      console.error('Erreur lors de la lecture de l\'alerte du Chasseur:', error);
+    }
+  }, []);
+  
   return {
     isAudioReady,
     playDayMusic,
@@ -104,6 +113,7 @@ export function useAudio() {
     stopMusic,
     getAvailableAudios,
     getAmbianceAudios,
-    playSampleSound
+    playSampleSound,
+    playHunterWarning
   };
 }

@@ -4,8 +4,9 @@ import { CharacterType, CharacterLinks } from '@/types';
 import TooltipWrapper from './TooltipWrapper';
 import { cn } from '@/lib/utils';
 import CharacterDetailsDialog from './CharacterDetailsDialog';
-import { Users, Heart, Leaf } from 'lucide-react';
+import { Users, Heart, Leaf, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 interface CharactersListProps {
   characters: CharacterType[];
@@ -15,6 +16,9 @@ interface CharactersListProps {
   onKillCharacter: (id: string) => void;
   characterLinks?: CharacterLinks;
   onLinkCharacter?: (type: 'cupid' | 'wildChild', characterId: string, targetId: string) => void;
+  onPlayerNameChange?: (characterId: string, name: string) => void;
+  showPlayerNames?: boolean;
+  onTogglePlayerNames?: () => void;
 }
 
 const CharactersList: React.FC<CharactersListProps> = ({ 
@@ -24,7 +28,10 @@ const CharactersList: React.FC<CharactersListProps> = ({
   aliveCharacters = [],
   onKillCharacter,
   characterLinks,
-  onLinkCharacter
+  onLinkCharacter,
+  onPlayerNameChange,
+  showPlayerNames = false,
+  onTogglePlayerNames
 }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterType | null>(null);
   
@@ -110,6 +117,13 @@ const CharactersList: React.FC<CharactersListProps> = ({
           }
         }
       }
+      
+      // Check if hunter was killed
+      if (character.id === 'hunter') {
+        toast.warning(`⚠️ Attention: Le Chasseur est mort ! Il doit immédiatement désigner quelqu'un à éliminer avec lui !`, {
+          duration: 5000,
+        });
+      }
     }
   };
 
@@ -131,14 +145,47 @@ const CharactersList: React.FC<CharactersListProps> = ({
     return "";
   };
 
+  // Render player name under character icon if showPlayerNames is true
+  const renderPlayerName = (character: CharacterType) => {
+    if (!showPlayerNames || !character.playerName) return null;
+    
+    return (
+      <div className="absolute -bottom-4 left-0 right-0 text-center">
+        <span className="text-xs font-medium bg-black/60 text-white px-1 py-0.5 rounded">
+          {character.playerName}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className={cn("glass-card p-2 rounded-xl", className)}>
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-xs font-semibold text-gray-400">Personnages en jeu</h3>
-        <div className="flex items-center text-xs bg-zinc-900/60 px-2 py-1 rounded-full">
-          <Users className="h-3 w-3 mr-1 text-werewolf-accent" />
-          <span className="font-medium">{totalAliveCount}</span>
-          <span className="text-gray-400 mx-1">joueurs vivants</span>
+        <div className="flex items-center gap-2">
+          {onTogglePlayerNames && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2 flex items-center gap-1 bg-zinc-900/60 hover:bg-zinc-800"
+              onClick={onTogglePlayerNames}
+              title={showPlayerNames ? "Masquer les prénoms" : "Afficher les prénoms"}
+            >
+              {showPlayerNames ? (
+                <EyeOff className="h-3 w-3 text-gray-300" />
+              ) : (
+                <Eye className="h-3 w-3 text-gray-300" />
+              )}
+              <span className="text-xs text-gray-300">
+                {showPlayerNames ? "Masquer" : "Prénoms"}
+              </span>
+            </Button>
+          )}
+          <div className="flex items-center text-xs bg-zinc-900/60 px-2 py-1 rounded-full">
+            <Users className="h-3 w-3 mr-1 text-werewolf-accent" />
+            <span className="font-medium">{totalAliveCount}</span>
+            <span className="text-gray-400 mx-1">joueurs vivants</span>
+          </div>
         </div>
       </div>
       
@@ -191,6 +238,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>
                   )}
+                  {renderPlayerName(character)}
                 </div>
               </TooltipWrapper>
             ))}
@@ -229,6 +277,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>
                   )}
+                  {renderPlayerName(character)}
                 </div>
               </TooltipWrapper>
             ))}
@@ -267,6 +316,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>
                   )}
+                  {renderPlayerName(character)}
                 </div>
               </TooltipWrapper>
             ))}
@@ -284,6 +334,8 @@ const CharactersList: React.FC<CharactersListProps> = ({
           gameCharacters={characters}
           characterLinks={characterLinks}
           onLinkCharacter={onLinkCharacter}
+          playerName={selectedCharacter.playerName}
+          onPlayerNameChange={onPlayerNameChange}
         />
       )}
     </div>

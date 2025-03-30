@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { GameState, CharacterType, GamePhase, CharacterLinks, GameNotification } from '@/types';
@@ -7,13 +6,15 @@ import GameMasterGuide from '@/components/GameMasterGuide';
 import SoundSampler from '@/components/SoundSampler';
 import CharactersList from '@/components/CharactersList';
 import GameNotifications from '@/components/GameNotifications';
-import { Heart, Skull, Leaf } from 'lucide-react';
+import { Heart, Skull, Leaf, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
+import { useAudio } from '@/hooks/useAudio';
 
 const Game = () => {
   const location = useLocation();
   const gameState = location.state as GameState;
+  const { playHunterWarning } = useAudio();
   
   if (!gameState) {
     return <Navigate to="/" replace />;
@@ -30,6 +31,7 @@ const Game = () => {
     linkedCharactersVisible: true
   });
   const [gameNotifications, setGameNotifications] = useState<GameNotification[]>([]);
+  const [showPlayerNames, setShowPlayerNames] = useState<boolean>(false);
 
   const WILD_CHILD_ANIMATION_DURATION = 20000; // 20 seconds
 
@@ -189,11 +191,10 @@ const Game = () => {
 
     setGameNotifications(prev => [...prev, newNotification]);
 
-    // We now only set timeouts for automatic dismissal if duration is specified
-    // and it's not a critical notification (lover death or wild child transformation)
     if (notification.duration && 
         !notification.message.includes('amoureux') && 
-        !notification.message.includes('Enfant Sauvage')) {
+        !notification.message.includes('Enfant Sauvage') &&
+        !notification.message.includes('Chasseur')) {
       setTimeout(() => {
         dismissNotification(id);
       }, notification.duration);
@@ -240,6 +241,16 @@ const Game = () => {
               handleLinkCharacter('wildChild', wildChildId, 'convert-to-werewolf');
             }
           }
+        }
+        
+        if (character.id === 'hunter') {
+          addNotification({
+            message: `Le Chasseur (${character.playerName || character.name}) est mort ! Il doit immédiatement désigner un joueur qui mourra avec lui.`,
+            type: 'warning',
+            icon: <Target className="h-5 w-5 text-red-500" />
+          });
+          
+          playHunterWarning();
         }
       }
     } else {
@@ -360,6 +371,22 @@ const Game = () => {
       }
     }
   };
+  
+  const handlePlayerNameChange = (characterId: string, name: string) => {
+    setSelectedGameCharacters(prev => 
+      prev.map(char => 
+        (char.instanceId || char.id) === characterId 
+          ? { ...char, playerName: name } 
+          : char
+      )
+    );
+    
+    toast.success(`Prénom "${name}" associé au personnage`);
+  };
+  
+  const togglePlayerNames = () => {
+    setShowPlayerNames(prev => !prev);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
@@ -383,6 +410,9 @@ const Game = () => {
                 onKillCharacter={handleKillCharacter}
                 characterLinks={characterLinks}
                 onLinkCharacter={handleLinkCharacter}
+                onPlayerNameChange={handlePlayerNameChange}
+                showPlayerNames={showPlayerNames}
+                onTogglePlayerNames={togglePlayerNames}
               />
               
               <GameNotifications 
