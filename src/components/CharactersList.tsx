@@ -147,12 +147,12 @@ const CharactersList: React.FC<CharactersListProps> = ({
 
   // Render player name under character icon if showPlayerNames is true
   const renderPlayerName = (character: CharacterType) => {
-    if (!showPlayerNames || !character.playerName) return null;
+    if (!showPlayerNames) return null;
     
     return (
-      <div className="absolute -bottom-4 left-0 right-0 text-center">
-        <span className="text-xs font-medium bg-black/60 text-white px-1 py-0.5 rounded">
-          {character.playerName}
+      <div className="absolute -bottom-6 left-0 right-0 text-center">
+        <span className="text-xs font-medium bg-black/60 text-white px-1 py-0.5 rounded truncate max-w-[54px] inline-block">
+          {character.playerName || ""}
         </span>
       </div>
     );
@@ -205,7 +205,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
       </div>
         
       {werewolfChars.length > 0 && (
-        <div className="team-container">
+        <div className="team-container mb-6">
           <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {werewolfChars.map((character, index) => (
@@ -216,7 +216,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
                     isAlive(character) 
                       ? "border-werewolf-blood/30" 
                       : "border-gray-600/30 grayscale opacity-70",
@@ -247,7 +247,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
       )}
       
       {villageChars.length > 0 && (
-        <div className="team-container">
+        <div className="team-container mb-6">
           <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {villageChars.map((character, index) => (
@@ -258,7 +258,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
                     isAlive(character) 
                       ? "border-blue-500/30" 
                       : "border-gray-600/30 grayscale opacity-70",
@@ -286,7 +286,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
       )}
       
       {soloChars.length > 0 && (
-        <div className="team-container">
+        <div className="team-container mb-6">
           <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {soloChars.map((character, index) => (
@@ -297,7 +297,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative",
+                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
                     isAlive(character) 
                       ? "border-amber-500/30" 
                       : "border-gray-600/30 grayscale opacity-70",
