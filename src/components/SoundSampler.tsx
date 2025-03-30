@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAudio } from '@/hooks/useAudio';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX } from 'lucide-react';
@@ -13,6 +13,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   const [muted, setMuted] = React.useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
+  const audioPreloadedRef = useRef<boolean>(false);
   
   // Vérifier l'état de la connexion
   useEffect(() => {
@@ -34,6 +35,69 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
     };
   }, []);
   
+  // Précharger les sons au montage du composant
+  useEffect(() => {
+    const preloadAudioFiles = async () => {
+      if (audioPreloadedRef.current) return;
+      
+      try {
+        // Précharger les échantillons sonores
+        const audioPaths = [
+          '/audio/sampler/sampler_loup.ogg',
+          '/audio/sampler/sampler_ours.ogg',
+          '/audio/sampler/sampler_clocher.ogg',
+          '/audio/sampler/sampler_tonnerre.ogg'
+        ];
+        
+        // Créer les éléments audio mais sans les ajouter au DOM
+        const audioPromises = audioPaths.map(path => {
+          return new Promise<void>((resolve, reject) => {
+            const audio = new Audio();
+            audio.preload = 'auto';
+            
+            audio.oncanplaythrough = () => {
+              resolve();
+            };
+            
+            audio.onerror = (error) => {
+              console.error(`Impossible de précharger ${path}:`, error);
+              // Résoudre quand même pour ne pas bloquer les autres
+              resolve();
+            };
+            
+            // Essayer de charger le son depuis le cache d'abord
+            if ('caches' in window) {
+              caches.match(path)
+                .then(response => {
+                  if (response) {
+                    return response.blob();
+                  }
+                  return fetch(path).then(res => res.blob());
+                })
+                .then(blob => {
+                  audio.src = URL.createObjectURL(blob);
+                })
+                .catch(err => {
+                  console.warn(`Fallback pour ${path}:`, err);
+                  audio.src = path;
+                });
+            } else {
+              audio.src = path;
+            }
+          });
+        });
+        
+        await Promise.all(audioPromises);
+        audioPreloadedRef.current = true;
+        console.log('Tous les échantillons audio ont été préchargés');
+      } catch (error) {
+        console.error('Erreur lors du préchargement des échantillons audio:', error);
+      }
+    };
+    
+    preloadAudioFiles();
+  }, []);
+  
   // Précharger les images SVG lors du montage du composant
   useEffect(() => {
     const imagePaths = [
@@ -46,13 +110,39 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
     const preloadImages = async () => {
       const promises = imagePaths.map(path => {
         return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => resolve(path);
-          img.onerror = (error) => {
-            console.error(`Impossible de charger ${path}:`, error);
-            reject(`Impossible de charger ${path}`);
-          };
-          img.src = path;
+          // Vérifier d'abord si l'image est dans le cache
+          if ('caches' in window) {
+            caches.match(path)
+              .then(response => {
+                if (response) {
+                  return response.blob();
+                }
+                return fetch(path).then(res => res.blob());
+              })
+              .then(blob => {
+                const img = new Image();
+                img.onload = () => resolve(path);
+                img.onerror = () => {
+                  console.error(`Impossible de charger ${path}`);
+                  reject(`Impossible de charger ${path}`);
+                };
+                img.src = URL.createObjectURL(blob);
+              })
+              .catch(error => {
+                console.error(`Fallback pour ${path}:`, error);
+                // Essayer avec le chemin direct comme fallback
+                const img = new Image();
+                img.onload = () => resolve(path);
+                img.onerror = () => reject(`Impossible de charger ${path}`);
+                img.src = path;
+              });
+          } else {
+            // Fallback si l'API Cache n'est pas disponible
+            const img = new Image();
+            img.onload = () => resolve(path);
+            img.onerror = () => reject(`Impossible de charger ${path}`);
+            img.src = path;
+          }
         });
       });
       

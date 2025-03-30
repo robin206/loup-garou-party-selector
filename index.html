@@ -4,18 +4,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>loup-garou-party-selector</title>
-    <meta name="description" content="Lovable Generated Project" />
+    <title>Loup Garou de Thiercelieux</title>
+    <meta name="description" content="Application pour le jeu du Loup Garou de Thiercelieux" />
     <meta name="author" content="Lovable" />
 
-    <meta property="og:title" content="Lovable Generated Project" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <meta property="og:title" content="Loup Garou de Thiercelieux" />
+    <meta property="og:description" content="Application pour le jeu du Loup Garou de Thiercelieux" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:image" content="/img/launch/android-icon-192x192.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:image" content="/img/launch/android-icon-192x192.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/launch/android-icon-48x48.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/launch/android-icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/launch/android-icon-96x96.png">
     
     <!-- Ajout du manifeste pour PWA -->
     <link rel="manifest" href="/manifest.json" />
@@ -25,7 +30,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Loup Garou">
-    <link rel="apple-touch-icon" href="/img/favicon.ico">
+    <link rel="apple-touch-icon" href="/img/launch/android-icon-192x192.png">
+    <link rel="apple-touch-startup-image" href="/img/launch/startup.png">
   </head>
 
   <body>
@@ -39,7 +45,10 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const registration = await navigator.serviceWorker.register('/service-worker.js');
+            const registration = await navigator.serviceWorker.register('/service-worker.js', {
+              scope: '/',
+              updateViaCache: 'none' // Ne pas utiliser le cache du navigateur pour les mises à jour
+            });
             console.log('Service Worker enregistré avec succès:', registration.scope);
             
             // Vérifier si une mise à jour est disponible
@@ -48,6 +57,10 @@
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                   console.log('Nouvelle version disponible! Veuillez rafraîchir la page.');
+                  // Afficher une notification à l'utilisateur
+                  if (window.showUpdateNotification) {
+                    window.showUpdateNotification();
+                  }
                 }
               });
             });
@@ -65,6 +78,22 @@
             window.location.reload();
           }
         });
+      }
+    </script>
+
+    <!-- Vérification du mode hors ligne -->
+    <script>
+      window.addEventListener('online', () => {
+        document.body.classList.remove('offline-mode');
+      });
+      
+      window.addEventListener('offline', () => {
+        document.body.classList.add('offline-mode');
+      });
+      
+      // Ajouter une classe au body si l'application est déjà hors ligne au chargement
+      if (!navigator.onLine) {
+        document.body.classList.add('offline-mode');
       }
     </script>
   </body>
