@@ -2,7 +2,7 @@
 import React from 'react';
 import { useGameSetup } from '@/hooks/useGameSetup';
 import Header from '@/components/Header';
-import { GameSetup } from '@/components/GameSetup';
+import GameSetup from '@/components/GameSetup';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import StartGameButton from '@/components/game-setup/StartGameButton';
@@ -52,7 +52,7 @@ const Setup = () => {
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="w-full lg:w-3/4">
               <ExpansionSelector 
-                expansions={expansionPacks}
+                expansionPacks={expansionPacks}
                 selectedExpansion={selectedExpansion}
                 onExpansionChange={handleExpansionChange}
               />
@@ -69,7 +69,7 @@ const Setup = () => {
             
             <div className="w-full lg:w-1/4 space-y-6">
               <SelectionStats 
-                selectedCount={selectedCharactersCount}
+                selectedCharactersCount={selectedCharactersCount}
                 teamCounts={teamCounts}
               />
               

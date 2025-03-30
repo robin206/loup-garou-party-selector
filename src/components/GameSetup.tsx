@@ -28,7 +28,9 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
     handleExpansionChange,
     resetSelection,
     toggleViewMode,
-    handleStartGame
+    handleStartGame,
+    hasActiveGame,
+    handleContinueGame
   } = useGameSetup(onStartGame);
 
   return (
@@ -68,7 +70,13 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
         />
       </section>
 
-      <StartGameButton onClick={handleStartGame} />
+      <StartGameButton 
+        onStartGame={handleStartGame}
+        playersCount={selectedCharactersCount}
+        disabled={selectedCharactersCount < 3}
+        hasActiveGame={hasActiveGame}
+        onContinueGame={handleContinueGame}
+      />
     </div>
   );
 };
