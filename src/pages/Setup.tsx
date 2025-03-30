@@ -57,14 +57,7 @@ const Setup = () => {
                 onExpansionChange={handleExpansionChange}
               />
               
-              <GameSetup 
-                characters={filteredCharacters}
-                onCharacterToggle={handleCharacterToggle}
-                onCharacterIncrease={handleIncreaseCharacter}
-                onCharacterDecrease={handleDecreaseCharacter}
-                getSelectedCount={getSelectedCharacterCount}
-                viewMode={viewMode}
-              />
+              <GameSetup onStartGame={handleStartGame} />
             </div>
             
             <div className="w-full lg:w-1/4 space-y-6">
