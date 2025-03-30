@@ -46,7 +46,8 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
           '/audio/sampler/sampler_loup.ogg',
           '/audio/sampler/sampler_ours.ogg',
           '/audio/sampler/sampler_clocher.ogg',
-          '/audio/sampler/sampler_tonnerre.ogg'
+          '/audio/sampler/sampler_tonnerre.ogg',
+          '/audio/sampler/sampler_hunter.ogg'  // Added hunter sound
         ];
         
         // Créer les éléments audio mais sans les ajouter au DOM

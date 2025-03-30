@@ -94,7 +94,13 @@ class AudioService {
       
       try {
         const audioFiles = this.getAvailableAudioFiles();
-        const samplerSounds = ['sampler_loup.ogg', 'sampler_ours.ogg', 'sampler_clocher.ogg', 'sampler_tonnerre.ogg'];
+        const samplerSounds = [
+          'sampler_loup.ogg', 
+          'sampler_ours.ogg', 
+          'sampler_clocher.ogg', 
+          'sampler_tonnerre.ogg',
+          'sampler_hunter.ogg'  // Added hunter sound
+        ];
         let loadedCount = 0;
         const totalFiles = audioFiles.length + samplerSounds.length;
         
