@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAudio } from '@/hooks/useAudio';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX } from 'lucide-react';
@@ -11,6 +11,39 @@ interface SoundSamplerProps {
 const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   const { playSampleSound, stopMusic } = useAudio();
   const [muted, setMuted] = React.useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  
+  // Précharger les images SVG lors du montage du composant
+  useEffect(() => {
+    const imagePaths = [
+      '/img/sampler_loup.svg',
+      '/img/sampler_ours.svg', 
+      '/img/sampler_clocher.svg',
+      '/img/sampler_tonnerre.svg'
+    ];
+    
+    const preloadImages = async () => {
+      const promises = imagePaths.map(path => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(path);
+          img.onerror = () => reject(`Impossible de charger ${path}`);
+          img.src = path;
+        });
+      });
+      
+      try {
+        await Promise.all(promises);
+        setImagesLoaded(true);
+      } catch (error) {
+        console.error('Erreur lors du préchargement des images:', error);
+        // En cas d'erreur, on considère quand même que les images sont chargées pour éviter de bloquer l'interface
+        setImagesLoaded(true);
+      }
+    };
+    
+    preloadImages();
+  }, []);
 
   const handlePlaySound = (soundName: string) => {
     if (!muted) {

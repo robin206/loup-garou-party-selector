@@ -6,6 +6,11 @@ class AudioService {
   private fadeInterval: number | null = null;
   private volume: number = 0.7;
   
+  // Musiques par défaut
+  private defaultDayMusic = 'ambiance_cobblevillage.webm';
+  private defaultNightMusic = 'ambiance_defautnuit.webm';
+  private defaultVoteMusic = 'ambiance_clear-haken.webm';
+  
   /**
    * Joue un fichier audio avec un fondu si une autre piste est déjà en cours
    */
@@ -48,6 +53,27 @@ class AudioService {
         }
       });
     }
+  }
+  
+  /**
+   * Précharge tous les fichiers audio dans le cache
+   */
+  public preloadAudioFiles(): void {
+    const audioFiles = this.getAvailableAudioFiles();
+    audioFiles.forEach(file => {
+      const audio = new Audio(`/audio/${file}`);
+      audio.preload = 'auto';
+      // Déclenche le chargement sans jouer
+      audio.load();
+    });
+    
+    // Préchargement des sons du sampler
+    const samplerSounds = ['sampler_loup.ogg', 'sampler_ours.ogg', 'sampler_clocher.ogg', 'sampler_tonnerre.ogg'];
+    samplerSounds.forEach(sound => {
+      const audio = new Audio(`/audio/sampler/${sound}`);
+      audio.preload = 'auto';
+      audio.load();
+    });
   }
   
   /**
@@ -152,6 +178,27 @@ class AudioService {
     if (this.currentAudio) {
       this.currentAudio.volume = this.volume;
     }
+  }
+  
+  /**
+   * Obtient la musique par défaut pour le jour
+   */
+  public getDefaultDayMusic(): string {
+    return this.defaultDayMusic;
+  }
+  
+  /**
+   * Obtient la musique par défaut pour la nuit
+   */
+  public getDefaultNightMusic(): string {
+    return this.defaultNightMusic;
+  }
+  
+  /**
+   * Obtient la musique par défaut pour le vote
+   */
+  public getDefaultVoteMusic(): string {
+    return this.defaultVoteMusic;
   }
   
   /**

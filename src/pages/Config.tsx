@@ -17,9 +17,9 @@ const Config = () => {
   const navigate = useNavigate();
   const gameState = location.state as GameState;
   
-  const [dayMusic, setDayMusic] = useState<string>('jour.webm');
-  const [nightMusic, setNightMusic] = useState<string>('nuit.webm');
-  const [voteMusic, setVoteMusic] = useState<string>('vote.webm');
+  const [dayMusic, setDayMusic] = useState<string>(audioService.getDefaultDayMusic());
+  const [nightMusic, setNightMusic] = useState<string>(audioService.getDefaultNightMusic());
+  const [voteMusic, setVoteMusic] = useState<string>(audioService.getDefaultVoteMusic());
   const [volume, setVolume] = useState<number>(70);
   const { getAmbianceAudios, playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
   
@@ -240,7 +240,7 @@ const Config = () => {
 
           <div className="pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Déposez vos fichiers audio dans le dossier <code>/public/audio/</code></span>
+              <span className="text-sm text-gray-500">Mode hors ligne activé : les sons et images sont mis en cache</span>
               <Button 
                 variant="outline" 
                 size="sm" 
