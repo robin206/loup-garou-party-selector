@@ -150,7 +150,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
     if (!showPlayerNames) return null;
     
     return (
-      <div className="absolute left-0 right-0 text-center">
+      <div className="absolute bottom-0 left-0 right-0 text-center">
         <span className="text-xs font-medium bg-black/60 text-white px-1 py-0.5 rounded truncate max-w-[54px] inline-block">
           {character.playerName || ""}
         </span>
