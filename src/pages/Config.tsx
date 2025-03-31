@@ -36,7 +36,19 @@ const Config = () => {
   });
   
   const handleBackToGame = () => {
-    if (gameState) {
+    // Try to load game state from localStorage
+    const savedGameState = localStorage.getItem('werewolf-game-current-state');
+    
+    if (savedGameState) {
+      try {
+        const parsedGameState = JSON.parse(savedGameState);
+        toast.success("Retour à la partie en cours...");
+        navigate('/game', { state: parsedGameState });
+      } catch (e) {
+        console.error("Error parsing saved game state:", e);
+        navigate('/');
+      }
+    } else if (gameState) {
       navigate('/game', { state: gameState });
     } else {
       navigate('/');
@@ -99,7 +111,7 @@ const Config = () => {
             onClick={handleBackToGame}
           >
             <ArrowLeft className="h-4 w-4" />
-            {gameState ? "Retour au jeu" : "Retour"}
+            Retour au jeu
           </Button>
         </div>
         

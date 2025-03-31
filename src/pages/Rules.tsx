@@ -5,6 +5,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { GameState } from '@/types';
+import { toast } from 'sonner';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const Rules = () => {
   const location = useLocation();
@@ -18,6 +20,68 @@ const Rules = () => {
       .then(response => response.text())
       .then(html => {
         setRulesContent(html);
+        
+        // Process the HTML to modify image display after content is loaded
+        setTimeout(() => {
+          // Make summary images display as avatars
+          const summaryLinks = document.querySelectorAll('.rules-content ul li a');
+          summaryLinks.forEach(link => {
+            const img = link.querySelector('img');
+            if (img) {
+              const imgSrc = img.getAttribute('src');
+              const imgAlt = img.getAttribute('alt') || 'Character';
+              
+              // Create avatar container
+              const avatarContainer = document.createElement('div');
+              avatarContainer.className = 'flex items-center gap-2';
+              
+              // Create avatar element
+              const avatar = document.createElement('div');
+              avatar.className = 'rounded-full overflow-hidden w-10 h-10 flex-shrink-0';
+              
+              // Set the image inside the avatar
+              const newImg = document.createElement('img');
+              newImg.src = imgSrc || '';
+              newImg.alt = imgAlt;
+              newImg.className = 'w-full h-full object-cover';
+              
+              avatar.appendChild(newImg);
+              
+              // Create text span
+              const textSpan = document.createElement('span');
+              textSpan.textContent = link.textContent || '';
+              
+              // Replace link content
+              link.innerHTML = '';
+              avatarContainer.appendChild(avatar);
+              avatarContainer.appendChild(textSpan);
+              link.appendChild(avatarContainer);
+              link.classList.add('flex', 'items-center');
+            }
+          });
+          
+          // Make content images smaller and float left
+          const contentImages = document.querySelectorAll('.rules-content h3 ~ p img');
+          contentImages.forEach(img => {
+            const imgElement = img as HTMLImageElement;
+            imgElement.style.float = 'left';
+            imgElement.style.width = '80px';
+            imgElement.style.height = 'auto';
+            imgElement.style.marginRight = '15px';
+            imgElement.style.marginBottom = '10px';
+          });
+          
+          // Make the summary images display in a flex row
+          const summaryUl = document.querySelector('.rules-content > ul');
+          if (summaryUl) {
+            summaryUl.className = 'flex flex-wrap gap-3 mb-6';
+            
+            const summaryItems = summaryUl.querySelectorAll('li');
+            summaryItems.forEach(item => {
+              item.className = 'flex-shrink-0';
+            });
+          }
+        }, 100);
       })
       .catch(error => {
         console.error('Error fetching rules content:', error);
@@ -25,7 +89,19 @@ const Rules = () => {
   }, []);
   
   const handleBackToGame = () => {
-    if (gameState) {
+    // Try to load game state from localStorage
+    const savedGameState = localStorage.getItem('werewolf-game-current-state');
+    
+    if (savedGameState) {
+      try {
+        const parsedGameState = JSON.parse(savedGameState);
+        toast.success("Retour à la partie en cours...");
+        navigate('/game', { state: parsedGameState });
+      } catch (e) {
+        console.error("Error parsing saved game state:", e);
+        navigate('/');
+      }
+    } else if (gameState) {
       navigate('/game', { state: gameState });
     } else {
       navigate('/');
@@ -45,7 +121,7 @@ const Rules = () => {
             onClick={handleBackToGame}
           >
             <ArrowLeft className="h-4 w-4" />
-            {gameState ? "Retour au jeu" : "Retour"}
+            Retour au jeu
           </Button>
         </div>
         

@@ -10,6 +10,9 @@ interface ButtonProps {
   disabled?: boolean;
   fullWidth?: boolean;
   className?: string;
+  type?: "button" | "submit" | "reset";
+  size?: "default" | "sm" | "lg" | "icon";
+  title?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -19,12 +22,18 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   fullWidth = false,
   className = '',
+  type = 'button',
+  size = 'default',
+  title,
 }) => {
   return (
     <ShadcnButton
       onClick={onClick}
       variant={variant}
       disabled={disabled}
+      type={type}
+      size={size}
+      title={title}
       className={cn(
         fullWidth && 'w-full',
         className
