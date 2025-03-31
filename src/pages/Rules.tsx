@@ -73,12 +73,52 @@ const Rules = () => {
                 <span>Villageois</span>
               </a>
               
-              <a href="#villageoises" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+              <a href="#voyante" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_villageoises.svg" alt="Villageoises" />
+                  <AvatarImage src="/img/perso_voyante.svg" alt="Voyante" />
+                  <AvatarFallback>V</AvatarFallback>
+                </Avatar>
+                <span>Voyante</span>
+              </a>
+
+              <a href="#sorciere" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/img/perso_sorciere.svg" alt="Sorcière" />
+                  <AvatarFallback>V</AvatarFallback>
+                </Avatar>
+                <span>Sorcière</span>
+              </a>
+
+              <a href="#cupidon" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/img/perso_cupidon.svg" alt="Cupidon" />
+                  <AvatarFallback>V</AvatarFallback>
+                </Avatar>
+                <span>Cupidon</span>
+              </a>
+
+              <a href="#chasseur" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/img/perso_chasseur.svg" alt="Chasseur" />
+                  <AvatarFallback>V</AvatarFallback>
+                </Avatar>
+                <span>Chasseur</span>
+              </a>
+
+              <a href="#fille" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/img/perso_fille.svg" alt="Petite fille" />
+                  <AvatarFallback>V</AvatarFallback>
+                </Avatar>
+                <span>Petite fille</span>
+              </a>
+
+              <a href="#voleur" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/img/perso_voleur.svg" alt="Voleur" />
                   <AvatarFallback>VS</AvatarFallback>
                 </Avatar>
-                <span>Villageoises</span>
+                <span>Voleur</span>
               </a>
 
               <a href="#maire" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
@@ -87,6 +127,14 @@ const Rules = () => {
                   <AvatarFallback>M</AvatarFallback>
                 </Avatar>
                 <span>Maire</span>
+              </a>
+
+              <a href="#villageoises" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/img/perso_villageoises.svg" alt="Villageoises" />
+                  <AvatarFallback>VS</AvatarFallback>
+                </Avatar>
+                <span>Villageoises</span>
               </a>
 
               {/* Wolf characters */}
@@ -121,14 +169,6 @@ const Rules = () => {
                   <AvatarFallback>R</AvatarFallback>
                 </Avatar>
                 <span>Renard</span>
-              </a>
-
-              <a href="#voleur" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_voleur.svg" alt="Voleur" />
-                  <AvatarFallback>V</AvatarFallback>
-                </Avatar>
-                <span>Voleur</span>
               </a>
 
               <a href="#montreur" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
@@ -185,6 +225,51 @@ const Rules = () => {
                     </p>
                     <p className="mt-2">
                       Pendant la nuit, ils dorment et ne se réveillent pas. Pendant le jour, ils participent au débat et au vote.
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="voyante" id="voyante">
+              <AccordionTrigger>Voyante</AccordionTrigger>
+              <AccordionContent>
+                <div className="flex">
+                  <img src="/img/perso_voyante.svg" alt="Villageois" className="w-16 h-16 mr-4 float-left" />
+                  <div>
+                    <p>
+                      Au début de chaque nuit, elle est appelée par le meneur et peut désigner une personne dont elle découvrira secrètement l'identité.
+                    </p>
+
+                    
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="sorciere" id="sorciere">
+              <AccordionTrigger>Sorcière</AccordionTrigger>
+              <AccordionContent>
+                <div className="flex">
+                  <img src="/img/perso_sorciere.svg" alt="Villageois" className="w-16 h-16 mr-4 float-left" />
+                  <div>
+                    <p>
+                      Elle possède deux potions : une de guérison et une d'empoisonnement. Elle ne peut utiliser chacune de ses potions qu'une seule fois au cours de la partie. Durant la nuit, lorsque les loups-garous se sont rendormis, le meneur de jeu va appeler la sorcière et va lui montrer la personne tuée par les loups-garous.
+                    </p>
+
+                    <p>
+                      La sorcière a trois possibilités :
+                    </p>
+                    <ul>
+                      <li>ne rien faire</li>
+                      <li>ressusciter la personne tuée — et donc perdre sa seule potion de guérison ;</li>
+                      <li>tuer une autre personne en plus de la victime — et donc perdre sa seule potion d'empoisonnement.</li>
+                    </ul>
+                    <p>
+                      La sorcière peut utiliser ses deux potions durant la même nuit si elle le souhaite
+                    </p>.
+                    <p>
+                      La sorcière peut se ressusciter elle-même, si elle a été la victime des loups-garous. Elle n'opère que durant la nuit, elle ne peut donc pas tuer ou ressusciter quelqu'un durant le jour. De plus, si la sorcière a utilisé sa potion de guérison auparavant, le meneur de jeu ne lui désigne plus la victime des loups-garous mais doit continuer à dire à haute voix la phrase "je montre à la sorcière la victime des loups-garous" afin d'entretenir le doute sur l'utilisation des potions. De cette manière, elle peut utiliser sa potion d'empoisonnement sur cette même personne (la potion sera sans effet, mais tout de même perdue)[réf. nécessaire].
                     </p>
                   </div>
                 </div>
