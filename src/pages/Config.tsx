@@ -1,12 +1,22 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Music2, Volume, Volume2 } from 'lucide-react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { GameState } from '@/types';
 import { toast } from 'sonner';
 import { useAudio } from '@/hooks/useAudio';
 import audioService from '@/services/audioService';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 
 const Config = () => {
   const location = useLocation();
