@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, BookOpen, Moon, Sun } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -13,11 +13,68 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from "@/components/ui/collapsible";
+
+interface CharacterInfo {
+  name: string;
+  description: string;
+  id: string;
+  image: string;
+}
 
 const Rules = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const gameState = location.state as GameState;
+  const [characters, setCharacters] = useState<CharacterInfo[]>([]);
+  
+  useEffect(() => {
+    // Parse the characters from the text file
+    fetch('/personnages_regles.txt')
+      .then(response => response.text())
+      .then(text => {
+        const charactersData: CharacterInfo[] = text.split('\n')
+          .filter(line => line.trim().length > 0)
+          .map(line => {
+            const [name, description] = line.split('|');
+            
+            // Generate an ID from the name
+            const id = name.toLowerCase().replace(/[^\w]/g, '-');
+            
+            // Determine the image path based on the character name
+            const imageName = name.toLowerCase()
+              .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
+              .replace(/[^\w]/g, '')
+              .replace(/loupsgarus/, 'loup')
+              .replace(/voyante/, 'voyante')
+              .replace(/sorcière/, 'sorciere')
+              .replace(/mainloup/, 'grandloup')
+              .replace(/petite fille/, 'fille')
+              .replace(/servante dévouée/, 'servante')
+              .replace(/maire/, 'maire')
+              .replace(/joueur de flûte/, 'flute')
+              .replace(/montreur d'ours/, 'montreur')
+              .replace(/bouc émissaire/, 'bouc')
+              .replace(/infect père des loups/, 'infectloup')
+              .replace(/grandméchantloup/, 'grandloup')
+              .replace(/chienloup/, 'chienloup');
+              
+            return {
+              name,
+              description,
+              id,
+              image: `/img/perso_${imageName}.svg`
+            };
+          });
+          
+        setCharacters(charactersData);
+      })
+      .catch(error => console.error('Error loading characters:', error));
+  }, []);
   
   const handleBackToGame = () => {
     // Try to load game state from localStorage
@@ -38,6 +95,21 @@ const Rules = () => {
       navigate('/');
     }
   };
+
+  // Group characters by their type
+  const villageCharacters = characters.filter(char => 
+    !char.name.toLowerCase().includes('loup') && 
+    !char.name.toLowerCase().includes('infect') && 
+    !char.name.toLowerCase().includes('blanc') &&
+    !char.name.toLowerCase().includes('chien-loup')
+  );
+  
+  const wolfCharacters = characters.filter(char => 
+    char.name.toLowerCase().includes('loup') || 
+    char.name.toLowerCase().includes('infect') || 
+    char.name.toLowerCase().includes('blanc') ||
+    char.name.toLowerCase().includes('chien-loup')
+  );
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
@@ -64,128 +136,19 @@ const Rules = () => {
             <h2 className="text-2xl font-semibold mb-4">Personnages</h2>
             
             <div className="flex flex-wrap gap-3 mb-6">
-              {/* Villagers */}
-              <a href="#villageois" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_villageois.svg" alt="Villageois" />
-                  <AvatarFallback>V</AvatarFallback>
-                </Avatar>
-                <span>Villageois</span>
-              </a>
-              
-              <a href="#voyante" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_voyante.svg" alt="Voyante" />
-                  <AvatarFallback>V</AvatarFallback>
-                </Avatar>
-                <span>Voyante</span>
-              </a>
-
-              <a href="#sorciere" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_sorciere.svg" alt="Sorcière" />
-                  <AvatarFallback>V</AvatarFallback>
-                </Avatar>
-                <span>Sorcière</span>
-              </a>
-
-              <a href="#cupidon" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_cupidon.svg" alt="Cupidon" />
-                  <AvatarFallback>V</AvatarFallback>
-                </Avatar>
-                <span>Cupidon</span>
-              </a>
-
-              <a href="#chasseur" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_chasseur.svg" alt="Chasseur" />
-                  <AvatarFallback>V</AvatarFallback>
-                </Avatar>
-                <span>Chasseur</span>
-              </a>
-
-              <a href="#fille" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_fille.svg" alt="Petite fille" />
-                  <AvatarFallback>V</AvatarFallback>
-                </Avatar>
-                <span>Petite fille</span>
-              </a>
-
-              <a href="#voleur" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_voleur.svg" alt="Voleur" />
-                  <AvatarFallback>VS</AvatarFallback>
-                </Avatar>
-                <span>Voleur</span>
-              </a>
-
-              <a href="#maire" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_maire.svg" alt="Maire" />
-                  <AvatarFallback>M</AvatarFallback>
-                </Avatar>
-                <span>Maire</span>
-              </a>
-
-              <a href="#villageoises" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_villageoises.svg" alt="Villageoises" />
-                  <AvatarFallback>VS</AvatarFallback>
-                </Avatar>
-                <span>Villageoises</span>
-              </a>
-
-              {/* Wolf characters */}
-              <a href="#loup" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_loup.svg" alt="Loup-Garou" />
-                  <AvatarFallback>LG</AvatarFallback>
-                </Avatar>
-                <span>Loup-Garou</span>
-              </a>
-
-              <a href="#chienloup" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_chienloup.svg" alt="Chien-Loup" />
-                  <AvatarFallback>CL</AvatarFallback>
-                </Avatar>
-                <span>Chien-Loup</span>
-              </a>
-
-              {/* Special characters */}
-              <a href="#bouc" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_bouc.svg" alt="Bouc Émissaire" />
-                  <AvatarFallback>BE</AvatarFallback>
-                </Avatar>
-                <span>Bouc Émissaire</span>
-              </a>
-
-              <a href="#renard" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_renard.svg" alt="Renard" />
-                  <AvatarFallback>R</AvatarFallback>
-                </Avatar>
-                <span>Renard</span>
-              </a>
-
-              <a href="#montreur" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_montreur.svg" alt="Montreur d'Ours" />
-                  <AvatarFallback>MO</AvatarFallback>
-                </Avatar>
-                <span>Montreur d'Ours</span>
-              </a>
-
-              <a href="#flutiste" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/img/perso_flute.svg" alt="Joueur de Flûte" />
-                  <AvatarFallback>JF</AvatarFallback>
-                </Avatar>
-                <span>Joueur de Flûte</span>
-              </a>
+              {characters.map((character) => (
+                <a 
+                  key={character.id} 
+                  href={`#${character.id}`} 
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100"
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={character.image} alt={character.name} />
+                    <AvatarFallback>{character.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm">{character.name}</span>
+                </a>
+              ))}
             </div>
           </section>
 
@@ -213,215 +176,25 @@ const Rules = () => {
               </AccordionContent>
             </AccordionItem>
 
-            {/* Character descriptions */}
-            <AccordionItem value="villageois" id="villageois">
-              <AccordionTrigger>Villageois</AccordionTrigger>
+            {/* All Characters */}
+            <AccordionItem value="all-characters">
+              <AccordionTrigger>Tous les personnages</AccordionTrigger>
               <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_villageois.svg" alt="Villageois" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Les villageois n'ont aucun pouvoir particulier. Leur seule arme est leur perspicacité, leur talent oratoire et leur capacité à repérer les loups-garous parmi les joueurs.
-                    </p>
-                    <p className="mt-2">
-                      Pendant la nuit, ils dorment et ne se réveillent pas. Pendant le jour, ils participent au débat et au vote.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="voyante" id="voyante">
-              <AccordionTrigger>Voyante</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_voyante.svg" alt="Villageois" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Au début de chaque nuit, elle est appelée par le meneur et peut désigner une personne dont elle découvrira secrètement l'identité.
-                    </p>
-
-                    
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="sorciere" id="sorciere">
-              <AccordionTrigger>Sorcière</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_sorciere.svg" alt="Villageois" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Elle possède deux potions : une de guérison et une d'empoisonnement. Elle ne peut utiliser chacune de ses potions qu'une seule fois au cours de la partie. Durant la nuit, lorsque les loups-garous se sont rendormis, le meneur de jeu va appeler la sorcière et va lui montrer la personne tuée par les loups-garous.
-                    </p>
-
-                    <p>
-                      La sorcière a trois possibilités :
-                    </p>
-                    <ul>
-                      <li>ne rien faire</li>
-                      <li>ressusciter la personne tuée — et donc perdre sa seule potion de guérison ;</li>
-                      <li>tuer une autre personne en plus de la victime — et donc perdre sa seule potion d'empoisonnement.</li>
-                    </ul>
-                    <p>
-                      La sorcière peut utiliser ses deux potions durant la même nuit si elle le souhaite
-                    </p>.
-                    <p>
-                      La sorcière peut se ressusciter elle-même, si elle a été la victime des loups-garous. Elle n'opère que durant la nuit, elle ne peut donc pas tuer ou ressusciter quelqu'un durant le jour. De plus, si la sorcière a utilisé sa potion de guérison auparavant, le meneur de jeu ne lui désigne plus la victime des loups-garous mais doit continuer à dire à haute voix la phrase "je montre à la sorcière la victime des loups-garous" afin d'entretenir le doute sur l'utilisation des potions. De cette manière, elle peut utiliser sa potion d'empoisonnement sur cette même personne (la potion sera sans effet, mais tout de même perdue)[réf. nécessaire].
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="villageoises" id="villageoises">
-              <AccordionTrigger>Villageoises</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_villageoises.svg" alt="Villageoises" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Les villageoises sont identiques aux villageois, mais leur genre est féminin. Elles peuvent être importantes dans le cadre de certaines extensions où le genre des personnages a une importance.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="maire" id="maire">
-              <AccordionTrigger>Maire</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_maire.svg" alt="Maire" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Le Maire est un personnage particulier car il n'est pas attribué en début de partie. Il est élu par vote lors du premier jour. En cas d'égalité, un second tour est organisé entre les candidats à égalité.
-                    </p>
-                    <p className="mt-2">
-                      Son vote compte double lors des votes du village. Si le Maire est éliminé, il désigne son successeur.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="loup" id="loup">
-              <AccordionTrigger>Loup-Garou</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_loup.svg" alt="Loup-Garou" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Les Loups-garous se réveillent chaque nuit et désignent ensemble une victime à dévorer. Pendant la journée, ils se font passer pour des villageois.
-                    </p>
-                    <p className="mt-2">
-                      Les loups-garous connaissent l'identité des autres loups et doivent collaborer discrètement pour éliminer tous les villageois.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="chienloup" id="chienloup">
-              <AccordionTrigger>Chien-Loup</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_chienloup.svg" alt="Chien-Loup" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Le Chien-Loup doit choisir au début de la première nuit s'il rejoint le camp des Loups-Garous ou celui des Villageois.
-                    </p>
-                    <p className="mt-2">
-                      S'il choisit les Loups-Garous, il se réveille chaque nuit avec eux et participe au choix de la victime. S'il choisit les Villageois, il reste un simple villageois sans pouvoir particulier.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="bouc" id="bouc">
-              <AccordionTrigger>Bouc Émissaire</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_bouc.svg" alt="Bouc Émissaire" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Le Bouc Émissaire est un villageois sans pouvoir particulier, mais si les votes l'éliminent ou si les joueurs n'arrivent pas à se mettre d'accord sur qui éliminer, c'est lui qui est automatiquement éliminé.
-                    </p>
-                    <p className="mt-2">
-                      Après sa mort, il désigne un joueur qui ne pourra plus voter jusqu'à la fin de la partie.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="renard" id="renard">
-              <AccordionTrigger>Renard</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_renard.svg" alt="Renard" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Le Renard peut, chaque nuit, flairer un joueur et ses voisins directs. Si au moins l'un des trois joueurs flairés est un Loup-Garou, le meneur lui fait signe que oui.
-                    </p>
-                    <p className="mt-2">
-                      S'il se trompe et qu'aucun des trois n'est un Loup-Garou, il perd son pouvoir jusqu'à la fin de la partie.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="voleur" id="voleur">
-              <AccordionTrigger>Voleur</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_voleur.svg" alt="Voleur" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Au début de la partie, deux cartes supplémentaires sont placées face cachée. Le Voleur, lors de la première nuit, peut regarder ces deux cartes et choisir d'échanger sa carte contre l'une d'elles.
-                    </p>
-                    <p className="mt-2">
-                      S'il choisit une carte de Loup-Garou, il rejoint le camp des Loups-Garous. Sinon, il conserve son rôle initial ou prend celui qu'il a choisi.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="montreur" id="montreur">
-              <AccordionTrigger>Montreur d'Ours</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_montreur.svg" alt="Montreur d'Ours" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Chaque matin, l'ours du Montreur d'Ours grogne si au moins un de ses voisins directs est un Loup-Garou. Ce grognement est entendu par tous les joueurs.
-                    </p>
-                    <p className="mt-2">
-                      Cette information peut être précieuse pour le village mais peut aussi révéler la position du Montreur d'Ours aux Loups-Garous.
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="flutiste" id="flutiste">
-              <AccordionTrigger>Joueur de Flûte</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex">
-                  <img src="/img/perso_flute.svg" alt="Joueur de Flûte" className="w-16 h-16 mr-4 float-left" />
-                  <div>
-                    <p>
-                      Le Joueur de Flûte joue solo et cherche à charmer tous les joueurs encore en vie. Chaque nuit, il peut charmer deux joueurs qui le suivront s'ils sont encore en vie à la fin de la partie.
-                    </p>
-                    <p className="mt-2">
-                      Les joueurs charmés continuent à jouer normalement mais savent qu'ils sont charmés. Le Joueur de Flûte gagne si tous les joueurs encore en vie sont charmés.
-                    </p>
-                  </div>
+                <div className="space-y-6">
+                  {characters.map((character) => (
+                    <div key={character.id} id={character.id} className="py-3 border-b border-gray-100 last:border-0">
+                      <div className="flex gap-4 items-start">
+                        <Avatar className="h-16 w-16 shrink-0">
+                          <AvatarImage src={character.image} alt={character.name} />
+                          <AvatarFallback>{character.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">{character.name}</h3>
+                          <p className="text-sm text-gray-700">{character.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -431,23 +204,40 @@ const Rules = () => {
               <AccordionTrigger>Phases de jeu</AccordionTrigger>
               <AccordionContent>
                 <div className="prose prose-slate max-w-none">
-                  <h3 className="text-xl font-semibold mb-3">La Nuit</h3>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-slate-900 text-white p-3 rounded-full">
+                      <Moon className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-0">La Nuit</h3>
+                  </div>
+                  
                   <p className="mb-4">
                     Pendant la nuit, les joueurs ferment les yeux. Le meneur de jeu appelle les personnages dans un ordre précis pour qu'ils accomplissent leurs actions spéciales :
                   </p>
-                  <ol className="list-decimal pl-6 mb-4">
-                    <li>Le Voleur (première nuit seulement)</li>
-                    <li>Le Chien-Loup (première nuit seulement)</li>
-                    <li>Le Renard</li>
-                    <li>Les Loups-Garous</li>
-                    <li>Le Joueur de Flûte</li>
-                    <li>Autres personnages spéciaux selon les extensions</li>
+                  
+                  <ol className="list-decimal pl-6 mb-6 space-y-2">
+                    <li><strong>Le Voleur</strong> (première nuit seulement) : il peut échanger sa carte avec l'une des deux cartes supplémentaires.</li>
+                    <li><strong>Le Cupidon</strong> (première nuit seulement) : il désigne deux personnes qui seront amoureuses.</li>
+                    <li><strong>Les Amoureux</strong> se reconnaissent (première nuit seulement après Cupidon).</li>
+                    <li><strong>Le Voyante</strong> : elle peut voir l'identité d'un joueur.</li>
+                    <li><strong>Le Loup Blanc</strong> (une nuit sur deux) : il peut éliminer un autre loup-garou.</li>
+                    <li><strong>Les Loups-Garous</strong> : ils choisissent une victime à dévorer.</li>
+                    <li><strong>La Sorcière</strong> : elle peut sauver la victime des loups ou empoisonner quelqu'un.</li>
+                    <li><strong>Le Joueur de Flûte</strong> : il charme deux joueurs.</li>
+                    <li><strong>Les Joueurs Charmés</strong> se reconnaissent.</li>
                   </ol>
 
-                  <h3 className="text-xl font-semibold mb-3">Le Jour</h3>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-amber-400 text-white p-3 rounded-full">
+                      <Sun className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-0">Le Jour</h3>
+                  </div>
+                  
                   <p className="mb-4">
-                    Au lever du jour, tous les joueurs ouvrent les yeux. Le meneur annonce qui a été dévoré pendant la nuit (ce joueur révèle sa carte et ne participe plus au jeu).
+                    Au lever du jour, tous les joueurs ouvrent les yeux. Le meneur annonce qui a été dévoré pendant la nuit, ainsi que d'autres informations selon les rôles en jeu (grognement de l'ours du Montreur d'Ours, etc.).
                   </p>
+                  
                   <p className="mb-4">
                     Les joueurs débattent ensuite pour tenter d'identifier les Loups-Garous. À la fin du débat, un vote est organisé pour éliminer un joueur suspecté d'être un Loup-Garou.
                   </p>
@@ -464,6 +254,9 @@ const Rules = () => {
                     <li><strong>Les Villageois gagnent</strong> si tous les Loups-Garous sont éliminés.</li>
                     <li><strong>Les Loups-Garous gagnent</strong> s'ils sont aussi nombreux que les Villageois.</li>
                     <li><strong>Le Joueur de Flûte gagne</strong> si tous les joueurs encore en vie sont charmés.</li>
+                    <li><strong>Les Amoureux gagnent</strong> s'ils sont les derniers en vie (dans le cas où ils sont de camps opposés).</li>
+                    <li><strong>L'Ange déchu gagne</strong> s'il est éliminé au premier vote du village.</li>
+                    <li><strong>L'Abominable sectaire gagne</strong> s'il est le dernier survivant de son camp.</li>
                   </ul>
                   <p>
                     La partie se termine immédiatement dès qu'une condition de victoire est remplie.
