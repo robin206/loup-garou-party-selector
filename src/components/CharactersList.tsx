@@ -205,7 +205,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
       </div>
         
       {werewolfChars.length > 0 && (
-        <div className="team-container mb-6">
+        <div className="team-container">
           <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {werewolfChars.map((character, index) => (
