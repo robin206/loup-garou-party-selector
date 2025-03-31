@@ -56,7 +56,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
   const totalAliveCount = aliveVillageCount + aliveWerewolfCount + aliveSoloCount;
 
   // Increased size for character icons
-  const iconSize = size === 'sm' ? 'w-14 h-14' : 'w-16 h-16';
+  const iconSize = size === 'sm' ? 'w-16 h-16' : 'w-16 h-16';
   const containerClass = size === 'sm' ? 'gap-1' : 'gap-2';
   
   const handleCharacterClick = (character: CharacterType) => {
@@ -247,7 +247,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
       )}
       
       {villageChars.length > 0 && (
-        <div className="team-container mb-6">
+        <div className="team-container">
           <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {villageChars.map((character, index) => (
@@ -286,7 +286,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
       )}
       
       {soloChars.length > 0 && (
-        <div className="team-container mb-6">
+        <div className="team-container">
           <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {soloChars.map((character, index) => (
