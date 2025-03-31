@@ -13,6 +13,9 @@ interface ButtonProps {
   type?: "button" | "submit" | "reset";
   size?: "default" | "sm" | "lg" | "icon";
   title?: string;
+  href?: string;
+  target?: string;
+  rel?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -25,6 +28,9 @@ const Button: React.FC<ButtonProps> = ({
   type = 'button',
   size = 'default',
   title,
+  href,
+  target,
+  rel,
 }) => {
   return (
     <ShadcnButton
@@ -38,8 +44,15 @@ const Button: React.FC<ButtonProps> = ({
         fullWidth && 'w-full',
         className
       )}
+      asChild={!!href}
     >
-      {children}
+      {href ? (
+        <a href={href} target={target} rel={rel}>
+          {children}
+        </a>
+      ) : (
+        children
+      )}
     </ShadcnButton>
   );
 };

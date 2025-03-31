@@ -1,16 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
-import { Volume2, Volume, Music2, ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import Header from '@/components/Header';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { GameState } from '@/types';
 import { toast } from 'sonner';
 import { useAudio } from '@/hooks/useAudio';
 import audioService from '@/services/audioService';
-import { GameState } from '@/types';
 
 const Config = () => {
   const location = useLocation();
@@ -25,7 +21,6 @@ const Config = () => {
   
   const ambianceAudios = getAmbianceAudios();
   
-  // Générer les options d'audio avec des labels améliorés
   const audioOptions = ambianceAudios.map(file => {
     const name = file.replace(/^ambiance_/, '').replace(/\.(webm|mp3)$/, '');
     const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
@@ -36,7 +31,6 @@ const Config = () => {
   });
   
   const handleBackToGame = () => {
-    // Try to load game state from localStorage
     const savedGameState = localStorage.getItem('werewolf-game-current-state');
     
     if (savedGameState) {
@@ -55,7 +49,6 @@ const Config = () => {
     }
   };
   
-  // Load saved configuration on mount
   useEffect(() => {
     const savedDayMusic = localStorage.getItem('werewolf-day-music');
     const savedNightMusic = localStorage.getItem('werewolf-night-music');
@@ -72,7 +65,6 @@ const Config = () => {
     }
   }, []);
   
-  // Save configuration when changed
   useEffect(() => {
     localStorage.setItem('werewolf-day-music', dayMusic);
     localStorage.setItem('werewolf-night-music', nightMusic);
