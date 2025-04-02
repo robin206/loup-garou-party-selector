@@ -22,6 +22,16 @@ export function useAudio() {
           localStorage.setItem('werewolf-vote-music', 'ambiance_clear-haken.webm');
         }
         
+        if ('caches' in window) {
+          try {
+            const cacheName = 'loup-garou-v2';
+            await caches.delete(cacheName);
+            console.log('Cache nettoyé avec succès');
+          } catch (cacheError) {
+            console.warn('Impossible de nettoyer le cache:', cacheError);
+          }
+        }
+        
         await audioService.preloadAudioFiles();
         setIsAudioReady(true);
         audioInitializedRef.current = true;
@@ -108,7 +118,7 @@ export function useAudio() {
       console.error('Erreur lors de la lecture de l\'alerte du Chasseur:', error);
     }
   }, []);
-  
+
   return {
     isAudioReady,
     playDayMusic,

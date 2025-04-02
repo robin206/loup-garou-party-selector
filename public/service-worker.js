@@ -1,6 +1,6 @@
 
-// Nom et version du cache
-const CACHE_NAME = 'loup-garou-v2';
+// Nom et version du cache - Incrémenté pour forcer la mise à jour
+const CACHE_NAME = 'loup-garou-v3';
 
 // Liste des ressources à mettre en cache
 const RESOURCES_TO_CACHE = [
@@ -25,6 +25,8 @@ const RESOURCES_TO_CACHE = [
   '/img/sampler_ours.svg',
   '/img/sampler_clocher.svg',
   '/img/sampler_tonnerre.svg',
+  '/img/sampler_clock.svg',
+  '/img/sampler_violon.svg',
   '/img/perso_chienloup.svg',
   '/img/perso_chienloup2.svg',
   '/img/perso_chevalier.svg',
@@ -88,11 +90,18 @@ const RESOURCES_TO_CACHE = [
   '/audio/sampler/sampler_loup.ogg',
   '/audio/sampler/sampler_ours.ogg',
   '/audio/sampler/sampler_clocher.ogg',
-  '/audio/sampler/sampler_tonnerre.ogg'
+  '/audio/sampler/sampler_tonnerre.ogg',
+  '/audio/sampler/sampler_hunter.ogg',
+  '/audio/sampler/sampler_clock.ogg',
+  '/audio/sampler/sampler_violon_1.ogg',
+  '/audio/sampler/sampler_violon_2.ogg',
+  '/audio/sampler/sampler_violon_3.ogg'
 ];
 
 // Installation du service worker et mise en cache des ressources
 self.addEventListener('install', (event) => {
+  console.log('Installation du Service Worker v3');
+  
   // Force le remplacement immédiat du précédent service worker
   self.skipWaiting();
   
@@ -116,6 +125,8 @@ self.addEventListener('install', (event) => {
 
 // Activation du service worker et nettoyage des anciens caches
 self.addEventListener('activate', (event) => {
+  console.log('Activation du Service Worker v3');
+  
   // Priorité: prendre le contrôle de toutes les pages clientes immédiatement
   event.waitUntil(self.clients.claim());
   
@@ -133,7 +144,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Stratégie de cache améliorée: "Cache First, Network Fallback" avec mise à jour en arrière-plan
+// Stratégie de cache améliorée: Network First pour les assets dynamiques, Cache First pour les statiques
 self.addEventListener('fetch', (event) => {
   // Ignore les requêtes qui ne sont pas GET
   if (event.request.method !== 'GET') return;
@@ -142,77 +153,74 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== location.origin) return;
   
-  // Pour les fichiers audio et images, utiliser stale-while-revalidate
-  const isAsset = /\.(mp3|webm|ogg|svg|png|jpg|jpeg|gif|ico)$/i.test(url.pathname);
+  // Pour les fichiers JS/CSS (qui changent souvent), on utilise Network First
+  const isDynamicAsset = /\.(js|css)$/i.test(url.pathname) || url.pathname === '/' || url.pathname === '/index.html';
   
-  if (isAsset) {
+  if (isDynamicAsset) {
     event.respondWith(
-      caches.match(event.request)
-        .then(cachedResponse => {
-          // Même si on a une version en cache, on essaie de la mettre à jour en arrière-plan
-          const fetchPromise = fetch(event.request)
-            .then(networkResponse => {
-              // Mettre en cache la nouvelle version si valide
-              if (networkResponse && networkResponse.status === 200) {
-                const responseToCache = networkResponse.clone();
-                caches.open(CACHE_NAME)
-                  .then(cache => {
-                    cache.put(event.request, responseToCache);
-                  });
-              }
-              return networkResponse;
-            })
-            .catch(() => {
-              console.log('Utilisation de la version en cache pour', event.request.url);
-              // Si le réseau échoue, on reste sur la version en cache
+      fetch(event.request)
+        .then(response => {
+          // Mettre en cache la nouvelle version
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
             });
-          
-          // Retourner immédiatement la version en cache si disponible
-          return cachedResponse || fetchPromise;
+          return response;
         })
-    );
-  } else {
-    // Pour les autres ressources, utiliser cache-first
-    event.respondWith(
-      caches.match(event.request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-
-          // Sinon, on essaie de la récupérer depuis le réseau
-          return fetch(event.request)
-            .then((networkResponse) => {
-              // Ne pas mettre en cache les réponses non valides
-              if (!networkResponse || networkResponse.status !== 200) {
-                return networkResponse;
+        .catch(() => {
+          // En cas d'échec, utiliser la version en cache
+          return caches.match(event.request)
+            .then(cachedResponse => {
+              if (cachedResponse) {
+                return cachedResponse;
               }
-
-              // Mise en cache de la nouvelle ressource récupérée
-              const responseToCache = networkResponse.clone();
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-
-              return networkResponse;
-            })
-            .catch((error) => {
-              console.error('Erreur de récupération:', error);
               
-              // Si c'est une requête HTML, retourner la page d'index pour le SPA
-              if (event.request.headers.get('accept').includes('text/html')) {
+              // Si la page d'index est demandée mais n'est pas dans le cache
+              if (url.pathname === '/' || url.pathname === '/index.html') {
                 return caches.match('/');
               }
               
-              // Pour les autres types, retourner un message d'erreur
-              return new Response('Application en mode hors ligne - Ressource non disponible', {
+              return new Response('Ressource non disponible et hors ligne', {
                 status: 503,
-                statusText: 'Service Unavailable',
-                headers: new Headers({
-                  'Content-Type': 'text/plain'
-                })
+                headers: new Headers({ 'Content-Type': 'text/plain' })
               });
+            });
+        })
+    );
+  } else {
+    // Pour les assets statiques (images, sons), on utilise Cache First
+    event.respondWith(
+      caches.match(event.request)
+        .then(cachedResponse => {
+          if (cachedResponse) {
+            // En arrière-plan, vérifier s'il y a une mise à jour
+            fetch(event.request)
+              .then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200) {
+                  caches.open(CACHE_NAME).then(cache => {
+                    cache.put(event.request, networkResponse);
+                  });
+                }
+              })
+              .catch(() => {});
+              
+            return cachedResponse;
+          }
+          
+          // Si pas dans le cache, essayer le réseau
+          return fetch(event.request)
+            .then(networkResponse => {
+              if (!networkResponse || networkResponse.status !== 200) {
+                return networkResponse;
+              }
+              
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, responseToCache);
+              });
+              
+              return networkResponse;
             });
         })
     );
@@ -228,5 +236,11 @@ self.addEventListener('error', function(event) {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  } else if (event.data && event.data.type === 'CACHE_PURGE') {
+    caches.delete(CACHE_NAME).then(() => {
+      event.ports[0].postMessage({ status: 'Cache purgé avec succès' });
+    }).catch(error => {
+      event.ports[0].postMessage({ status: 'Erreur lors du nettoyage du cache', error: error.toString() });
+    });
   }
 });
