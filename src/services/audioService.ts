@@ -295,15 +295,7 @@ class AudioService {
       'ambiance_defautnuit.webm',
       'ambiance_diablo.webm',
       'ambiance_elwynnforest.webm',
-      'ambiance_naruto.webm',
-      'jour.webm',
-      'nuit.webm',
-      'vote.webm',
-      'suspense.webm',
-      'revelation.webm',
-      'tension.webm',
-      'victoire.webm',
-      'defaite.webm'
+      'ambiance_naruto.webm'
     ];
   }
   
