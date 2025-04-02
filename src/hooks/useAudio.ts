@@ -5,13 +5,11 @@ export function useAudio() {
   const [isAudioReady, setIsAudioReady] = useState(false);
   const audioInitializedRef = useRef<boolean>(false);
 
-  // Au premier chargement, préchargeons les fichiers audio
   useEffect(() => {
     const preloadAudio = async () => {
       if (audioInitializedRef.current) return;
       
       try {
-        // Définir les musiques par défaut dans le localStorage si elles n'existent pas
         if (!localStorage.getItem('werewolf-day-music')) {
           localStorage.setItem('werewolf-day-music', 'ambiance_cobblevillage.webm');
         }
@@ -30,7 +28,6 @@ export function useAudio() {
         console.log('Préchargement audio terminé');
       } catch (error) {
         console.error('Erreur lors du préchargement audio:', error);
-        // Même en cas d'erreur, considérons que l'audio est prêt pour ne pas bloquer l'application
         setIsAudioReady(true);
         audioInitializedRef.current = true;
       }
@@ -38,7 +35,6 @@ export function useAudio() {
     
     preloadAudio();
     
-    // Nettoyage en cas de démontage du composant
     return () => {
       audioService.stopAudio();
     };
@@ -95,9 +91,18 @@ export function useAudio() {
     }
   }, []);
   
+  const playRandomViolinSound = useCallback(() => {
+    try {
+      const violinSounds = ['sampler_violon_1.ogg', 'sampler_violon_2.ogg', 'sampler_violon_3.ogg'];
+      const randomIndex = Math.floor(Math.random() * violinSounds.length);
+      audioService.playSampleSound(violinSounds[randomIndex]);
+    } catch (error) {
+      console.error('Erreur lors de la lecture du son de violon aléatoire:', error);
+    }
+  }, []);
+  
   const playHunterWarning = useCallback(() => {
     try {
-      // Utiliser le son spécifique pour le chasseur au lieu du son du loup
       audioService.playSampleSound('sampler_hunter.ogg');
     } catch (error) {
       console.error('Erreur lors de la lecture de l\'alerte du Chasseur:', error);
@@ -113,6 +118,7 @@ export function useAudio() {
     getAvailableAudios,
     getAmbianceAudios,
     playSampleSound,
-    playHunterWarning
+    playHunterWarning,
+    playRandomViolinSound
   };
 }

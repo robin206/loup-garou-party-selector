@@ -9,7 +9,7 @@ interface SoundSamplerProps {
 }
 
 const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
-  const { playSampleSound, stopMusic, isAudioReady } = useAudio();
+  const { playSampleSound, stopMusic, isAudioReady, playRandomViolinSound } = useAudio();
   const [muted, setMuted] = React.useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
@@ -108,8 +108,8 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
       '/img/sampler_ours.svg', 
       '/img/sampler_clocher.svg',
       '/img/sampler_tonnerre.svg',
-      '/img/sampler_clock.svg',    // Added clock image
-      '/img/sampler_violon.svg'    // Added violin image
+      '/img/sampler_clock.svg',
+      '/img/sampler_violon.svg'
     ];
     
     const preloadImages = async () => {
@@ -167,6 +167,12 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   const handlePlaySound = (soundName: string) => {
     if (!muted) {
       playSampleSound(soundName);
+    }
+  };
+  
+  const handlePlayViolinSound = () => {
+    if (!muted) {
+      playRandomViolinSound();
     }
   };
 
@@ -231,7 +237,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
         </button>
         
         <button
-          onClick={() => handlePlaySound('sampler_violon_1.ogg')}
+          onClick={handlePlayViolinSound}
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
           disabled={!isAudioReady}
         >

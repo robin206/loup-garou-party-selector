@@ -100,8 +100,10 @@ class AudioService {
           'sampler_clocher.ogg', 
           'sampler_tonnerre.ogg',
           'sampler_hunter.ogg',
-          'sampler_clock.ogg',      // Added clock sound
-          'sampler_violon_1.ogg'    // Added violin sound
+          'sampler_clock.ogg',
+          'sampler_violon_1.ogg',
+          'sampler_violon_2.ogg',
+          'sampler_violon_3.ogg'
         ];
         let loadedCount = 0;
         const totalFiles = audioFiles.length + samplerSounds.length;
