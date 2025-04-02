@@ -47,7 +47,9 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
           '/audio/sampler/sampler_ours.ogg',
           '/audio/sampler/sampler_clocher.ogg',
           '/audio/sampler/sampler_tonnerre.ogg',
-          '/audio/sampler/sampler_hunter.ogg'  // Added hunter sound
+          '/audio/sampler/sampler_hunter.ogg',
+          '/audio/sampler/sampler_clock.ogg',    // Added clock sound
+          '/audio/sampler/sampler_violon_1.ogg'  // Added violin sound
         ];
         
         // Créer les éléments audio mais sans les ajouter au DOM
@@ -105,7 +107,9 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
       '/img/sampler_loup.svg',
       '/img/sampler_ours.svg', 
       '/img/sampler_clocher.svg',
-      '/img/sampler_tonnerre.svg'
+      '/img/sampler_tonnerre.svg',
+      '/img/sampler_clock.svg',    // Added clock image
+      '/img/sampler_violon.svg'    // Added violin image
     ];
     
     const preloadImages = async () => {
@@ -180,7 +184,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
         )}
       </div>
       
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-6 gap-4">
         <button
           onClick={() => handlePlaySound('sampler_loup.ogg')}
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
@@ -215,6 +219,24 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
         >
           <img src="/img/sampler_tonnerre.svg" alt="Tonnerre" className="h-10 w-10 mb-1" />
           <span className="text-xs text-gray-300">Tonnerre</span>
+        </button>
+        
+        <button
+          onClick={() => handlePlaySound('sampler_clock.ogg')}
+          className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
+          disabled={!isAudioReady}
+        >
+          <img src="/img/sampler_clock.svg" alt="Horloge" className="h-10 w-10 mb-1" />
+          <span className="text-xs text-gray-300">Horloge</span>
+        </button>
+        
+        <button
+          onClick={() => handlePlaySound('sampler_violon_1.ogg')}
+          className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
+          disabled={!isAudioReady}
+        >
+          <img src="/img/sampler_violon.svg" alt="Violon" className="h-10 w-10 mb-1" />
+          <span className="text-xs text-gray-300">Violon</span>
         </button>
       </div>
     </div>
