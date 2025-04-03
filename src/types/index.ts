@@ -1,67 +1,52 @@
-export type CharacterType = {
+import React from 'react';
+
+export type GamePhase = 'setup' | 'firstDay' | 'firstNight' | 'day' | 'night' | 'gameEnd';
+
+export interface CharacterLinks {
+  cupidLinks?: string[];
+  wildChildModel?: string | null;
+  linkedCharactersVisible?: boolean;
+}
+
+export interface GameNotification {
   id: string;
+  message: string;
+  type: 'info' | 'warning' | 'error' | 'success';
+  timestamp: number;
+  duration?: number;
+  icon?: React.ReactNode;
+}
+
+export interface CharacterType {
+  id: string;
+  instanceId?: string;
   name: string;
-  nameEn: string;
   icon: string;
   description: string;
   team: 'village' | 'werewolf' | 'solo';
-  minPlayers?: number;
+  expansion?: string;
   recommended?: boolean;
-  expansion: 'base' | 'new-moon' | 'characters-pack' | 'village' | 'bonus';
-  actionPhase?: 'night' | 'day';
+  playerName?: string;
+  actionPhase?: 'day' | 'night';
   actionOrder?: number;
   actionDescription?: string;
-  instanceId?: string; // Added for multiple instances of the same character
-  playerName?: string; // Added for associating player names with characters
-  className?: string; // For special animations or styling
-};
+  className?: string;
+}
 
-export type GameState = {
+export interface GameState {
   players: number;
   characters: CharacterType[];
   selectedCharacters: string[];
   currentPhase?: GamePhase;
-  aliveCharacters?: string[];
-  mayor?: string;
   dayCount?: number;
-  characterLinks?: CharacterLinks; // Added for linked characters
-  showPlayerNames?: boolean; // To control visibility of player names
-  gameCharacters?: CharacterType[]; // Added to store full expanded characters with player names
-};
+  aliveCharacters?: string[];
+  characterLinks?: CharacterLinks;
+  showPlayerNames?: boolean;
+  gameCharacters?: CharacterType[];
+}
 
-export type CharacterLinks = {
-  cupidLinks: string[]; // Changed to string[] for simpler management
-  wildChildModel: string | null; // Character ID that the Wild Child has chosen as a model
-  linkedCharactersVisible?: boolean; // Whether to show linked characters in the UI
-};
-
-export type ExpansionType = {
+export interface ExpansionType {
   id: string;
   name: string;
   description: string;
-};
-
-export type GamePhase = 
-  | 'setup'
-  | 'firstDay'
-  | 'firstNight'
-  | 'day'
-  | 'night'
-  | 'gameEnd';
-
-export type GameAction = {
-  id: string;
-  character: string;
-  description: string;
-  phase: GamePhase;
-  order: number;
-};
-
-export type GameNotification = {
-  id: string;
-  message: string;
-  type: 'warning' | 'info' | 'error' | 'success';
-  icon?: React.ReactNode;
-  duration?: number; // Time in milliseconds before the notification is automatically removed
-  timestamp: number; // To sort notifications by time
-};
+}
