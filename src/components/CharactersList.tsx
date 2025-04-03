@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CharacterType, CharacterLinks } from '@/types';
 import TooltipWrapper from './TooltipWrapper';
@@ -35,12 +34,10 @@ const CharactersList: React.FC<CharactersListProps> = ({
 }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterType | null>(null);
   
-  // Group characters by team
   const villageChars = characters.filter(char => char.team === 'village');
   const werewolfChars = characters.filter(char => char.team === 'werewolf');
   const soloChars = characters.filter(char => char.team === 'solo');
 
-  // Calculate alive character counts
   const aliveVillageCount = villageChars.filter(char => 
     aliveCharacters.includes(char.instanceId || char.id)
   ).length;
@@ -55,7 +52,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
   
   const totalAliveCount = aliveVillageCount + aliveWerewolfCount + aliveSoloCount;
 
-  // Increased size for character icons
   const iconSize = size === 'sm' ? 'w-16 h-16' : 'w-16 h-16';
   const containerClass = size === 'sm' ? 'gap-1' : 'gap-2';
   
@@ -74,7 +70,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
     return aliveCharacters.includes(characterId);
   };
 
-  // Check if character is linked by Cupid or is a Wild Child model
   const isLinkedByCupid = (character: CharacterType) => {
     if (!characterLinks?.cupidLinks || !Array.isArray(characterLinks.cupidLinks)) return false;
     return characterLinks.cupidLinks.includes(character.instanceId || character.id);
@@ -85,12 +80,9 @@ const CharactersList: React.FC<CharactersListProps> = ({
     return characterLinks.wildChildModel === (character.instanceId || character.id);
   };
 
-  // Event handler for when a linked character dies
   const handleLinkedCharacterDeath = (character: CharacterType) => {
-    // Only trigger if the character was alive and is now being killed
     if (isAlive(character)) {
       if (isLinkedByCupid(character) && characterLinks?.cupidLinks) {
-        // Find the other lover
         const otherLoverId = characterLinks.cupidLinks.find(id => id !== (character.instanceId || character.id));
         if (otherLoverId) {
           const otherLover = characters.find(c => (c.instanceId || c.id) === otherLoverId);
@@ -109,16 +101,13 @@ const CharactersList: React.FC<CharactersListProps> = ({
             duration: 5000,
           });
           
-          // Move Wild Child to werewolf team
           if (wildChild && onLinkCharacter) {
             const wildChildId = wildChild.instanceId || wildChild.id;
-            // Signal that the Wild Child's model was killed
             onLinkCharacter('wildChild', wildChildId, 'convert-to-werewolf');
           }
         }
       }
       
-      // Check if hunter was killed
       if (character.id === 'hunter') {
         toast.warning(`⚠️ Attention: Le Chasseur est mort ! Il doit immédiatement désigner quelqu'un à éliminer avec lui !`, {
           duration: 5000,
@@ -135,17 +124,34 @@ const CharactersList: React.FC<CharactersListProps> = ({
     onKillCharacter(characterId);
   };
 
-  // Helper to get the border color for linked characters
   const getCharacterBorderClass = (character: CharacterType) => {
-    if (isWildChildModel(character) || 
-        (character.id === 'wild-child' && characterLinks?.wildChildModel)) {
-      return "ring-4 ring-green-500";
+    if (isWildChildModel(character)) {
+      return "ring-4 ring-green-500 animate-pulse-subtle";
+    }
+    
+    if (isLinkedByCupid(character) && isAlive(character)) {
+      return "ring-4 ring-pink-500";
+    }
+    
+    if (character.id === 'wild-child' && characterLinks?.wildChildModel) {
+      return "ring-4 ring-green-500/50";
     }
     
     return "";
   };
 
-  // Render player name under character icon if showPlayerNames is true
+  const getCharacterBackgroundClass = (character: CharacterType) => {
+    if (isWildChildModel(character) && isAlive(character)) {
+      return "bg-green-500/10";
+    }
+    
+    if (isLinkedByCupid(character) && isAlive(character)) {
+      return "bg-pink-500/10";
+    }
+    
+    return "bg-zinc-900";
+  };
+
   const renderPlayerName = (character: CharacterType) => {
     if (!showPlayerNames) return null;
     
@@ -156,6 +162,36 @@ const CharactersList: React.FC<CharactersListProps> = ({
         </span>
       </div>
     );
+  };
+
+  const renderLinkIndicator = (character: CharacterType) => {
+    if (!isAlive(character)) return null;
+    
+    if (isLinkedByCupid(character)) {
+      return (
+        <div className="absolute -top-1 -right-1 bg-pink-500 rounded-full p-0.5 shadow-md border border-pink-300">
+          <Heart className="w-3 h-3 text-white" />
+        </div>
+      );
+    }
+    
+    if (isWildChildModel(character)) {
+      return (
+        <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5 shadow-md border border-green-300">
+          <Leaf className="w-3 h-3 text-white" />
+        </div>
+      );
+    }
+    
+    if (character.id === 'wild-child' && characterLinks?.wildChildModel) {
+      return (
+        <div className="absolute -top-1 -right-1 bg-green-500/70 rounded-full p-0.5 shadow-md border border-green-300">
+          <Leaf className="w-3 h-3 text-white" />
+        </div>
+      );
+    }
+    
+    return null;
   };
 
   return (
@@ -216,15 +252,18 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
+                    "rounded-full overflow-hidden border cursor-pointer transition-all relative mb-6",
                     isAlive(character) 
                       ? "border-werewolf-blood/30" 
                       : "border-gray-600/30 grayscale opacity-70",
                     iconSize,
-                    getCharacterBorderClass(character)
+                    getCharacterBorderClass(character),
+                    getCharacterBackgroundClass(character)
                   )}
                   onClick={() => handleCharacterClick(character)}
                 >
+                  {renderLinkIndicator(character)}
+                  
                   <img 
                     src={character.icon} 
                     alt={character.name} 
@@ -233,11 +272,13 @@ const CharactersList: React.FC<CharactersListProps> = ({
                       character.id === 'wild-child' && character.team === 'werewolf' && "animate-pulse-subtle"
                     )} 
                   />
+                  
                   {isLinkedByCupid(character) && isAlive(character) && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
+                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-20" />
                     </div>
                   )}
+                  
                   {renderPlayerName(character)}
                 </div>
               </TooltipWrapper>
@@ -258,25 +299,30 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
+                    "rounded-full overflow-hidden border cursor-pointer transition-all relative mb-6",
                     isAlive(character) 
                       ? "border-blue-500/30" 
                       : "border-gray-600/30 grayscale opacity-70",
                     iconSize,
-                    getCharacterBorderClass(character)
+                    getCharacterBorderClass(character),
+                    getCharacterBackgroundClass(character)
                   )}
                   onClick={() => handleCharacterClick(character)}
                 >
+                  {renderLinkIndicator(character)}
+                  
                   <img 
                     src={character.icon} 
                     alt={character.name} 
                     className="w-full h-full object-contain p-1" 
                   />
+                  
                   {isLinkedByCupid(character) && isAlive(character) && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
+                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-20" />
                     </div>
                   )}
+                  
                   {renderPlayerName(character)}
                 </div>
               </TooltipWrapper>
@@ -297,25 +343,30 @@ const CharactersList: React.FC<CharactersListProps> = ({
               >
                 <div 
                   className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
+                    "rounded-full overflow-hidden border cursor-pointer transition-all relative mb-6",
                     isAlive(character) 
                       ? "border-amber-500/30" 
                       : "border-gray-600/30 grayscale opacity-70",
                     iconSize,
-                    getCharacterBorderClass(character)
+                    getCharacterBorderClass(character),
+                    getCharacterBackgroundClass(character)
                   )}
                   onClick={() => handleCharacterClick(character)}
                 >
+                  {renderLinkIndicator(character)}
+                  
                   <img 
                     src={character.icon} 
                     alt={character.name} 
                     className="w-full h-full object-contain p-1" 
                   />
+                  
                   {isLinkedByCupid(character) && isAlive(character) && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
+                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-20" />
                     </div>
                   )}
+                  
                   {renderPlayerName(character)}
                 </div>
               </TooltipWrapper>
