@@ -9,10 +9,9 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Skull, Settings, Heart, User, Leaf, Target, UserCheck } from 'lucide-react';
+import { Skull, Settings, Heart, User, Leaf, Target } from 'lucide-react';
 import CharacterDetailsDialog from './CharacterDetailsDialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface CharactersListProps {
   characters: CharacterType[];
@@ -38,7 +37,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
   gamePhase = 'setup'
 }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterType | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("all");
   
   const handleCharacterClick = (character: CharacterType) => {
     setSelectedCharacter(character);
@@ -87,12 +85,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
     
     return "border-gray-700";
   };
-
-  // Cette fonction filtre les personnages en fonction du type d'équipe
-  const filterCharactersByTeam = (team: 'village' | 'werewolf' | 'solo' | 'all') => {
-    if (team === 'all') return characters;
-    return characters.filter(char => char.team === team);
-  };
   
   return (
     <>
@@ -129,173 +121,42 @@ const CharactersList: React.FC<CharactersListProps> = ({
           </DropdownMenu>
         </div>
         
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full mb-4">
-          <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="all" className="text-xs">Tous</TabsTrigger>
-            <TabsTrigger value="village" className="text-xs flex items-center gap-1">
-              <UserCheck className="h-3 w-3" /> Village
-            </TabsTrigger>
-            <TabsTrigger value="werewolf" className="text-xs flex items-center gap-1">
-              <Skull className="h-3 w-3" /> Loups
-            </TabsTrigger>
-            <TabsTrigger value="solo" className="text-xs flex items-center gap-1">
-              <User className="h-3 w-3" /> Solo
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-        
         <ScrollArea className="h-96 pr-4">
-          <TabsContent value="all" className="m-0">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {characters.map(character => {
-                const charId = character.instanceId || character.id;
-                const isAlive = aliveCharacters.includes(charId);
-                
-                return (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+            {characters.map(character => {
+              const charId = character.instanceId || character.id;
+              const isAlive = aliveCharacters.includes(charId);
+              
+              return (
+                <div 
+                  key={charId} 
+                  className="relative flex flex-col items-center cursor-pointer"
+                  onClick={() => handleCharacterClick(character)}
+                >
                   <div 
-                    key={charId} 
-                    className="relative flex flex-col items-center cursor-pointer"
-                    onClick={() => handleCharacterClick(character)}
+                    className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
                   >
-                    <div 
-                      className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
-                    >
-                      <img 
-                        src={character.icon} 
-                        alt={character.name} 
-                        className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
-                      />
-                      {getStatusBadge(charId)}
-                    </div>
-                    <div className="mt-1 text-xs text-center leading-tight">
-                      <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
-                        {character.name}
-                      </div>
-                      {showPlayerNames && character.playerName && (
-                        <div className="text-[10px] text-gray-400">
-                          {character.playerName}
-                        </div>
-                      )}
-                    </div>
+                    <img 
+                      src={character.icon} 
+                      alt={character.name} 
+                      className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
+                    />
+                    {getStatusBadge(charId)}
                   </div>
-                );
-              })}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="village" className="m-0">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {filterCharactersByTeam('village').map(character => {
-                const charId = character.instanceId || character.id;
-                const isAlive = aliveCharacters.includes(charId);
-                
-                return (
-                  <div 
-                    key={charId} 
-                    className="relative flex flex-col items-center cursor-pointer"
-                    onClick={() => handleCharacterClick(character)}
-                  >
-                    <div 
-                      className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
-                    >
-                      <img 
-                        src={character.icon} 
-                        alt={character.name} 
-                        className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
-                      />
-                      {getStatusBadge(charId)}
+                  <div className="mt-1 text-xs text-center leading-tight">
+                    <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
+                      {character.name}
                     </div>
-                    <div className="mt-1 text-xs text-center leading-tight">
-                      <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
-                        {character.name}
+                    {showPlayerNames && character.playerName && (
+                      <div className="text-[10px] text-gray-400">
+                        {character.playerName}
                       </div>
-                      {showPlayerNames && character.playerName && (
-                        <div className="text-[10px] text-gray-400">
-                          {character.playerName}
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="werewolf" className="m-0">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {filterCharactersByTeam('werewolf').map(character => {
-                const charId = character.instanceId || character.id;
-                const isAlive = aliveCharacters.includes(charId);
-                
-                return (
-                  <div 
-                    key={charId} 
-                    className="relative flex flex-col items-center cursor-pointer"
-                    onClick={() => handleCharacterClick(character)}
-                  >
-                    <div 
-                      className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
-                    >
-                      <img 
-                        src={character.icon} 
-                        alt={character.name} 
-                        className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
-                      />
-                      {getStatusBadge(charId)}
-                    </div>
-                    <div className="mt-1 text-xs text-center leading-tight">
-                      <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
-                        {character.name}
-                      </div>
-                      {showPlayerNames && character.playerName && (
-                        <div className="text-[10px] text-gray-400">
-                          {character.playerName}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="solo" className="m-0">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {filterCharactersByTeam('solo').map(character => {
-                const charId = character.instanceId || character.id;
-                const isAlive = aliveCharacters.includes(charId);
-                
-                return (
-                  <div 
-                    key={charId} 
-                    className="relative flex flex-col items-center cursor-pointer"
-                    onClick={() => handleCharacterClick(character)}
-                  >
-                    <div 
-                      className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
-                    >
-                      <img 
-                        src={character.icon} 
-                        alt={character.name} 
-                        className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
-                      />
-                      {getStatusBadge(charId)}
-                    </div>
-                    <div className="mt-1 text-xs text-center leading-tight">
-                      <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
-                        {character.name}
-                      </div>
-                      {showPlayerNames && character.playerName && (
-                        <div className="text-[10px] text-gray-400">
-                          {character.playerName}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </TabsContent>
+                </div>
+              );
+            })}
+          </div>
         </ScrollArea>
       </div>
       
