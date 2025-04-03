@@ -65,23 +65,6 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
     }
   };
   
-  // Determine if character is linked
-  const isLinkedByCupid = characterLinks?.cupidLinks?.includes(character.instanceId || character.id) || false;
-  const isWildChildModel = characterLinks?.wildChildModel === (character.instanceId || character.id);
-  
-  // Find linked characters for additional info
-  const linkedCharacters = {
-    cupidPartner: isLinkedByCupid && characterLinks?.cupidLinks 
-      ? gameCharacters.find(c => {
-          const cId = c.instanceId || c.id;
-          return characterLinks.cupidLinks.includes(cId) && cId !== (character.instanceId || character.id);
-        }) || null
-      : null,
-    wildChildModel: character.id === 'wild-child' && characterLinks?.wildChildModel
-      ? gameCharacters.find(c => (c.instanceId || c.id) === characterLinks.wildChildModel) || null
-      : null
-  };
-  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -95,12 +78,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
             )}
           </DialogTitle>
           <DialogDescription>
-            <CharacterPortrait 
-              character={character} 
-              isAlive={isAlive} 
-              isLinkedByCupid={isLinkedByCupid}
-              isWildChildModel={isWildChildModel}
-            />
+            <CharacterPortrait character={character} isAlive={isAlive} />
 
             <div className="mt-5 space-y-4">
               {showPlayerNames && onPlayerNameChange && (
@@ -110,10 +88,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                 />
               )}
 
-              <CharacterInfo 
-                character={character} 
-                linkedCharacters={linkedCharacters}
-              />
+              <CharacterInfo character={character} />
               
               {linkSelectionOpen && (
                 <CharacterLinkSelector 
