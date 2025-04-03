@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export type GamePhase = 'setup' | 'firstDay' | 'firstNight' | 'day' | 'night' | 'gameEnd';
@@ -21,6 +22,7 @@ export interface CharacterType {
   id: string;
   instanceId?: string;
   name: string;
+  nameEn?: string;  // Added nameEn as an optional property
   icon: string;
   description: string;
   team: 'village' | 'werewolf' | 'solo';
@@ -31,6 +33,7 @@ export interface CharacterType {
   actionOrder?: number;
   actionDescription?: string;
   className?: string;
+  minPlayers?: number;  // This was missing but is being used in the characters.ts file
 }
 
 export interface GameState {
