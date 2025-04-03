@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { CharacterType, CharacterLinks, GamePhase } from '@/types';
+import { CharacterType, CharacterLinks } from '@/types';
 import { 
   Dialog,
   DialogContent,
@@ -31,8 +31,6 @@ interface CharacterDetailsDialogProps {
   onLinkCharacter?: (type: 'cupid' | 'wildChild', characterId: string, targetId: string) => void;
   playerName?: string;
   onPlayerNameChange?: (characterId: string, name: string) => void;
-  showPlayerNames?: boolean;
-  gamePhase?: GamePhase;
 }
 
 const getPlayingTip = (character: CharacterType): string => {
@@ -72,9 +70,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
   characterLinks,
   onLinkCharacter,
   playerName = '',
-  onPlayerNameChange,
-  showPlayerNames = false,
-  gamePhase = 'setup'
+  onPlayerNameChange
 }) => {
   const playingTip = getPlayingTip(character);
   const [linkSelectionOpen, setLinkSelectionOpen] = useState<'cupid' | 'wildChild' | null>(null);
@@ -108,9 +104,6 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
     }
   };
   
-  // Determine if player name input should be enabled (only during setup phase)
-  const isNameInputEnabled = gamePhase === 'setup';
-  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -135,36 +128,23 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
             </div>
 
             <div className="mt-5 space-y-4">
-              {showPlayerNames && (
-                <div>
-                  <Label htmlFor="playerName" className="text-sm font-medium flex items-center gap-1">
-                    <User className="h-4 w-4" /> Prénom du joueur:
-                  </Label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Input 
-                      id="playerName"
-                      value={inputPlayerName} 
-                      onChange={handleNameChange}
-                      placeholder="Entrez le prénom du joueur"
-                      className="text-sm"
-                      disabled={!isNameInputEnabled}
-                    />
-                    <Button 
-                      size="sm" 
-                      variant="secondary" 
-                      onClick={savePlayerName}
-                      disabled={!isNameInputEnabled}
-                    >
-                      Enregistrer
-                    </Button>
-                  </div>
-                  {!isNameInputEnabled && showPlayerNames && inputPlayerName && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {inputPlayerName} - Édition des noms désactivée pendant la partie
-                    </p>
-                  )}
+              <div>
+                <Label htmlFor="playerName" className="text-sm font-medium flex items-center gap-1">
+                  <User className="h-4 w-4" /> Prénom du joueur:
+                </Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input 
+                    id="playerName"
+                    value={inputPlayerName} 
+                    onChange={handleNameChange}
+                    placeholder="Entrez le prénom du joueur"
+                    className="text-sm"
+                  />
+                  <Button size="sm" variant="secondary" onClick={savePlayerName}>
+                    Enregistrer
+                  </Button>
                 </div>
-              )}
+              </div>
 
               <div>
                 <h3 className="text-sm font-medium">Description:</h3>

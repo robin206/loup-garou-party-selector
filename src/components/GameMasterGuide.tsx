@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { GamePhase, CharacterType } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users, Undo } from 'lucide-react';
+import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users } from 'lucide-react';
 import AudioButton from './AudioButton';
 import { useAudio } from '@/hooks/useAudio';
 import Timer from './Timer';
@@ -79,15 +78,9 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               <li>Procédez au vote (le maire aura une voix prépondérante en cas d'égalité)</li>
             </ul>
             <p className="mb-4">3. Annoncez le maire élu.</p>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <Button onClick={() => onPhaseChange('setup')} className="bg-gray-600 hover:bg-gray-700 w-full mt-4">
-                <Undo className="mr-2 h-4 w-4" /> Retour à la préparation
-              </Button>
-              <Button onClick={() => onPhaseChange('firstNight')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Première nuit <Moon className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <Button onClick={() => onPhaseChange('firstNight')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
+              Passer à la première nuit <Moon className="ml-2 h-4 w-4" />
+            </Button>
           </div>;
       case 'firstNight':
         const nightActions = getOrderedCharacterActions(characters, 'night', true, aliveCharacters);
@@ -114,15 +107,9 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                 ))}
               </ol>
             </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <Button onClick={() => onPhaseChange('setup')} className="bg-gray-600 hover:bg-gray-700 w-full mt-4">
-                <Undo className="mr-2 h-4 w-4" /> Retour à la préparation
-              </Button>
-              <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Jour suivant <Sun className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
+              Passer au jour suivant <Sun className="ml-2 h-4 w-4" />
+            </Button>
           </div>;
       case 'day':
         const dayActions = getOrderedCharacterActions(characters, 'day', false, aliveCharacters);
@@ -166,14 +153,9 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                 demandez-lui discrètement si elle souhaite échanger son rôle avec le joueur éliminé.
               </p>}
             
-            <div className="grid grid-cols-2 gap-2">
-              <Button onClick={() => onPhaseChange('setup')} className="bg-gray-600 hover:bg-gray-700 w-full mt-4">
-                <Undo className="mr-2 h-4 w-4" /> Retour à la préparation
-              </Button>
-              <Button onClick={() => onPhaseChange('night')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Passer à la nuit <Moon className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <Button onClick={() => onPhaseChange('night')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
+              Passer à la nuit <Moon className="ml-2 h-4 w-4" />
+            </Button>
           </div>;
       case 'night':
         const regularNightActions = getOrderedCharacterActions(characters, 'night', false, aliveCharacters);
@@ -200,15 +182,9 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                 ))}
               </ol>
             </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <Button onClick={() => onPhaseChange('setup')} className="bg-gray-600 hover:bg-gray-700 w-full mt-4">
-                <Undo className="mr-2 h-4 w-4" /> Retour à la préparation
-              </Button>
-              <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Jour suivant <Sun className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
+              Passer au jour suivant <Sun className="ml-2 h-4 w-4" />
+            </Button>
           </div>;
       case 'gameEnd':
         return <div>
