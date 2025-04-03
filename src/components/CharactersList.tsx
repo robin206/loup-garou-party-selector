@@ -1,17 +1,21 @@
 
 import React, { useState } from 'react';
-import { CharacterType, CharacterLinks } from '@/types';
-import TooltipWrapper from './TooltipWrapper';
-import { cn } from '@/lib/utils';
-import CharacterDetailsDialog from './CharacterDetailsDialog';
-import { Users, Heart, Leaf, Eye, EyeOff } from 'lucide-react';
-import { toast } from 'sonner';
+import { CharacterType, CharacterLinks, GamePhase } from '@/types';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Skull, Settings, Heart, User, Leaf, Target, UserCheck } from 'lucide-react';
+import CharacterDetailsDialog from './CharacterDetailsDialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface CharactersListProps {
   characters: CharacterType[];
-  className?: string;
-  size?: 'sm' | 'md';
   aliveCharacters: string[];
   onKillCharacter: (id: string) => void;
   characterLinks?: CharacterLinks;
@@ -19,326 +23,299 @@ interface CharactersListProps {
   onPlayerNameChange?: (characterId: string, name: string) => void;
   showPlayerNames?: boolean;
   onTogglePlayerNames?: () => void;
+  gamePhase?: GamePhase;
 }
 
 const CharactersList: React.FC<CharactersListProps> = ({ 
-  characters, 
-  className,
-  size = 'sm',
-  aliveCharacters = [],
+  characters,
+  aliveCharacters,
   onKillCharacter,
   characterLinks,
   onLinkCharacter,
   onPlayerNameChange,
   showPlayerNames = false,
-  onTogglePlayerNames
+  onTogglePlayerNames,
+  gamePhase = 'setup'
 }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterType | null>(null);
-  
-  // Group characters by team
-  const villageChars = characters.filter(char => char.team === 'village');
-  const werewolfChars = characters.filter(char => char.team === 'werewolf');
-  const soloChars = characters.filter(char => char.team === 'solo');
-
-  // Calculate alive character counts
-  const aliveVillageCount = villageChars.filter(char => 
-    aliveCharacters.includes(char.instanceId || char.id)
-  ).length;
-  
-  const aliveWerewolfCount = werewolfChars.filter(char => 
-    aliveCharacters.includes(char.instanceId || char.id)
-  ).length;
-  
-  const aliveSoloCount = soloChars.filter(char => 
-    aliveCharacters.includes(char.instanceId || char.id)
-  ).length;
-  
-  const totalAliveCount = aliveVillageCount + aliveWerewolfCount + aliveSoloCount;
-
-  // Increased size for character icons
-  const iconSize = size === 'sm' ? 'w-16 h-16' : 'w-16 h-16';
-  const containerClass = size === 'sm' ? 'gap-1' : 'gap-2';
+  const [activeTab, setActiveTab] = useState<string>("all");
   
   const handleCharacterClick = (character: CharacterType) => {
-    if (onKillCharacter) {
-      setSelectedCharacter(character);
-    }
+    setSelectedCharacter(character);
   };
   
   const handleCloseDialog = () => {
     setSelectedCharacter(null);
   };
   
-  const isAlive = (character: CharacterType) => {
-    const characterId = character.instanceId || character.id;
-    return aliveCharacters.includes(characterId);
-  };
-
-  // Check if character is linked by Cupid or is a Wild Child model
-  const isLinkedByCupid = (character: CharacterType) => {
-    if (!characterLinks?.cupidLinks || !Array.isArray(characterLinks.cupidLinks)) return false;
-    return characterLinks.cupidLinks.includes(character.instanceId || character.id);
-  };
-
-  const isWildChildModel = (character: CharacterType) => {
-    if (!characterLinks?.wildChildModel) return false;
-    return characterLinks.wildChildModel === (character.instanceId || character.id);
-  };
-
-  // Event handler for when a linked character dies
-  const handleLinkedCharacterDeath = (character: CharacterType) => {
-    // Only trigger if the character was alive and is now being killed
-    if (isAlive(character)) {
-      if (isLinkedByCupid(character) && characterLinks?.cupidLinks) {
-        // Find the other lover
-        const otherLoverId = characterLinks.cupidLinks.find(id => id !== (character.instanceId || character.id));
-        if (otherLoverId) {
-          const otherLover = characters.find(c => (c.instanceId || c.id) === otherLoverId);
-          if (otherLover) {
-            toast.warning(`⚠️ N'oubliez pas: ${otherLover.name} (amoureux) doit mourir de chagrin !`, {
-              duration: 5000,
-            });
-          }
-        }
-      }
-
-      if (isWildChildModel(character)) {
-        const wildChild = characters.find(c => c.id === 'wild-child');
-        if (wildChild) {
-          toast.warning(`⚠️ N'oubliez pas: ${wildChild.name} devient loup-garou car son modèle est mort !`, {
-            duration: 5000,
-          });
-          
-          // Move Wild Child to werewolf team
-          if (wildChild && onLinkCharacter) {
-            const wildChildId = wildChild.instanceId || wildChild.id;
-            // Signal that the Wild Child's model was killed
-            onLinkCharacter('wildChild', wildChildId, 'convert-to-werewolf');
-          }
-        }
-      }
-      
-      // Check if hunter was killed
-      if (character.id === 'hunter') {
-        toast.warning(`⚠️ Attention: Le Chasseur est mort ! Il doit immédiatement désigner quelqu'un à éliminer avec lui !`, {
-          duration: 5000,
-        });
-      }
-    }
-  };
-
-  const wrappedOnKillCharacter = (characterId: string) => {
-    const character = characters.find(c => (c.instanceId || c.id) === characterId);
-    if (character) {
-      handleLinkedCharacterDeath(character);
-    }
-    onKillCharacter(characterId);
-  };
-
-  // Helper to get the border color for linked characters
-  const getCharacterBorderClass = (character: CharacterType) => {
-    if (isWildChildModel(character) || 
-        (character.id === 'wild-child' && characterLinks?.wildChildModel)) {
-      return "ring-4 ring-green-500";
+  const getStatusBadge = (characterId: string) => {
+    const isAlive = aliveCharacters.includes(characterId);
+    
+    if (!isAlive) {
+      return <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 shadow-md">
+        <Skull className="h-3 w-3" />
+      </div>;
     }
     
-    return "";
-  };
-
-  // Render player name under character icon if showPlayerNames is true
-  const renderPlayerName = (character: CharacterType) => {
-    if (!showPlayerNames) return null;
+    // Check if character is linked by Cupid
+    if (characterLinks?.cupidLinks && characterLinks.cupidLinks.includes(characterId)) {
+      return <div className="absolute -top-1 -right-1 bg-pink-500 text-white rounded-full p-1 shadow-md">
+        <Heart className="h-3 w-3 fill-white" />
+      </div>;
+    }
     
-    return (
-      <div className="absolute bottom-0 left-0 right-0 text-center">
-        <span className="text-xs font-medium bg-black/60 text-white px-1 py-0.5 rounded truncate max-w-[54px] inline-block">
-          {character.playerName || ""}
-        </span>
-      </div>
-    );
+    // Check if character is Wild Child's model
+    if (characterLinks?.wildChildModel === characterId) {
+      return <div className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full p-1 shadow-md">
+        <Target className="h-3 w-3" />
+      </div>;
+    }
+    
+    return null;
+  };
+  
+  const getBorderStyle = (characterId: string) => {
+    // Cupid links
+    if (characterLinks?.cupidLinks && characterLinks.cupidLinks.includes(characterId)) {
+      return "border-pink-500 shadow-pink-300/20 shadow-md";
+    }
+    
+    // Wild Child model
+    if (characterLinks?.wildChildModel === characterId) {
+      return "border-green-500 shadow-green-300/20 shadow-md";
+    }
+    
+    return "border-gray-700";
   };
 
+  // Cette fonction filtre les personnages en fonction du type d'équipe
+  const filterCharactersByTeam = (team: 'village' | 'werewolf' | 'solo' | 'all') => {
+    if (team === 'all') return characters;
+    return characters.filter(char => char.team === team);
+  };
+  
   return (
-    <div className={cn("glass-card p-2 rounded-xl", className)}>
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-xs font-semibold text-gray-400">Personnages en jeu</h3>
-        <div className="flex items-center gap-2">
-          {onTogglePlayerNames && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 px-2 flex items-center gap-1 bg-zinc-900/60 hover:bg-zinc-800"
-              onClick={onTogglePlayerNames}
-              title={showPlayerNames ? "Masquer les prénoms" : "Afficher les prénoms"}
-            >
-              {showPlayerNames ? (
-                <EyeOff className="h-3 w-3 text-gray-300" />
-              ) : (
-                <Eye className="h-3 w-3 text-gray-300" />
-              )}
-              <span className="text-xs text-gray-300">
-                {showPlayerNames ? "Masquer" : "Prénoms"}
-              </span>
-            </Button>
-          )}
-          <div className="flex items-center text-xs bg-zinc-900/60 px-2 py-1 rounded-full">
-            <Users className="h-3 w-3 mr-1 text-werewolf-accent" />
-            <span className="font-medium">{totalAliveCount}</span>
-            <span className="text-gray-400 mx-1">joueurs vivants</span>
-          </div>
+    <>
+      <div className="bg-gray-950/60 rounded-xl p-4 mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold">Personnages en jeu ({characters.length})</h2>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onTogglePlayerNames} className="flex items-center gap-2">
+                <User className="h-4 w-4" /> 
+                {showPlayerNames ? "Masquer les prénoms" : "Afficher les prénoms"}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="flex items-center gap-2 text-pink-500"
+                onClick={() => {
+                  if (characterLinks?.linkedCharactersVisible !== undefined && onLinkCharacter) {
+                    onLinkCharacter('cupid', 'visibility', characterLinks.linkedCharactersVisible ? 'hide' : 'show');
+                  }
+                }}
+              >
+                <Heart className={`h-4 w-4 ${characterLinks?.linkedCharactersVisible ? '' : 'fill-pink-500'}`} /> 
+                {characterLinks?.linkedCharactersVisible 
+                  ? "Masquer liens amoureux" 
+                  : "Afficher liens amoureux"
+                }
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </div>
-      
-      <div className="flex justify-between mb-3 text-xs">
-        <div className="flex flex-col items-center bg-blue-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
-          <span className="text-blue-500 font-medium">{aliveVillageCount}/{villageChars.length}</span>
-          <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
-        </div>
-        <div className="flex flex-col items-center bg-red-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
-          <span className="text-werewolf-blood font-medium">{aliveWerewolfCount}/{werewolfChars.length}</span>
-          <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
-        </div>
-        <div className="flex flex-col items-center bg-amber-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
-          <span className="text-amber-500 font-medium">{aliveSoloCount}/{soloChars.length}</span>
-          <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
-        </div>
-      </div>
         
-      {werewolfChars.length > 0 && (
-        <div className="team-container">
-          <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
-          <div className={cn("flex flex-wrap", containerClass)}>
-            {werewolfChars.map((character, index) => (
-              <TooltipWrapper 
-                key={character.instanceId || `${character.id}-${index}`} 
-                character={character} 
-                side="top"
-              >
-                <div 
-                  className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
-                    isAlive(character) 
-                      ? "border-werewolf-blood/30" 
-                      : "border-gray-600/30 grayscale opacity-70",
-                    iconSize,
-                    getCharacterBorderClass(character)
-                  )}
-                  onClick={() => handleCharacterClick(character)}
-                >
-                  <img 
-                    src={character.icon} 
-                    alt={character.name} 
-                    className={cn(
-                      "w-full h-full object-contain p-1",
-                      character.id === 'wild-child' && character.team === 'werewolf' && "animate-pulse-subtle"
-                    )} 
-                  />
-                  {isLinkedByCupid(character) && isAlive(character) && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
+        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full mb-4">
+          <TabsList className="w-full grid grid-cols-4">
+            <TabsTrigger value="all" className="text-xs">Tous</TabsTrigger>
+            <TabsTrigger value="village" className="text-xs flex items-center gap-1">
+              <UserCheck className="h-3 w-3" /> Village
+            </TabsTrigger>
+            <TabsTrigger value="werewolf" className="text-xs flex items-center gap-1">
+              <Skull className="h-3 w-3" /> Loups
+            </TabsTrigger>
+            <TabsTrigger value="solo" className="text-xs flex items-center gap-1">
+              <User className="h-3 w-3" /> Solo
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        
+        <ScrollArea className="h-96 pr-4">
+          <TabsContent value="all" className="m-0">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {characters.map(character => {
+                const charId = character.instanceId || character.id;
+                const isAlive = aliveCharacters.includes(charId);
+                
+                return (
+                  <div 
+                    key={charId} 
+                    className="relative flex flex-col items-center cursor-pointer"
+                    onClick={() => handleCharacterClick(character)}
+                  >
+                    <div 
+                      className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
+                    >
+                      <img 
+                        src={character.icon} 
+                        alt={character.name} 
+                        className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
+                      />
+                      {getStatusBadge(charId)}
                     </div>
-                  )}
-                  {renderPlayerName(character)}
-                </div>
-              </TooltipWrapper>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {villageChars.length > 0 && (
-        <div className="team-container">
-          <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
-          <div className={cn("flex flex-wrap", containerClass)}>
-            {villageChars.map((character, index) => (
-              <TooltipWrapper 
-                key={character.instanceId || `${character.id}-${index}`} 
-                character={character} 
-                side="top"
-              >
-                <div 
-                  className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
-                    isAlive(character) 
-                      ? "border-blue-500/30" 
-                      : "border-gray-600/30 grayscale opacity-70",
-                    iconSize,
-                    getCharacterBorderClass(character)
-                  )}
-                  onClick={() => handleCharacterClick(character)}
-                >
-                  <img 
-                    src={character.icon} 
-                    alt={character.name} 
-                    className="w-full h-full object-contain p-1" 
-                  />
-                  {isLinkedByCupid(character) && isAlive(character) && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
+                    <div className="mt-1 text-xs text-center leading-tight">
+                      <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
+                        {character.name}
+                      </div>
+                      {showPlayerNames && character.playerName && (
+                        <div className="text-[10px] text-gray-400">
+                          {character.playerName}
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {renderPlayerName(character)}
-                </div>
-              </TooltipWrapper>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {soloChars.length > 0 && (
-        <div className="team-container">
-          <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
-          <div className={cn("flex flex-wrap", containerClass)}>
-            {soloChars.map((character, index) => (
-              <TooltipWrapper 
-                key={character.instanceId || `${character.id}-${index}`} 
-                character={character} 
-                side="top"
-              >
-                <div 
-                  className={cn(
-                    "rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6",
-                    isAlive(character) 
-                      ? "border-amber-500/30" 
-                      : "border-gray-600/30 grayscale opacity-70",
-                    iconSize,
-                    getCharacterBorderClass(character)
-                  )}
-                  onClick={() => handleCharacterClick(character)}
-                >
-                  <img 
-                    src={character.icon} 
-                    alt={character.name} 
-                    className="w-full h-full object-contain p-1" 
-                  />
-                  {isLinkedByCupid(character) && isAlive(character) && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="village" className="m-0">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {filterCharactersByTeam('village').map(character => {
+                const charId = character.instanceId || character.id;
+                const isAlive = aliveCharacters.includes(charId);
+                
+                return (
+                  <div 
+                    key={charId} 
+                    className="relative flex flex-col items-center cursor-pointer"
+                    onClick={() => handleCharacterClick(character)}
+                  >
+                    <div 
+                      className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
+                    >
+                      <img 
+                        src={character.icon} 
+                        alt={character.name} 
+                        className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
+                      />
+                      {getStatusBadge(charId)}
                     </div>
-                  )}
-                  {renderPlayerName(character)}
-                </div>
-              </TooltipWrapper>
-            ))}
-          </div>
-        </div>
-      )}
+                    <div className="mt-1 text-xs text-center leading-tight">
+                      <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
+                        {character.name}
+                      </div>
+                      {showPlayerNames && character.playerName && (
+                        <div className="text-[10px] text-gray-400">
+                          {character.playerName}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="werewolf" className="m-0">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {filterCharactersByTeam('werewolf').map(character => {
+                const charId = character.instanceId || character.id;
+                const isAlive = aliveCharacters.includes(charId);
+                
+                return (
+                  <div 
+                    key={charId} 
+                    className="relative flex flex-col items-center cursor-pointer"
+                    onClick={() => handleCharacterClick(character)}
+                  >
+                    <div 
+                      className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
+                    >
+                      <img 
+                        src={character.icon} 
+                        alt={character.name} 
+                        className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
+                      />
+                      {getStatusBadge(charId)}
+                    </div>
+                    <div className="mt-1 text-xs text-center leading-tight">
+                      <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
+                        {character.name}
+                      </div>
+                      {showPlayerNames && character.playerName && (
+                        <div className="text-[10px] text-gray-400">
+                          {character.playerName}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="solo" className="m-0">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {filterCharactersByTeam('solo').map(character => {
+                const charId = character.instanceId || character.id;
+                const isAlive = aliveCharacters.includes(charId);
+                
+                return (
+                  <div 
+                    key={charId} 
+                    className="relative flex flex-col items-center cursor-pointer"
+                    onClick={() => handleCharacterClick(character)}
+                  >
+                    <div 
+                      className={`w-14 h-14 rounded-full overflow-hidden border-2 relative ${getBorderStyle(charId)}`}
+                    >
+                      <img 
+                        src={character.icon} 
+                        alt={character.name} 
+                        className={`w-full h-full object-cover ${!isAlive ? 'grayscale opacity-70' : ''}`}
+                      />
+                      {getStatusBadge(charId)}
+                    </div>
+                    <div className="mt-1 text-xs text-center leading-tight">
+                      <div className={`font-medium ${!isAlive ? 'line-through text-gray-500' : ''}`}>
+                        {character.name}
+                      </div>
+                      {showPlayerNames && character.playerName && (
+                        <div className="text-[10px] text-gray-400">
+                          {character.playerName}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+        </ScrollArea>
+      </div>
       
-      {selectedCharacter && onKillCharacter && (
-        <CharacterDetailsDialog 
+      {selectedCharacter && (
+        <CharacterDetailsDialog
           character={selectedCharacter}
-          isOpen={!!selectedCharacter}
+          isOpen={true}
           onClose={handleCloseDialog}
-          onKillCharacter={wrappedOnKillCharacter}
-          isAlive={isAlive(selectedCharacter)}
+          onKillCharacter={onKillCharacter}
+          isAlive={aliveCharacters.includes(selectedCharacter.instanceId || selectedCharacter.id)}
           gameCharacters={characters}
           characterLinks={characterLinks}
           onLinkCharacter={onLinkCharacter}
           playerName={selectedCharacter.playerName}
           onPlayerNameChange={onPlayerNameChange}
+          showPlayerNames={showPlayerNames}
+          gamePhase={gamePhase}
         />
       )}
-    </div>
+    </>
   );
 };
 

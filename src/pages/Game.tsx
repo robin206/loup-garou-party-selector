@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { GameState, CharacterType, GamePhase, CharacterLinks, GameNotification } from '@/types';
@@ -450,9 +451,10 @@ const Game = () => {
                 onKillCharacter={handleKillCharacter}
                 characterLinks={characterLinks}
                 onLinkCharacter={handleLinkCharacter}
-                onPlayerNameChange={handlePlayerNameChange}
+                onPlayerNameChange={gamePhase === 'setup' ? handlePlayerNameChange : undefined}
                 showPlayerNames={showPlayerNames}
                 onTogglePlayerNames={togglePlayerNames}
+                gamePhase={gamePhase}
               />
               
               <GameNotifications 
