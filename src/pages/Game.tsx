@@ -453,6 +453,7 @@ const Game = () => {
                 onPlayerNameChange={handlePlayerNameChange}
                 showPlayerNames={showPlayerNames}
                 onTogglePlayerNames={togglePlayerNames}
+                gamePhase={gamePhase}
               />
               
               <GameNotifications 
