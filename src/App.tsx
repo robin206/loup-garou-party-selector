@@ -1,42 +1,42 @@
+import { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Game from './pages/Game';
+import Home from './pages/Home';
+import Settings from './pages/Settings';
+import Setup from './pages/Setup';
+import Help from './pages/Help';
+import { AppContextProvider } from './context/AppContext';
+import { Phase, Role } from './types';
+import Themes from './pages/Themes';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import Index from "./pages/Index";
-import Game from "./pages/Game";
-import Rules from "./pages/Rules";
-import Config from "./pages/Config";
-import Setup from "./pages/Setup";
-import Distribution from "./pages/Distribution";
-import NotFound from "./pages/NotFound";
+function App() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
-// Create a client outside of the component
-const queryClient = new QueryClient();
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/game" element={<Game />} />
-            <Route path="/rules" element={<Rules />} />
-            <Route path="/config" element={<Config />} />
-            <Route path="/setup" element={<Setup />} />
-            <Route path="/distribution" element={<Distribution />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
-export default App;
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  return (
+    <AppContextProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/setup" element={<Setup />} />
+        <Route path="/game" element={<Game />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/themes" element={<Themes />} />
+        <Route path="/help" element={<Help />} />
+      </Routes>
+    </AppContextProvider>
+  );
+}
+
+export default App
