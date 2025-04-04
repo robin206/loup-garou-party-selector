@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ArrowLeft, BookOpen, Moon, Sun } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -12,69 +12,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger
 } from "@/components/ui/collapsible";
-
-interface CharacterInfo {
-  name: string;
-  description: string;
-  id: string;
-  image: string;
-}
+import { characterRules } from '@/data/characterRules';
+import CharacterRuleCard from '@/components/CharacterRuleCard';
 
 const Rules = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const gameState = location.state as GameState;
-  const [characters, setCharacters] = useState<CharacterInfo[]>([]);
-  
-  useEffect(() => {
-    // Parse the characters from the text file
-    fetch('/personnages_regles.txt')
-      .then(response => response.text())
-      .then(text => {
-        const charactersData: CharacterInfo[] = text.split('\n')
-          .filter(line => line.trim().length > 0)
-          .map(line => {
-            const [name, description] = line.split('|');
-            
-            // Generate an ID from the name
-            const id = name.toLowerCase().replace(/[^\w]/g, '-');
-            
-            // Determine the image path based on the character name
-            const imageName = name.toLowerCase()
-              .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
-              .replace(/[^\w]/g, '')
-              .replace(/loupsgarus/, 'loup')
-              .replace(/voyante/, 'voyante')
-              .replace(/sorcière/, 'sorciere')
-              .replace(/mainloup/, 'grandloup')
-              .replace(/petite fille/, 'fille')
-              .replace(/servante dévouée/, 'servante')
-              .replace(/maire/, 'maire')
-              .replace(/joueur de flûte/, 'flute')
-              .replace(/montreur d'ours/, 'montreur')
-              .replace(/bouc émissaire/, 'bouc')
-              .replace(/infect père des loups/, 'infectloup')
-              .replace(/grandméchantloup/, 'grandloup')
-              .replace(/chienloup/, 'chienloup');
-              
-            return {
-              name,
-              description,
-              id,
-              image: `/img/perso_${imageName}.svg`
-            };
-          });
-          
-        setCharacters(charactersData);
-      })
-      .catch(error => console.error('Error loading characters:', error));
-  }, []);
   
   const handleBackToGame = () => {
     // Try to load game state from localStorage
@@ -97,14 +47,14 @@ const Rules = () => {
   };
 
   // Group characters by their type
-  const villageCharacters = characters.filter(char => 
+  const villageCharacters = characterRules.filter(char => 
     !char.name.toLowerCase().includes('loup') && 
     !char.name.toLowerCase().includes('infect') && 
     !char.name.toLowerCase().includes('blanc') &&
     !char.name.toLowerCase().includes('chien-loup')
   );
   
-  const wolfCharacters = characters.filter(char => 
+  const wolfCharacters = characterRules.filter(char => 
     char.name.toLowerCase().includes('loup') || 
     char.name.toLowerCase().includes('infect') || 
     char.name.toLowerCase().includes('blanc') ||
@@ -136,7 +86,7 @@ const Rules = () => {
             <h2 className="text-2xl font-semibold mb-4">Personnages</h2>
             
             <div className="flex flex-wrap gap-3 mb-6">
-              {characters.map((character) => (
+              {characterRules.map((character) => (
                 <a 
                   key={character.id} 
                   href={`#${character.id}`} 
@@ -176,24 +126,25 @@ const Rules = () => {
               </AccordionContent>
             </AccordionItem>
 
-            {/* All Characters */}
-            <AccordionItem value="all-characters">
-              <AccordionTrigger>Tous les personnages</AccordionTrigger>
+            {/* Village Characters */}
+            <AccordionItem value="village-characters">
+              <AccordionTrigger>Personnages du Village</AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-6">
-                  {characters.map((character) => (
-                    <div key={character.id} id={character.id} className="py-3 border-b border-gray-100 last:border-0">
-                      <div className="flex gap-4 items-start">
-                        <Avatar className="h-16 w-16 shrink-0">
-                          <AvatarImage src={character.image} alt={character.name} />
-                          <AvatarFallback>{character.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-semibold text-lg mb-2">{character.name}</h3>
-                          <p className="text-sm text-gray-700">{character.description}</p>
-                        </div>
-                      </div>
-                    </div>
+                  {villageCharacters.map((character) => (
+                    <CharacterRuleCard key={character.id} character={character} />
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Wolf Characters */}
+            <AccordionItem value="wolf-characters">
+              <AccordionTrigger>Loups-Garous et affiliés</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-6">
+                  {wolfCharacters.map((character) => (
+                    <CharacterRuleCard key={character.id} character={character} />
                   ))}
                 </div>
               </AccordionContent>
