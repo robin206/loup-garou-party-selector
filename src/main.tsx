@@ -2,6 +2,7 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { BrowserRouter } from 'react-router-dom'
 
 // Fonction pour forcer la mise à jour du service worker
 const updateServiceWorker = async () => {
@@ -22,4 +23,8 @@ const updateServiceWorker = async () => {
 // Au chargement de l'application, on force la mise à jour
 updateServiceWorker();
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);

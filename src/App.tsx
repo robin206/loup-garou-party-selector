@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Game from './pages/Game';
@@ -6,7 +7,6 @@ import Settings from './pages/Settings';
 import Setup from './pages/Setup';
 import Help from './pages/Help';
 import { AppContextProvider } from './context/AppContext';
-import { Phase, Role } from './types';
 import Themes from './pages/Themes';
 
 function App() {
@@ -39,4 +39,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
