@@ -13,6 +13,7 @@ import Setup from "./pages/Setup";
 import Distribution from "./pages/Distribution";
 import NotFound from "./pages/NotFound";
 
+// Create a client outside of the component
 const queryClient = new QueryClient();
 
 const App = () => (
