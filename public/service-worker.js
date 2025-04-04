@@ -1,6 +1,6 @@
 
 // Nom et version du cache - Incrémenté pour forcer la mise à jour
-const CACHE_NAME = 'loup-garou-v3';
+const CACHE_NAME = 'loup-garou-v4';
 
 // Liste des ressources à mettre en cache
 const RESOURCES_TO_CACHE = [
@@ -79,6 +79,7 @@ const RESOURCES_TO_CACHE = [
   '/audio/ambiance_diablo.webm',
   '/audio/ambiance_elwynnforest.webm',
   '/audio/ambiance_naruto.webm',
+  '/audio/Ambiance_The_Last_of_Us.mp3',  // Ajout du nouveau fichier audio
   '/audio/sampler/sampler_loup.ogg',
   '/audio/sampler/sampler_ours.ogg',
   '/audio/sampler/sampler_clocher.ogg',

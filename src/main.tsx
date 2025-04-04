@@ -1,4 +1,5 @@
 
+
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
@@ -18,7 +19,7 @@ const updateServiceWorker = async () => {
   }
 };
 
-// Timestamp for update: 2025-04-04-1715
+// Timestamp for update: 2025-04-04-1716
 // Au chargement de l'application, on force la mise à jour
 updateServiceWorker();
 

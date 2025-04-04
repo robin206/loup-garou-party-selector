@@ -1,4 +1,3 @@
-
 type FadeDirection = 'in' | 'out';
 
 class AudioService {
@@ -295,7 +294,8 @@ class AudioService {
       'ambiance_defautnuit.webm',
       'ambiance_diablo.webm',
       'ambiance_elwynnforest.webm',
-      'ambiance_naruto.webm'
+      'ambiance_naruto.webm',
+      'Ambiance_The_Last_of_Us.mp3'
     ];
   }
   
@@ -303,7 +303,9 @@ class AudioService {
    * Obtient uniquement les fichiers audio qui commencent par "ambiance_"
    */
   public getAmbianceAudioFiles(): string[] {
-    return this.getAvailableAudioFiles().filter(file => file.startsWith('ambiance_'));
+    return this.getAvailableAudioFiles().filter(file => 
+      file.startsWith('ambiance_') || file.startsWith('Ambiance_')
+    );
   }
   
   /**
