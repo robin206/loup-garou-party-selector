@@ -1,29 +1,32 @@
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// Removed the imports for Phase and Role since they don't exist in the types module
-
+// Define the context interface
 interface AppContextType {
-  theme: string;
-  setTheme: (theme: string) => void;
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
-const defaultContext: AppContextType = {
-  theme: 'default',
-  setTheme: () => {},
-};
+// Create the context with default values
+const AppContext = createContext<AppContextType>({
+  isDarkMode: false,
+  toggleDarkMode: () => {},
+});
 
-const AppContext = createContext<AppContextType>(defaultContext);
+// Create a provider component
+export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-export const useAppContext = () => useContext(AppContext);
-
-export const AppContextProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<string>('default');
-
-  const value = {
-    theme,
-    setTheme,
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev);
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={{ isDarkMode, toggleDarkMode }}>
+      {children}
+    </AppContext.Provider>
+  );
 };
+
+// Create a custom hook for using the context
+export const useAppContext = () => useContext(AppContext);
