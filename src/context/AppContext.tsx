@@ -1,6 +1,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { Phase, Role } from '../types';
+
+// Removed the imports for Phase and Role since they don't exist in the types module
 
 interface AppContextType {
   theme: string;
