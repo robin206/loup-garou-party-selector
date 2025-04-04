@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CharacterType, CharacterLinks } from '@/types';
 import { 
   Dialog,
@@ -10,13 +9,11 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { 
   Skull, 
   Leaf, 
   Unlink,
-  User
+  Heart
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -30,7 +27,6 @@ interface CharacterDetailsDialogProps {
   characterLinks?: CharacterLinks;
   onLinkCharacter?: (type: 'cupid' | 'wildChild', characterId: string, targetId: string) => void;
   playerName?: string;
-  onPlayerNameChange?: (characterId: string, name: string) => void;
 }
 
 const getPlayingTip = (character: CharacterType): string => {
@@ -69,17 +65,10 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
   gameCharacters = [],
   characterLinks,
   onLinkCharacter,
-  playerName = '',
-  onPlayerNameChange
+  playerName = ''
 }) => {
   const playingTip = getPlayingTip(character);
   const [linkSelectionOpen, setLinkSelectionOpen] = useState<'cupid' | 'wildChild' | null>(null);
-  const [inputPlayerName, setInputPlayerName] = useState(playerName);
-  
-  // Update internal state when playerName prop changes
-  useEffect(() => {
-    setInputPlayerName(playerName);
-  }, [playerName]);
   
   const isWildChild = character.id === 'wild-child';
   const isCupid = character.id === 'cupid';
@@ -92,16 +81,6 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
     onLinkCharacter(linkSelectionOpen, character.instanceId || character.id, targetId);
     setLinkSelectionOpen(null);
     toast.success(`Personnage lié avec succès !`);
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputPlayerName(e.target.value);
-  };
-
-  const savePlayerName = () => {
-    if (onPlayerNameChange) {
-      onPlayerNameChange(character.instanceId || character.id, inputPlayerName);
-    }
   };
   
   return (
@@ -128,23 +107,12 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
             </div>
 
             <div className="mt-5 space-y-4">
-              <div>
-                <Label htmlFor="playerName" className="text-sm font-medium flex items-center gap-1">
-                  <User className="h-4 w-4" /> Prénom du joueur:
-                </Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Input 
-                    id="playerName"
-                    value={inputPlayerName} 
-                    onChange={handleNameChange}
-                    placeholder="Entrez le prénom du joueur"
-                    className="text-sm"
-                  />
-                  <Button size="sm" variant="secondary" onClick={savePlayerName}>
-                    Enregistrer
-                  </Button>
+              {playerName && (
+                <div className="text-center">
+                  <span className="text-sm font-medium">Joueur: </span>
+                  <span className="text-sm font-bold">{playerName}</span>
                 </div>
-              </div>
+              )}
 
               <div>
                 <h3 className="text-sm font-medium">Description:</h3>

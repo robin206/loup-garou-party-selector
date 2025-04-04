@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { GameState, CharacterType, GamePhase, CharacterLinks, GameNotification } from '@/types';
@@ -6,11 +7,12 @@ import GameMasterGuide from '@/components/GameMasterGuide';
 import SoundSampler from '@/components/SoundSampler';
 import CharactersList from '@/components/CharactersList';
 import GameNotifications from '@/components/GameNotifications';
+import PlayerNamesEditor from '@/components/PlayerNamesEditor';
 import { Heart, Skull, Leaf, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useAudio } from '@/hooks/useAudio';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 
 const GAME_STATE_STORAGE_KEY = 'werewolf-game-current-state';
 
@@ -427,6 +429,11 @@ const Game = () => {
     toast.success("Partie terminée et sauvegarde effacée");
     navigate("/", { replace: true });
   };
+  
+  const handleReturnToSetup = () => {
+    setGamePhase('setup');
+    toast.success("Retour à la phase de préparation");
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
@@ -440,17 +447,26 @@ const Game = () => {
             onPhaseChange={handlePhaseChange}
             dayCount={dayCount}
             aliveCharacters={aliveCharacters}
+            onReturnToSetup={gamePhase !== 'setup' ? handleReturnToSetup : undefined}
           />
           
           {selectedGameCharacters.length > 0 && (
             <div className="mt-6 w-full max-w-md">
+              {gamePhase === 'setup' && (
+                <div className="mb-4">
+                  <PlayerNamesEditor
+                    characters={selectedGameCharacters}
+                    onPlayerNameChange={handlePlayerNameChange}
+                  />
+                </div>
+              )}
+              
               <CharactersList 
                 characters={selectedGameCharacters}
                 aliveCharacters={aliveCharacters}
                 onKillCharacter={handleKillCharacter}
                 characterLinks={characterLinks}
                 onLinkCharacter={handleLinkCharacter}
-                onPlayerNameChange={handlePlayerNameChange}
                 showPlayerNames={showPlayerNames}
                 onTogglePlayerNames={togglePlayerNames}
               />
