@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CharacterType, CharacterLinks } from '@/types';
 import TooltipWrapper from './TooltipWrapper';
@@ -335,7 +334,6 @@ const CharactersList: React.FC<CharactersListProps> = ({
           characterLinks={characterLinks}
           onLinkCharacter={onLinkCharacter}
           playerName={selectedCharacter.playerName}
-          onPlayerNameChange={onPlayerNameChange}
         />
       )}
     </div>
