@@ -2,7 +2,6 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { BrowserRouter } from 'react-router-dom'
 
 // Fonction pour forcer la mise à jour du service worker
 const updateServiceWorker = async () => {
@@ -19,7 +18,7 @@ const updateServiceWorker = async () => {
   }
 };
 
-// Timestamp for update: 2025-04-04-1815
+// Timestamp for update: 2025-04-04-1717
 // Au chargement de l'application, on force la mise à jour
 updateServiceWorker();
 
