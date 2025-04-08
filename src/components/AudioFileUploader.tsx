@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { Upload, X, Check, AlertCircle } from 'lucide-react';
+import { Upload, X, Check, AlertCircle, FileAudio2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import audioService from '@/services/audioService';
