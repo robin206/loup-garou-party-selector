@@ -1,13 +1,15 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Skull, Book, Music2 } from 'lucide-react';
+import { Book, Music2 } from 'lucide-react';
+
 const Header = () => {
   const location = useLocation();
   const gameState = location.state;
   return <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2 text-xl font-semibold text-gray-100">
-          <Skull className="h-6 w-6 text-werewolf-accent" />
+          <img src="/img/perso_loup.svg" alt="Loup Garou" className="h-6 w-6 text-werewolf-accent" />
           <span>Loup Garou - Maitre du jeu</span>
         </Link>
 
