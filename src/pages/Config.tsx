@@ -164,7 +164,7 @@ const Config = () => {
                     <Volume2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-sm text-gray-500">Cette musique sera jouée pendant les phases de nuit</p>
+                <p className="text-sm text-gray-200">Cette musique sera jouée pendant les phases de nuit</p>
               </div>
               
               <div className="space-y-2">
@@ -186,7 +186,7 @@ const Config = () => {
                     <Volume2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-sm text-gray-500">Cette musique sera jouée pendant les phases de vote</p>
+                <p className="text-sm text-gray-200">Cette musique sera jouée pendant les phases de vote</p>
               </div>
 
               <div className="space-y-2 pt-4 border-t border-gray-100">
@@ -199,14 +199,14 @@ const Config = () => {
                   <Slider id="volume-slider" defaultValue={[volume]} max={100} step={5} onValueChange={handleVolumeChange} className="flex-1" />
                   <Volume2 className="h-5 w-5 text-gray-700" />
                 </div>
-                <p className="text-sm text-gray-500">Ajustez le volume pour toutes les musiques</p>
+                <p className="text-sm text-gray-200">Ajustez le volume pour toutes les musiques</p>
               </div>
             </div>
           </div>
 
           <div className="pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Mode hors ligne activé : les sons et images sont mis en cache</span>
+              <span className="text-sm text-gray-200">Mode hors ligne activé : les sons et images sont mis en cache</span>
               <Button variant="outline" size="sm" onClick={() => stopMusic()}>
                 Arrêter la musique
               </Button>
@@ -218,7 +218,7 @@ const Config = () => {
               <FileAudio className="h-5 w-5" />
               Gérer mes musiques
             </Button>
-            <p className="text-sm text-gray-500 text-center mt-2">
+            <p className="text-sm text-gray-200 text-center mt-2">
               Ajoutez vos propres musiques d'ambiance au format MP3 ou WEBM
             </p>
           </div>
