@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { ArrowLeft, BookOpen, Moon, Sun } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -6,73 +5,47 @@ import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { GameState } from '@/types';
 import { toast } from 'sonner';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { characterRules } from '@/data/characterRules';
 import CharacterRuleCard from '@/components/CharacterRuleCard';
-
 const Rules = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const gameState = location.state as GameState;
-  
   const handleBackToGame = () => {
     // Try to load game state from localStorage
     const savedGameState = localStorage.getItem('werewolf-game-current-state');
-    
     if (savedGameState) {
       try {
         const parsedGameState = JSON.parse(savedGameState);
         toast.success("Retour à la partie en cours...");
-        navigate('/game', { state: parsedGameState });
+        navigate('/game', {
+          state: parsedGameState
+        });
       } catch (e) {
         console.error("Error parsing saved game state:", e);
         navigate('/');
       }
     } else if (gameState) {
-      navigate('/game', { state: gameState });
+      navigate('/game', {
+        state: gameState
+      });
     } else {
       navigate('/');
     }
   };
 
   // Group characters by their type
-  const villageCharacters = characterRules.filter(char => 
-    !char.name.toLowerCase().includes('loup') && 
-    !char.name.toLowerCase().includes('infect') && 
-    !char.name.toLowerCase().includes('blanc') &&
-    !char.name.toLowerCase().includes('chien-loup')
-  );
-  
-  const wolfCharacters = characterRules.filter(char => 
-    char.name.toLowerCase().includes('loup') || 
-    char.name.toLowerCase().includes('infect') || 
-    char.name.toLowerCase().includes('blanc') ||
-    char.name.toLowerCase().includes('chien-loup')
-  );
-
-  return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
+  const villageCharacters = characterRules.filter(char => !char.name.toLowerCase().includes('loup') && !char.name.toLowerCase().includes('infect') && !char.name.toLowerCase().includes('blanc') && !char.name.toLowerCase().includes('chien-loup'));
+  const wolfCharacters = characterRules.filter(char => char.name.toLowerCase().includes('loup') || char.name.toLowerCase().includes('infect') || char.name.toLowerCase().includes('blanc') || char.name.toLowerCase().includes('chien-loup'));
+  return <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
       
       <main className="flex-1 w-full max-w-4xl mx-auto pt-24 pb-12 px-4">
         <div className="flex justify-between items-center mb-6">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1" 
-            onClick={handleBackToGame}
-          >
+          <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={handleBackToGame}>
             <ArrowLeft className="h-4 w-4" />
             Retour au jeu
           </Button>
@@ -86,19 +59,13 @@ const Rules = () => {
             <h2 className="text-2xl font-semibold mb-4">Personnages</h2>
             
             <div className="flex flex-wrap gap-3 mb-6">
-              {characterRules.map((character) => (
-                <a 
-                  key={character.id} 
-                  href={`#${character.id}`} 
-                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100"
-                >
+              {characterRules.map(character => <a key={character.id} href={`#${character.id}`} className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-700">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={character.image} alt={character.name} />
                     <AvatarFallback>{character.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <span className="text-sm">{character.name}</span>
-                </a>
-              ))}
+                </a>)}
             </div>
           </section>
 
@@ -131,9 +98,7 @@ const Rules = () => {
               <AccordionTrigger>Personnages du Village</AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-6">
-                  {villageCharacters.map((character) => (
-                    <CharacterRuleCard key={character.id} character={character} />
-                  ))}
+                  {villageCharacters.map(character => <CharacterRuleCard key={character.id} character={character} />)}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -143,9 +108,7 @@ const Rules = () => {
               <AccordionTrigger>Loups-Garous et affiliés</AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-6">
-                  {wolfCharacters.map((character) => (
-                    <CharacterRuleCard key={character.id} character={character} />
-                  ))}
+                  {wolfCharacters.map(character => <CharacterRuleCard key={character.id} character={character} />)}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -222,8 +185,6 @@ const Rules = () => {
       <footer className="w-full border-t border-gray-100 py-6 text-center text-sm text-gray-500">
         <p>Loup Garou de Thiercelieux © {new Date().getFullYear()}</p>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Rules;
