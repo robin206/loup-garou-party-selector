@@ -139,10 +139,10 @@ const Config = () => {
                     </Select>
                   </div>
                   <Button variant="outline" size="icon" onClick={() => testAudio(playDayMusic)} title="Tester la musique">
-                    <Volume2 className="h-4 w-4 text-gray-200" />
+                    <Volume2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-sm text-gray-500">Cette musique sera jouée pendant les phases de jour</p>
+                <p className="text-sm text-gray-200">Cette musique sera jouée pendant les phases de jour</p>
               </div>
               
               <div className="space-y-2">
