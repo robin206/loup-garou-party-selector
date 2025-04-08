@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState, useRef } from 'react';
 import audioService from '../services/audioService';
 
@@ -118,6 +119,16 @@ export function useAudio() {
       console.error('Erreur lors de la lecture de l\'alerte du Chasseur:', error);
     }
   }, []);
+  
+  const addCustomAudio = useCallback(async (fileName: string, audioBlob: Blob) => {
+    try {
+      await audioService.addCustomAudio(fileName, audioBlob);
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de l\'audio personnalisé:', error);
+      return false;
+    }
+  }, []);
 
   return {
     isAudioReady,
@@ -129,6 +140,7 @@ export function useAudio() {
     getAmbianceAudios,
     playSampleSound,
     playHunterWarning,
-    playRandomViolinSound
+    playRandomViolinSound,
+    addCustomAudio
   };
 }

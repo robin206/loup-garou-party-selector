@@ -6,11 +6,79 @@ class AudioService {
   private volume: number = 0.7;
   private preloadedAudios: Map<string, HTMLAudioElement> = new Map();
   private preloadComplete: boolean = false;
+  private customAudios: Set<string> = new Set();
   
   // Musiques par défaut
   private defaultDayMusic = 'ambiance_cobblevillage.webm';
   private defaultNightMusic = 'ambiance_defautnuit.webm';
   private defaultVoteMusic = 'ambiance_clear-haken.webm';
+  
+  constructor() {
+    // Charger les fichiers audio personnalisés précédemment ajoutés
+    this.loadCustomAudiosFromStorage();
+  }
+  
+  /**
+   * Charge la liste des fichiers audio personnalisés à partir du localStorage
+   */
+  private loadCustomAudiosFromStorage(): void {
+    try {
+      const customAudiosJson = localStorage.getItem('werewolf-custom-audios');
+      if (customAudiosJson) {
+        const customAudiosArray = JSON.parse(customAudiosJson);
+        if (Array.isArray(customAudiosArray)) {
+          this.customAudios = new Set(customAudiosArray);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des fichiers audio personnalisés:', error);
+    }
+  }
+  
+  /**
+   * Sauvegarde la liste des fichiers audio personnalisés dans le localStorage
+   */
+  private saveCustomAudiosToStorage(): void {
+    try {
+      localStorage.setItem('werewolf-custom-audios', JSON.stringify(Array.from(this.customAudios)));
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde des fichiers audio personnalisés:', error);
+    }
+  }
+  
+  /**
+   * Ajoute un fichier audio personnalisé
+   */
+  public async addCustomAudio(fileName: string, audioBlob: Blob): Promise<void> {
+    try {
+      // Ajouter à la liste des fichiers personnalisés
+      this.customAudios.add(fileName);
+      this.saveCustomAudiosToStorage();
+      
+      // Précharger le fichier audio
+      const audio = new Audio();
+      audio.preload = 'auto';
+      audio.src = URL.createObjectURL(audioBlob);
+      
+      return new Promise((resolve, reject) => {
+        audio.addEventListener('canplaythrough', () => {
+          this.preloadedAudios.set(fileName, audio);
+          console.log(`Audio personnalisé préchargé: ${fileName}`);
+          resolve();
+        }, { once: true });
+        
+        audio.addEventListener('error', (error) => {
+          console.error(`Erreur de chargement de l'audio personnalisé ${fileName}:`, error);
+          reject(error);
+        });
+        
+        audio.load();
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de l\'audio personnalisé:', error);
+      throw error;
+    }
+  }
   
   /**
    * Joue un fichier audio avec un fondu si une autre piste est déjà en cours
@@ -104,8 +172,12 @@ class AudioService {
           'sampler_violon_2.ogg',
           'sampler_violon_3.ogg'
         ];
+        
+        // Ajouter les fichiers personnalisés à précharger
+        const customAudios = Array.from(this.customAudios);
+        
         let loadedCount = 0;
-        const totalFiles = audioFiles.length + samplerSounds.length;
+        const totalFiles = audioFiles.length + samplerSounds.length + customAudios.length;
         
         // Fonction pour traiter un fichier chargé
         const fileLoaded = () => {
@@ -176,6 +248,44 @@ class AudioService {
             }, 5000);
           } catch (e) {
             console.error(`Erreur lors de la création du son ${sound}:`, e);
+            fileLoaded();
+          }
+        });
+        
+        // Préchargement des fichiers audio personnalisés depuis le cache
+        customAudios.forEach(async (fileName) => {
+          try {
+            if ('caches' in window) {
+              const cache = await caches.open('loup-garou-v2');
+              const response = await cache.match(`/audio/${fileName}`);
+              
+              if (response) {
+                const blob = await response.blob();
+                const audio = new Audio();
+                audio.preload = 'auto';
+                audio.src = URL.createObjectURL(blob);
+                
+                audio.addEventListener('canplaythrough', () => {
+                  this.preloadedAudios.set(fileName, audio);
+                  fileLoaded();
+                }, { once: true });
+                
+                audio.addEventListener('error', (error) => {
+                  console.error(`Erreur de chargement de l'audio personnalisé ${fileName}:`, error);
+                  fileLoaded();
+                });
+                
+                audio.load();
+              } else {
+                console.warn(`Fichier audio personnalisé ${fileName} non trouvé dans le cache`);
+                fileLoaded();
+              }
+            } else {
+              console.warn('API Cache non supportée, impossible de précharger les fichiers audio personnalisés');
+              fileLoaded();
+            }
+          } catch (e) {
+            console.error(`Erreur lors du préchargement de l'audio personnalisé ${fileName}:`, e);
             fileLoaded();
           }
         });
@@ -277,13 +387,10 @@ class AudioService {
   
   /**
    * Obtient la liste des fichiers audio disponibles
-   * Remarque: Cette fonction est un placeholder. En réalité, une API backend
-   * serait nécessaire pour lister les fichiers d'un répertoire.
    */
   public getAvailableAudioFiles(): string[] {
-    // Comme nous ne pouvons pas lire directement le contenu d'un répertoire côté client,
-    // nous définissons une liste de fichiers audio connus qui commencent par "ambiance_"
-    return [
+    // Liste des fichiers audio par défaut
+    const defaultAudios = [
       'ambiance_Violin.mp3',
       'ambiance_blackpearl.webm',
       'ambiance_braveheart.webm',
@@ -297,6 +404,9 @@ class AudioService {
       'ambiance_naruto.webm',
       'Ambiance_The_Last_of_Us.mp3'
     ];
+    
+    // Ajouter les fichiers audio personnalisés
+    return [...defaultAudios, ...Array.from(this.customAudios)];
   }
   
   /**

@@ -11,6 +11,7 @@ import Rules from "./pages/Rules";
 import Config from "./pages/Config";
 import Setup from "./pages/Setup";
 import Distribution from "./pages/Distribution";
+import MusicAdmin from "./pages/MusicAdmin";
 import NotFound from "./pages/NotFound";
 
 // Create a client outside of the component
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/config" element={<Config />} />
             <Route path="/setup" element={<Setup />} />
             <Route path="/distribution" element={<Distribution />} />
+            <Route path="/music-admin" element={<MusicAdmin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

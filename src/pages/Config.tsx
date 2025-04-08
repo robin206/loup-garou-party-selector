@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Music2, Volume, Volume2 } from 'lucide-react';
+import { ArrowLeft, Music2, Volume, Volume2, FileAudio } from 'lucide-react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { GameState } from '@/types';
@@ -32,7 +32,7 @@ const Config = () => {
   const ambianceAudios = getAmbianceAudios();
   
   const audioOptions = ambianceAudios.map(file => {
-    const name = file.replace(/^ambiance_/, '').replace(/\.(webm|mp3)$/, '');
+    const name = file.replace(/^ambiance_/, '').replace(/^Ambiance_/, '').replace(/\.(webm|mp3)$/, '');
     const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
     return { 
       value: file, 
@@ -57,6 +57,10 @@ const Config = () => {
     } else {
       navigate('/');
     }
+  };
+  
+  const handleGoToMusicAdmin = () => {
+    navigate('/music-admin');
   };
   
   useEffect(() => {
@@ -263,6 +267,21 @@ const Config = () => {
                 Arrêter la musique
               </Button>
             </div>
+          </div>
+          
+          <div className="pt-4 border-t border-gray-100">
+            <Button
+              variant="default"
+              size="lg"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={handleGoToMusicAdmin}
+            >
+              <FileAudio className="h-5 w-5" />
+              Gérer mes musiques
+            </Button>
+            <p className="text-sm text-gray-500 text-center mt-2">
+              Ajoutez vos propres musiques d'ambiance au format MP3 ou WEBM
+            </p>
           </div>
         </div>
       </main>
