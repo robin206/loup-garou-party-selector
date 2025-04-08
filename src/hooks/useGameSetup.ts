@@ -8,15 +8,6 @@ import { toast } from 'sonner';
 const STORAGE_KEY = 'werewolf-game-selection';
 const GAME_STATE_STORAGE_KEY = 'werewolf-game-current-state';
 
-// Characters that can have multiple instances in a game
-const MULTI_SELECT_CHARACTERS = [
-  'werewolf', // Loup Garou
-  'villager', // Villageois
-  'brothers', // 3 Frères
-  'sisters', // 2 Soeurs
-  'villager-villager' // Villageois-Villageoise
-];
-
 // Expansion packs data
 const expansionPacks: ExpansionType[] = [{
   id: 'all',
@@ -72,10 +63,6 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
     }
   }, [characters]);
 
-  const canSelectMultiple = (id: string): boolean => {
-    return MULTI_SELECT_CHARACTERS.includes(id);
-  };
-
   const handleCharacterToggle = (id: string) => {
     // If already selected, toggle it off completely
     if (characterCounts[id] > 0) {
@@ -89,9 +76,6 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
   };
 
   const handleIncreaseCharacter = (id: string) => {
-    // Only allow increasing count for multi-select characters
-    if (!canSelectMultiple(id)) return;
-    
     setSelectedCharacters(prev => [...prev, id]);
     setCharacterCounts(prev => ({
       ...prev,
@@ -233,7 +217,6 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
     toggleViewMode,
     handleStartGame,
     hasActiveGame,
-    handleContinueGame,
-    canSelectMultiple
+    handleContinueGame
   };
 };

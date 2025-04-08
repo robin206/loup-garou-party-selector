@@ -1,114 +1,114 @@
-
 import React from 'react';
 import { CharacterType } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Minus } from 'lucide-react';
 import TooltipWrapper from './TooltipWrapper';
-
 interface CharacterCardProps {
   character: CharacterType;
   isSelected: boolean;
   onSelect: (id: string) => void;
-  selectedCount: number;
   isAlive?: boolean;
+  selectedCount?: number;
   onIncrease?: (id: string) => void;
   onDecrease?: (id: string) => void;
-  canSelectMultiple?: (id: string) => boolean;
 }
-
+const getExpansionColor = (expansion: string): string => {
+  switch (expansion) {
+    case 'base':
+      return 'bg-gray-100 text-gray-700';
+    case 'new-moon':
+      return 'bg-indigo-100 text-indigo-700';
+    case 'characters-pack':
+      return 'bg-emerald-100 text-emerald-700';
+    case 'village':
+      return 'bg-amber-100 text-amber-700';
+    case 'bonus':
+      return 'bg-pink-100 text-pink-700';
+    default:
+      return 'bg-gray-100 text-gray-700';
+  }
+};
+const getExpansionName = (expansion: string): string => {
+  switch (expansion) {
+    case 'base':
+      return 'Base';
+    case 'new-moon':
+      return 'Nouvelle Lune';
+    case 'characters-pack':
+      return 'Pack';
+    case 'village':
+      return 'Village';
+    case 'bonus':
+      return 'Bonus';
+    default:
+      return '';
+  }
+};
 const CharacterCard: React.FC<CharacterCardProps> = ({
   character,
   isSelected,
   onSelect,
-  selectedCount,
   isAlive = true,
+  selectedCount = 0,
   onIncrease,
-  onDecrease,
-  canSelectMultiple = () => true
+  onDecrease
 }) => {
-  const showCounterControls = isSelected && canSelectMultiple(character.id) && onIncrease && onDecrease;
-  
-  return (
-    <TooltipWrapper character={character} isAlive={isAlive}>
-      <div
-        className={cn(
-          "character-card relative rounded-lg border shadow-sm transition-all overflow-hidden h-full flex flex-col",
-          isSelected 
-            ? "border-werewolf-accent ring-1 ring-werewolf-accent bg-werewolf-accent/5" 
-            : "border-gray-200 dark:border-gray-700 hover:border-werewolf-accent/50",
-          !isAlive && "grayscale opacity-70"
-        )}
-      >
-        <div 
-          className="p-3 cursor-pointer flex-1 flex flex-col"
-          onClick={() => onSelect(character.id)}
-        >
-          <div className="mb-2 flex justify-center">
-            {character.icon && character.icon.startsWith('/') ? (
-              <img 
-                src={character.icon} 
-                alt={character.name} 
-                className="h-20 w-20 object-contain"
-              />
-            ) : (
-              <div className="w-20 h-20 flex items-center justify-center bg-gray-300 dark:bg-gray-700 rounded-full">
-                <span className="text-xl font-medium">{character.name.charAt(0)}</span>
-              </div>
-            )}
-          </div>
-          
-          <h3 className="font-semibold text-center mb-1">{character.name}</h3>
-          
-          <div className="text-xs text-center text-gray-500 dark:text-gray-400 mb-2">
-            {character.team === 'village' ? 'Village' : 
-             character.team === 'werewolf' ? 'Loup-Garou' : 'Solitaire'}
-          </div>
-          
-          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-3 flex-1">
-            {character.description}
-          </p>
+  const getTeamColor = (team: string): string => {
+    switch (team) {
+      case 'werewolf':
+        return 'from-werewolf-blood/10 to-werewolf-blood/20';
+      case 'village':
+        return 'from-blue-500/10 to-blue-500/20';
+      case 'solo':
+        return 'from-amber-500/10 to-amber-500/20';
+      default:
+        return 'from-gray-500/10 to-gray-500/20';
+    }
+  };
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Only trigger selection if not clicking on the counter buttons
+    if (!(e.target instanceof HTMLButtonElement)) {
+      onSelect(character.id);
+    }
+  };
+  return <TooltipWrapper character={character} isAlive={isAlive}>
+      <div className={cn("character-card glass-card animate-scale-in", isSelected && "selected ring-2 ring-werewolf-accent", !isAlive && "grayscale opacity-70")} onClick={handleCardClick}>
+        <div className={cn("character-card-image", getTeamColor(character.team))}>
+          {character.icon && character.icon.startsWith('/') ? <img src={character.icon} alt={character.name} className="h-12 w-12 object-contain" /> : <div className="h-12 w-12 flex items-center justify-center bg-gray-200 rounded-full">
+              <span className="text-sm">{character.name.charAt(0)}</span>
+            </div>}
         </div>
+        <h3 className="text-sm font-semibold mb-1">{character.name}</h3>
         
-        {isSelected && (
-          <div className="bg-gray-100 dark:bg-gray-800 p-2 flex items-center justify-between">
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Sélectionné{selectedCount > 1 ? ` (${selectedCount})` : ''}
-            </div>
-            
-            {showCounterControls ? (
-              <div className="flex items-center space-x-1">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6" 
-                  onClick={() => onDecrease && onDecrease(character.id)}
-                >
-                  <Minus className="h-3 w-3" />
-                </Button>
-                <Badge variant="secondary" className="bg-werewolf-accent text-white">
-                  {selectedCount}
-                </Badge>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6" 
-                  onClick={() => onIncrease && onIncrease(character.id)}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <Badge variant="secondary" className={selectedCount > 1 ? "bg-werewolf-accent text-white" : ""}>
-                {selectedCount}
-              </Badge>
-            )}
-          </div>
-        )}
+        
+        {isSelected && selectedCount > 0 && <div className="flex justify-center items-center space-x-1 mt-2">
+            {onDecrease && <Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={e => {
+          e.stopPropagation();
+          onDecrease(character.id);
+        }}>
+                <Minus className="h-3 w-3" />
+              </Button>}
+            <span className="text-sm font-medium bg-werewolf-accent/10 text-werewolf-accent px-2 py-0.5 rounded-full">
+              {selectedCount}
+            </span>
+            {onIncrease && <Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={e => {
+          e.stopPropagation();
+          onIncrease(character.id);
+        }}>
+                <Plus className="h-3 w-3" />
+              </Button>}
+          </div>}
+        
+        <div className="flex flex-wrap gap-1 mt-2 justify-center">
+          {character.recommended && <span className="px-2 py-0.5 bg-werewolf-accent/10 text-werewolf-accent rounded-full text-xs font-medium">
+              Recommandé
+            </span>}
+          <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", getExpansionColor(character.expansion))}>
+            {getExpansionName(character.expansion)}
+          </span>
+        </div>
       </div>
-    </TooltipWrapper>
-  );
+    </TooltipWrapper>;
 };
-
 export default CharacterCard;
