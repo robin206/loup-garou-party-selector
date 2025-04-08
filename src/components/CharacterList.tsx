@@ -14,6 +14,7 @@ interface CharacterListProps {
   viewMode: 'detailed' | 'simple';
   onIncreaseCharacter?: (id: string) => void;
   onDecreaseCharacter?: (id: string) => void;
+  canSelectMultiple?: (id: string) => boolean;
 }
 
 const CharacterList: React.FC<CharacterListProps> = ({ 
@@ -23,7 +24,8 @@ const CharacterList: React.FC<CharacterListProps> = ({
   getSelectedCount,
   viewMode,
   onIncreaseCharacter,
-  onDecreaseCharacter
+  onDecreaseCharacter,
+  canSelectMultiple = () => true
 }) => {
   const [activeTab, setActiveTab] = useState<string>("tous");
 
@@ -67,6 +69,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
                         selectedCount={count}
                         onIncrease={onIncreaseCharacter}
                         onDecrease={onDecreaseCharacter}
+                        canSelectMultiple={canSelectMultiple}
                       />
                     ) : (
                       <SimpleCharacterCard
@@ -76,6 +79,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
                         selectedCount={count}
                         onIncrease={onIncreaseCharacter}
                         onDecrease={onDecreaseCharacter}
+                        canSelectMultiple={canSelectMultiple}
                       />
                     )}
                   </div>

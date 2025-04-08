@@ -15,6 +15,7 @@ interface SimpleCharacterCardProps {
   isAlive?: boolean;
   onIncrease?: (id: string) => void;
   onDecrease?: (id: string) => void;
+  canSelectMultiple?: (id: string) => boolean;
 }
 
 const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({ 
@@ -24,7 +25,8 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
   selectedCount,
   isAlive = true,
   onIncrease,
-  onDecrease
+  onDecrease,
+  canSelectMultiple = () => true
 }) => {
   const handleCardClick = (e: React.MouseEvent) => {
     // Only trigger selection if not clicking on the counter buttons
@@ -32,6 +34,8 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
       onSelect(character.id);
     }
   };
+
+  const showCounterControls = isSelected && canSelectMultiple(character.id) && onIncrease && onDecrease;
 
   return (
     <TooltipWrapper character={character} isAlive={isAlive}>
@@ -62,34 +66,38 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
         
         {isSelected && (
           <div className="mt-1 flex items-center justify-center gap-1">
-            {onDecrease && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDecrease(character.id);
-                }}
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-            )}
-            <Badge variant="secondary" className="bg-werewolf-accent text-white h-6 min-w-6 flex items-center justify-center">
-              {selectedCount}
-            </Badge>
-            {onIncrease && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onIncrease(character.id);
-                }}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
+            {showCounterControls ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDecrease && onDecrease(character.id);
+                  }}
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+                <Badge variant="secondary" className="bg-werewolf-accent text-white h-6 min-w-6 flex items-center justify-center">
+                  {selectedCount}
+                </Badge>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onIncrease && onIncrease(character.id);
+                  }}
+                >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </>
+            ) : (
+              <Badge variant="secondary" className="bg-werewolf-accent text-white h-6 min-w-6 flex items-center justify-center">
+                {selectedCount}
+              </Badge>
             )}
           </div>
         )}
