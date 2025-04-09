@@ -12,15 +12,15 @@ export function useAudio() {
       
       try {
         if (!localStorage.getItem('werewolf-day-music')) {
-          localStorage.setItem('werewolf-day-music', 'ambiance_cobblevillage.webm');
+          localStorage.setItem('werewolf-day-music', 'Ambiance_medieval-citytavern-ambient-235876.mp3');
         }
         
         if (!localStorage.getItem('werewolf-night-music')) {
-          localStorage.setItem('werewolf-night-music', 'ambiance_defautnuit.webm');
+          localStorage.setItem('werewolf-night-music', 'Ambiance_ominous-horror-soundtrack-312558.mp3');
         }
         
         if (!localStorage.getItem('werewolf-vote-music')) {
-          localStorage.setItem('werewolf-vote-music', 'ambiance_clear-haken.webm');
+          localStorage.setItem('werewolf-vote-music', 'Ambiance_dark-ambient-atmosphere-1-141313.mp3');
         }
         
         if ('caches' in window) {

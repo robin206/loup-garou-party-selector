@@ -68,18 +68,11 @@ const RESOURCES_TO_CACHE = [
   '/img/perso_voyante.svg',
   
   // Fichiers audio
-  '/audio/ambiance_Violin.mp3',
-  '/audio/ambiance_blackpearl.webm',
-  '/audio/ambiance_braveheart.webm',
-  '/audio/ambiance_clear-haken.webm',
-  '/audio/ambiance_cobblevillage.webm',
-  '/audio/ambiance_cosmo.webm',
-  '/audio/ambiance_dark.mp3',
-  '/audio/ambiance_defautnuit.webm',
-  '/audio/ambiance_diablo.webm',
-  '/audio/ambiance_elwynnforest.webm',
-  '/audio/ambiance_naruto.webm',
-  '/audio/Ambiance_The_Last_of_Us.mp3',  // Ajout du nouveau fichier audio
+  '/audio/Ambiance_dark-ambient-atmosphere-1-141313.mp3',
+  '/audio/Ambiance_medieval-ambient-236809.mp3',
+  '/audio/Ambiance_medieval-citytavern-ambient-235876.mp3',
+  '/audio/Ambiance_medieval-the-tournament-280277.mp3',
+  '/audio/Ambiance_ominous-horror-soundtrack-312558.mp3',
   '/audio/sampler/sampler_loup.ogg',
   '/audio/sampler/sampler_ours.ogg',
   '/audio/sampler/sampler_clocher.ogg',

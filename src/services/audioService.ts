@@ -9,9 +9,9 @@ class AudioService {
   private customAudios: Set<string> = new Set();
   
   // Musiques par défaut
-  private defaultDayMusic = 'ambiance_cobblevillage.webm';
-  private defaultNightMusic = 'ambiance_defautnuit.webm';
-  private defaultVoteMusic = 'ambiance_clear-haken.webm';
+  private defaultDayMusic = 'Ambiance_medieval-citytavern-ambient-235876.mp3';
+  private defaultNightMusic = 'Ambiance_ominous-horror-soundtrack-312558.mp3';
+  private defaultVoteMusic = 'Ambiance_dark-ambient-atmosphere-1-141313.mp3';
   
   constructor() {
     // Charger les fichiers audio personnalisés précédemment ajoutés
@@ -391,18 +391,11 @@ class AudioService {
   public getAvailableAudioFiles(): string[] {
     // Liste des fichiers audio par défaut
     const defaultAudios = [
-      'ambiance_Violin.mp3',
-      'ambiance_blackpearl.webm',
-      'ambiance_braveheart.webm',
-      'ambiance_clear-haken.webm',
-      'ambiance_cobblevillage.webm',
-      'ambiance_cosmo.webm',
-      'ambiance_dark.mp3',
-      'ambiance_defautnuit.webm',
-      'ambiance_diablo.webm',
-      'ambiance_elwynnforest.webm',
-      'ambiance_naruto.webm',
-      'Ambiance_The_Last_of_Us.mp3'
+      'Ambiance_dark-ambient-atmosphere-1-141313.mp3',
+      'Ambiance_medieval-ambient-236809.mp3',
+      'Ambiance_medieval-citytavern-ambient-235876.mp3',
+      'Ambiance_medieval-the-tournament-280277.mp3',
+      'Ambiance_ominous-horror-soundtrack-312558.mp3'
     ];
     
     // Ajouter les fichiers audio personnalisés
