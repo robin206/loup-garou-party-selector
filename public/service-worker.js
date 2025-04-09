@@ -1,6 +1,5 @@
-
 // Nom et version du cache - Incrémenté pour forcer la mise à jour
-const CACHE_NAME = 'loup-garou-v4';
+const CACHE_NAME = 'loup-garou-v5';
 
 // Liste des ressources à mettre en cache
 const RESOURCES_TO_CACHE = [
@@ -79,14 +78,12 @@ const RESOURCES_TO_CACHE = [
   '/audio/sampler/sampler_tonnerre.ogg',
   '/audio/sampler/sampler_hunter.ogg',
   '/audio/sampler/sampler_clock.ogg',
-  '/audio/sampler/sampler_violon_1.ogg',
-  '/audio/sampler/sampler_violon_2.ogg',
-  '/audio/sampler/sampler_violon_3.ogg'
+  '/audio/sampler/sampler_violon.ogg'
 ];
 
 // Installation du service worker et mise en cache des ressources
 self.addEventListener('install', (event) => {
-  console.log('Installation du Service Worker v3');
+  console.log('Installation du Service Worker v5');
   
   // Force le remplacement immédiat du précédent service worker
   self.skipWaiting();
@@ -111,7 +108,7 @@ self.addEventListener('install', (event) => {
 
 // Activation du service worker et nettoyage des anciens caches
 self.addEventListener('activate', (event) => {
-  console.log('Activation du Service Worker v3');
+  console.log('Activation du Service Worker v5');
   
   // Priorité: prendre le contrôle de toutes les pages clientes immédiatement
   event.waitUntil(self.clients.claim());

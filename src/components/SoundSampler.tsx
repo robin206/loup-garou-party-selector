@@ -9,7 +9,7 @@ interface SoundSamplerProps {
 }
 
 const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
-  const { playSampleSound, stopMusic, isAudioReady, playRandomViolinSound } = useAudio();
+  const { playSampleSound, stopMusic, isAudioReady, playViolinSound } = useAudio();
   const [muted, setMuted] = React.useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
@@ -172,7 +172,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   
   const handlePlayViolinSound = () => {
     if (!muted) {
-      playRandomViolinSound();
+      playViolinSound();
     }
   };
 

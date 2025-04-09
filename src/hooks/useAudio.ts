@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useState, useRef } from 'react';
 import audioService from '../services/audioService';
 
@@ -102,13 +101,11 @@ export function useAudio() {
     }
   }, []);
   
-  const playRandomViolinSound = useCallback(() => {
+  const playViolinSound = useCallback(() => {
     try {
-      const violinSounds = ['sampler_violon_1.ogg', 'sampler_violon_2.ogg', 'sampler_violon_3.ogg'];
-      const randomIndex = Math.floor(Math.random() * violinSounds.length);
-      audioService.playSampleSound(violinSounds[randomIndex]);
+      audioService.playSampleSound('sampler_violon.ogg');
     } catch (error) {
-      console.error('Erreur lors de la lecture du son de violon aléatoire:', error);
+      console.error('Erreur lors de la lecture du son de violon:', error);
     }
   }, []);
   
@@ -140,7 +137,7 @@ export function useAudio() {
     getAmbianceAudios,
     playSampleSound,
     playHunterWarning,
-    playRandomViolinSound,
+    playViolinSound,
     addCustomAudio
   };
 }
