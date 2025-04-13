@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { Upload, X, Check, AlertCircle, FileAudio2 } from 'lucide-react';
@@ -23,9 +22,13 @@ const AudioFileUploader: React.FC<AudioFileUploaderProps> = ({ onFileUploaded })
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       
-      // Vérifier le type de fichier
-      if (!selectedFile.type.match('audio/(mp3|mpeg|webm)')) {
-        setError('Format de fichier non supporté. Utilisez MP3 ou WEBM.');
+      // Vérifier le type de fichier avec une validation plus souple
+      const isMP3 = selectedFile.type.includes('mp3') || selectedFile.type.includes('mpeg');
+      const isWEBM = selectedFile.type.includes('webm') || selectedFile.name.toLowerCase().endsWith('.webm');
+      const isOGG = selectedFile.type.includes('ogg') || selectedFile.name.toLowerCase().endsWith('.ogg');
+      
+      if (!isMP3 && !isWEBM && !isOGG) {
+        setError('Format de fichier non supporté. Utilisez MP3, WEBM ou OGG.');
         return;
       }
       
@@ -36,6 +39,7 @@ const AudioFileUploader: React.FC<AudioFileUploaderProps> = ({ onFileUploaded })
       }
       
       setFile(selectedFile);
+      console.log(`Fichier accepté: ${selectedFile.name}, type: ${selectedFile.type}`);
     }
   };
   
@@ -155,14 +159,14 @@ const AudioFileUploader: React.FC<AudioFileUploaderProps> = ({ onFileUploaded })
                     name="file-upload"
                     type="file"
                     className="sr-only"
-                    accept="audio/mp3,audio/mpeg,audio/webm"
+                    accept="audio/mp3,audio/mpeg,audio/webm,audio/ogg"
                     onChange={handleFileChange}
                     ref={fileInputRef}
                   />
                 </label>
                 <p className="pl-1">ou glisser-déposer</p>
               </div>
-              <p className="text-xs text-gray-500 mt-2">MP3, WEBM jusqu'à 10MB</p>
+              <p className="text-xs text-gray-500 mt-2">MP3, WEBM, OGG jusqu'à 10MB</p>
             </div>
           ) : (
             <div className="border rounded-lg p-4">
