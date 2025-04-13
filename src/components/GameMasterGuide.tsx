@@ -84,12 +84,12 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             
             <div className="grid grid-cols-2 gap-2">
               <Button onClick={() => onPhaseChange('firstNight')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Passer à la première nuit <Moon className="ml-2 h-4 w-4" />
+                Première nuit <Moon className="ml-2 h-4 w-4" />
               </Button>
               
               {onReturnToSetup && (
                 <Button onClick={onReturnToSetup} variant="outline" className="w-full mt-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour à la préparation
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Préparation
                 </Button>
               )}
             </div>
@@ -122,7 +122,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             
             <div className="grid grid-cols-2 gap-2">
               <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Passer au jour suivant <Sun className="ml-2 h-4 w-4" />
+                Jour suivant <Sun className="ml-2 h-4 w-4" />
               </Button>
               
               {onReturnToSetup && (
@@ -176,7 +176,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
             
             <div className="grid grid-cols-2 gap-2">
               <Button onClick={() => onPhaseChange('night')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Passer à la nuit <Moon className="ml-2 h-4 w-4" />
+                Nuit <Moon className="ml-2 h-4 w-4" />
               </Button>
               
               {onReturnToSetup && (
