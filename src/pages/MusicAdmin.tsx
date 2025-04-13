@@ -101,7 +101,6 @@ const MusicAdmin = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nom du fichier</TableHead>
-                  <TableHead>Type</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -109,11 +108,6 @@ const MusicAdmin = () => {
                 {audioFiles.map((file) => (
                   <TableRow key={file}>
                     <TableCell className="font-medium">{file}</TableCell>
-                    <TableCell>
-                      {file.startsWith('ambiance_') || file.startsWith('Ambiance_') 
-                        ? 'Musique d\'ambiance' 
-                        : 'Son d\'effet'}
-                    </TableCell>
                     <TableCell className="text-right">
                       <Button 
                         variant="outline" 
