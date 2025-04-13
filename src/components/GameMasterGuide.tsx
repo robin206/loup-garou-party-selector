@@ -127,7 +127,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               
               {onReturnToSetup && (
                 <Button onClick={onReturnToSetup} variant="outline" className="w-full mt-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour à la préparation
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour préparation
                 </Button>
               )}
             </div>
@@ -181,7 +181,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               
               {onReturnToSetup && (
                 <Button onClick={onReturnToSetup} variant="outline" className="w-full mt-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour à la préparation
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour préparation
                 </Button>
               )}
             </div>
@@ -219,7 +219,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               
               {onReturnToSetup && (
                 <Button onClick={onReturnToSetup} variant="outline" className="w-full mt-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour à la préparation
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour préparation
                 </Button>
               )}
             </div>
