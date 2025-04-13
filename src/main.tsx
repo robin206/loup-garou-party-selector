@@ -19,7 +19,7 @@ const updateServiceWorker = async () => {
   }
 };
 
-// Timestamp for update: 2025-04-13-1
+// Timestamp for update: 2025-04-13-2
 // Au chargement de l'application, on force la mise à jour
 updateServiceWorker();
 
