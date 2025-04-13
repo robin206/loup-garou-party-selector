@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,28 +18,32 @@ import NotFound from "./pages/NotFound";
 // Create a client outside of the component
 const queryClient = new QueryClient();
 
-const App = () => (
-  <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/game" element={<Game />} />
-            <Route path="/rules" element={<Rules />} />
-            <Route path="/config" element={<Config />} />
-            <Route path="/setup" element={<Setup />} />
-            <Route path="/distribution" element={<Distribution />} />
-            <Route path="/music-admin" element={<MusicAdmin />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  </BrowserRouter>
-);
+const App = () => {
+  return (
+    <React.StrictMode>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider defaultTheme="dark">
+            <TooltipProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/game" element={<Game />} />
+                <Route path="/rules" element={<Rules />} />
+                <Route path="/config" element={<Config />} />
+                <Route path="/setup" element={<Setup />} />
+                <Route path="/distribution" element={<Distribution />} />
+                <Route path="/music-admin" element={<MusicAdmin />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+              <Sonner />
+            </TooltipProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+};
 
 export default App;
