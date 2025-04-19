@@ -1,5 +1,5 @@
 // Nom et version du cache - Incrémenté pour forcer la mise à jour
-const CACHE_NAME = 'loup-garou-v6';
+const CACHE_NAME = 'loup-garou-v7';
 
 // Liste des ressources à mettre en cache
 const RESOURCES_TO_CACHE = [
