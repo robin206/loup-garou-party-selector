@@ -13,11 +13,7 @@ const RESOURCES_TO_CACHE = [
   '/assets/index-*.css', // Pattern pour les fichiers CSS générés
   
   // Images de l'application
-  '/img/launch/android-icon-48x48.png',
-  '/img/launch/android-icon-72x72.png',
-  '/img/launch/android-icon-96x96.png',
-  '/img/launch/android-icon-192x192.png',
-  '/img/launch/startup.png',
+  '/img/app/playstore.png',
   
   // Images pour l'interface
   '/img/sampler_loup.svg',
