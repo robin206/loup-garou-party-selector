@@ -10,6 +10,10 @@ import audioService from '@/services/audioService';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from "@/components/ui/switch";
+import { Zap, ZapOff } from "lucide-react";
+import { useLightBLE } from "@/hooks/useLightBLE";
+
 const Config = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -18,6 +22,10 @@ const Config = () => {
   const [nightMusic, setNightMusic] = useState<string>(audioService.getDefaultNightMusic());
   const [voteMusic, setVoteMusic] = useState<string>(audioService.getDefaultVoteMusic());
   const [volume, setVolume] = useState<number>(70);
+  const [lightEnabled, setLightEnabled] = useState<boolean>(
+    localStorage.getItem("werewolf-light-enabled") === "true"
+  );
+
   const {
     getAmbianceAudios,
     playDayMusic,
@@ -25,6 +33,7 @@ const Config = () => {
     playVoteMusic,
     stopMusic
   } = useAudio();
+
   const ambianceAudios = getAmbianceAudios();
   const audioOptions = ambianceAudios.map(file => {
     const name = file.replace(/^ambiance_/, '').replace(/^Ambiance_/, '').replace(/\.(webm|mp3)$/, '');
@@ -34,6 +43,7 @@ const Config = () => {
       label: `${formattedName}`
     };
   });
+
   const handleBackToGame = () => {
     const savedGameState = localStorage.getItem('werewolf-game-current-state');
     if (savedGameState) {
@@ -55,9 +65,28 @@ const Config = () => {
       navigate('/');
     }
   };
+
   const handleGoToMusicAdmin = () => {
     navigate('/music-admin');
   };
+
+  const handleToggleLight = (checked: boolean) => {
+    setLightEnabled(checked);
+    localStorage.setItem("werewolf-light-enabled", checked.toString());
+    toast.success(
+      checked ? "Gestion des lumières activée" : "Gestion des lumières désactivée"
+    );
+    if (!checked) bleDisconnect();
+  };
+
+  const {
+    status: bleStatus,
+    error: bleError,
+    connect: bleConnect,
+    sendLightCommand,
+    disconnect: bleDisconnect,
+  } = useLightBLE();
+
   useEffect(() => {
     const savedDayMusic = localStorage.getItem('werewolf-day-music');
     const savedNightMusic = localStorage.getItem('werewolf-night-music');
@@ -72,15 +101,18 @@ const Config = () => {
       audioService.setVolume(parsedVolume / 100);
     }
   }, []);
+
   useEffect(() => {
     localStorage.setItem('werewolf-day-music', dayMusic);
     localStorage.setItem('werewolf-night-music', nightMusic);
     localStorage.setItem('werewolf-vote-music', voteMusic);
   }, [dayMusic, nightMusic, voteMusic]);
+
   const handleMusicChange = (value: string, setMusic: React.Dispatch<React.SetStateAction<string>>) => {
     setMusic(value);
     toast.success('Configuration sauvegardée');
   };
+
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
@@ -88,11 +120,13 @@ const Config = () => {
     localStorage.setItem('werewolf-volume', newVolume.toString());
     toast.success('Volume sauvegardé');
   };
+
   const testAudio = (playFunction: () => void) => {
     stopMusic();
     playFunction();
     toast.info('Test audio en cours...');
   };
+
   return <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
       
@@ -223,6 +257,109 @@ const Config = () => {
             </p>
           </div>
         </div>
+
+        {/* Bloc Configuration Lumières */}
+        <section className="glass-card p-8 rounded-xl space-y-8 animate-scale-in mt-10">
+          <div className="flex items-center gap-3 mb-4">
+            <Zap className="text-yellow-400 h-7 w-7" />
+            <h2 className="text-2xl font-semibold">Configuration Lumières</h2>
+          </div>
+          <div className="flex items-center gap-4">
+            <Switch
+              checked={lightEnabled}
+              onCheckedChange={handleToggleLight}
+              id="light-enabled"
+            />
+            <Label htmlFor="light-enabled">
+              Activer la gestion des lumières pendant le jeu
+            </Label>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant={bleStatus === "connected" ? "secondary" : "outline"}
+              size="sm"
+              className="inline-flex items-center gap-2 w-fit"
+              disabled={!lightEnabled || bleStatus === "connecting"}
+              onClick={bleStatus === "connected" ? bleDisconnect : bleConnect}
+            >
+              {bleStatus === "connected" ? (
+                <Zap className="text-green-500" />
+              ) : (
+                <ZapOff className="text-gray-500" />
+              )}
+              {bleStatus === "connected"
+                ? "Déconnecter la lumière"
+                : bleStatus === "connecting"
+                  ? "Connexion en cours…"
+                  : "Tester la connexion BLE (ESP32)"}
+            </Button>
+            <div className="text-sm text-gray-400">
+              <span>
+                État BLE :{" "}
+                <span
+                  className={
+                    bleStatus === "connected"
+                      ? "text-green-400"
+                      : bleStatus === "error"
+                      ? "text-red-400"
+                      : "text-gray-400"
+                  }
+                >
+                  {bleStatus === "idle"
+                    ? "Non connecté"
+                    : bleStatus === "connected"
+                    ? "Connecté"
+                    : bleStatus === "connecting"
+                    ? "Connexion…"
+                    : bleStatus === "error"
+                    ? "Erreur"
+                    : "Déconnecté"}
+                </span>
+              </span>
+              {bleError && (
+                <span className="ml-3 text-red-400">Erreur : {bleError}</span>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2 mt-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!lightEnabled || bleStatus !== "connected"}
+              onClick={() => sendLightCommand("JOUR")}
+            >
+              Lumière Jour
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!lightEnabled || bleStatus !== "connected"}
+              onClick={() => sendLightCommand("NUIT")}
+            >
+              Lumière Nuit
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!lightEnabled || bleStatus !== "connected"}
+              onClick={() => sendLightCommand("VOTE")}
+            >
+              Lumière Vote
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!lightEnabled || bleStatus !== "connected"}
+              onClick={() => sendLightCommand("LOUP")}
+            >
+              Lumière Loup
+            </Button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            Testez la connexion Bluetooth BLE à l’ESP32 “LoupGarouLight” et déclenchez chaque ambiance lumineuse.<br />
+            N.B. : La gestion des lumières nécessite Chrome sur Android ou un navigateur compatible BLE.
+          </p>
+        </section>
       </main>
       
       <footer className="w-full border-t border-gray-100 py-6 text-center text-sm text-gray-500">
@@ -230,4 +367,5 @@ const Config = () => {
       </footer>
     </div>;
 };
+
 export default Config;
