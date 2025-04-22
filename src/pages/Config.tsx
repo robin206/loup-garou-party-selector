@@ -1,21 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Music2, Volume, Volume2, FileAudio } from 'lucide-react';
+import { ArrowLeft, FileAudio } from 'lucide-react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { GameState } from '@/types';
 import { toast } from 'sonner';
 import { useAudio } from '@/hooks/useAudio';
 import audioService from '@/services/audioService';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from "@/components/ui/switch";
-import { Zap, ZapOff } from "lucide-react";
-import { useLightBLE } from "@/hooks/useLightBLE";
 import AudioConfigSection from "@/components/config/AudioConfigSection";
 import LightsConfigSection from "@/components/config/LightsConfigSection";
 import ConfigFooter from "@/components/config/ConfigFooter";
+import { LightControlProvider } from '@/hooks/LightControlContext';
 
 const Config = () => {
   const location = useLocation();
@@ -25,9 +21,6 @@ const Config = () => {
   const [nightMusic, setNightMusic] = useState<string>(audioService.getDefaultNightMusic());
   const [voteMusic, setVoteMusic] = useState<string>(audioService.getDefaultVoteMusic());
   const [volume, setVolume] = useState<number>(70);
-  const [lightEnabled, setLightEnabled] = useState<boolean>(
-    localStorage.getItem("werewolf-light-enabled") === "true"
-  );
 
   const {
     getAmbianceAudios,
@@ -73,23 +66,6 @@ const Config = () => {
     navigate('/music-admin');
   };
 
-  const handleToggleLight = (checked: boolean) => {
-    setLightEnabled(checked);
-    localStorage.setItem("werewolf-light-enabled", checked.toString());
-    toast.success(
-      checked ? "Gestion des lumières activée" : "Gestion des lumières désactivée"
-    );
-    if (!checked) bleDisconnect();
-  };
-
-  const {
-    status: bleStatus,
-    error: bleError,
-    connect: bleConnect,
-    sendLightCommand,
-    disconnect: bleDisconnect,
-  } = useLightBLE();
-
   useEffect(() => {
     const savedDayMusic = localStorage.getItem('werewolf-day-music');
     const savedNightMusic = localStorage.getItem('werewolf-night-music');
@@ -110,25 +86,6 @@ const Config = () => {
     localStorage.setItem('werewolf-night-music', nightMusic);
     localStorage.setItem('werewolf-vote-music', voteMusic);
   }, [dayMusic, nightMusic, voteMusic]);
-
-  const handleMusicChange = (value: string, setMusic: React.Dispatch<React.SetStateAction<string>>) => {
-    setMusic(value);
-    toast.success('Configuration sauvegardée');
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
-    audioService.setVolume(newVolume / 100);
-    localStorage.setItem('werewolf-volume', newVolume.toString());
-    toast.success('Volume sauvegardé');
-  };
-
-  const testAudio = (playFunction: () => void) => {
-    stopMusic();
-    playFunction();
-    toast.info('Test audio en cours...');
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
@@ -157,15 +114,9 @@ const Config = () => {
           audioService={audioService}
           handleGoToMusicAdmin={handleGoToMusicAdmin}
         />
-        <LightsConfigSection
-          lightEnabled={lightEnabled}
-          handleToggleLight={handleToggleLight}
-          bleStatus={bleStatus}
-          bleError={bleError}
-          bleConnect={bleConnect}
-          bleDisconnect={bleDisconnect}
-          sendLightCommand={sendLightCommand}
-        />
+        <LightControlProvider>
+          <LightsConfigSection />
+        </LightControlProvider>
       </main>
       <ConfigFooter />
     </div>

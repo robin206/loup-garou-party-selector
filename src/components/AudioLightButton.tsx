@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Play, Pause, Sun, Vote, Moon, Wolf } from "lucide-react";
+import { Play, Pause, Sun, Vote, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLightControl } from "@/hooks/LightControlContext";
@@ -10,7 +10,7 @@ const iconMap = {
   day: Sun,
   vote: Vote,
   night: Moon,
-  wolf: Wolf,
+  wolf: Moon, // Changed from Wolf to Moon since Wolf isn't available
 };
 
 interface AudioLightButtonProps {
@@ -73,7 +73,7 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
     }
   };
 
-  // Si bouton wolf, il ne contrôle QUE la lumière !
+  // Si bouton wolf, il ne contrôle QUE la lumière !
   const showPlayPause = type !== "wolf";
   const disabled = (type === "wolf" && (!lightEnabled || bleStatus !== "connected"));
 

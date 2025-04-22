@@ -79,7 +79,7 @@ const LightsConfigSection: React.FC = () => {
             </span>
           </span>
           {bleError && (
-            <span className="ml-3 text-red-400">Erreur : {bleError}</span>
+            <span className="ml-3 text-red-400">Erreur : {bleError}</span>
           )}
         </div>
       </div>
@@ -118,8 +118,8 @@ const LightsConfigSection: React.FC = () => {
         </Button>
       </div>
       <p className="text-xs text-gray-400 mt-2">
-        Testez la connexion Bluetooth BLE à l’ESP32 “LoupGarouLight” et déclenchez chaque ambiance lumineuse.<br />
-        N.B. : La gestion des lumières nécessite Chrome sur Android ou un navigateur compatible BLE.
+        Testez la connexion Bluetooth BLE à l'ESP32 "LoupGarouLight" et déclenchez chaque ambiance lumineuse.<br />
+        N.B. : La gestion des lumières nécessite Chrome sur Android ou un navigateur compatible BLE.
       </p>
     </section>
   );
