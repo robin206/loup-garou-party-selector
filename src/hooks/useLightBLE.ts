@@ -14,23 +14,39 @@ export function useLightBLE() {
   const [device, setDevice] = useState<BluetoothDevice | null>(null);
   const [server, setServer] = useState<BluetoothRemoteGATTServer | null>(null);
 
+  // Vérifie si le navigateur supporte l'API Bluetooth
+  const isBLESupported = (): boolean => {
+    return typeof navigator !== 'undefined' && 'bluetooth' in navigator;
+  };
+
   // Connexion et maintient l'objet device/server en mémoire si besoin de renvoyer d'autres commandes
   async function connect() {
     setStatus("connecting");
     setError(null);
+    
+    if (!isBLESupported()) {
+      setError("Bluetooth non supporté par ce navigateur");
+      setStatus("error");
+      return null;
+    }
+    
     try {
-      // Demande le device avec le service custom qui porte le nom « LoupGarouLight »
+      // Demande le device avec le service custom qui porte le nom « LoupGarouLight »
       const device = await navigator.bluetooth.requestDevice({
         filters: [{ name: SERVICE_NAME }],
-        optionalServices: [SERVICE_NAME] // Cela doit correspondre à l’UUID du service
+        optionalServices: [SERVICE_NAME] // Cela doit correspondre à l'UUID du service
       });
       setDevice(device);
 
       // Connexion GATT
-      const server = await device.gatt?.connect();
-      setServer(server || null);
-      setStatus("connected");
-      return server;
+      if (device.gatt) {
+        const server = await device.gatt.connect();
+        setServer(server);
+        setStatus("connected");
+        return server;
+      } else {
+        throw new Error("GATT non disponible sur cet appareil");
+      }
     } catch (e: any) {
       setError(e.message || String(e));
       setStatus("error");
@@ -68,7 +84,9 @@ export function useLightBLE() {
   }
 
   function disconnect() {
-    device?.gatt?.disconnect();
+    if (device?.gatt) {
+      device.gatt.disconnect();
+    }
     setDevice(null);
     setServer(null);
     setStatus("disconnected");
@@ -80,5 +98,6 @@ export function useLightBLE() {
     connect,
     sendLightCommand,
     disconnect,
+    isBLESupported: isBLESupported(),
   };
 }
