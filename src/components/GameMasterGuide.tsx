@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { GamePhase, CharacterType } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users, ArrowLeft } from 'lucide-react';
-import AudioButton from './AudioButton';
+import AudioLightButton from './AudioLightButton';
 import { useAudio } from '@/hooks/useAudio';
 import Timer from './Timer';
 
@@ -55,25 +54,26 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   const getPhaseInstructions = () => {
     switch (phase) {
       case 'setup':
-        return <div>
+        return (
+          <div>
             <p className="mb-4">1. Distribuez les cartes aux joueurs.</p>
             <p className="mb-4">2. Demandez à chaque joueur de consulter son rôle discrètement.</p>
             
             <Button onClick={() => onPhaseChange('firstDay')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Commencer le premier jour <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </div>;
+          </div>
+        );
       case 'firstDay':
-        return <div>
+        return (
+          <div>
             <div className="mb-4 flex gap-2">
-              <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
-              <AudioButton label="Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
+              <AudioLightButton label="Jour" type="day" playMusic={playDayMusic} stopMusic={stopMusic} />
+              <AudioLightButton label="Vote" type="vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
             </div>
-            
             <div className="mb-4">
               <Timer defaultMinutes={5} />
             </div>
-            
             <p className="mb-4">1. Demandez à tous les joueurs d'ouvrir les yeux.</p>
             <p className="mb-4">2. Annoncez l'élection du maire :</p>
             <ul className="list-disc list-inside mb-4 pl-4">
@@ -93,12 +93,15 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                 </Button>
               )}
             </div>
-          </div>;
+          </div>
+        );
       case 'firstNight':
         const nightActions = getOrderedCharacterActions(characters, 'night', true, aliveCharacters);
-        return <div>
-            <div className="mb-4">
-              <AudioButton label="Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
+        return (
+          <div>
+            <div className="mb-4 flex gap-2">
+              <AudioLightButton label="Nuit" type="night" playMusic={playNightMusic} stopMusic={stopMusic} />
+              <AudioLightButton label="Loup" type="wolf" />
             </div>
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
@@ -131,13 +134,15 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                 </Button>
               )}
             </div>
-          </div>;
+          </div>
+        );
       case 'day':
         const dayActions = getOrderedCharacterActions(characters, 'day', false, aliveCharacters);
-        return <div>
+        return (
+          <div>
             <div className="mb-4 flex gap-2">
-              <AudioButton label="Jour" playMusic={playDayMusic} stopMusic={stopMusic} />
-              <AudioButton label="Vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
+              <AudioLightButton label="Jour" type="day" playMusic={playDayMusic} stopMusic={stopMusic} />
+              <AudioLightButton label="Vote" type="vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
             </div>
             
             <div className="mb-4">
@@ -185,12 +190,15 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                 </Button>
               )}
             </div>
-          </div>;
+          </div>
+        );
       case 'night':
         const regularNightActions = getOrderedCharacterActions(characters, 'night', false, aliveCharacters);
-        return <div>
-            <div className="mb-4">
-              <AudioButton label="Nuit" playMusic={playNightMusic} stopMusic={stopMusic} />
+        return (
+          <div>
+            <div className="mb-4 flex gap-2">
+              <AudioLightButton label="Nuit" type="night" playMusic={playNightMusic} stopMusic={stopMusic} />
+              <AudioLightButton label="Loup" type="wolf" />
             </div>
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
@@ -223,15 +231,18 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                 </Button>
               )}
             </div>
-          </div>;
+          </div>
+        );
       case 'gameEnd':
-        return <div>
+        return (
+          <div>
             <p className="mb-4">La partie est terminée !</p>
             <p className="mb-4">Annoncez les gagnants et dévoilez les rôles de chaque joueur.</p>
             <Button onClick={() => onPhaseChange('setup')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
               Commencer une nouvelle partie <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </div>;
+          </div>
+        );
       default:
         return <p>Instructions non disponibles</p>;
     }

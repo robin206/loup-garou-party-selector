@@ -1,6 +1,8 @@
 
 import { useState } from "react";
 
+// Type definitions : on tolère l’absence de types bluetooth en environnement non compatible (TS ignore)
+// Utilisation de types any ou fallback.
 export type BLEStatus = "idle" | "connecting" | "connected" | "error" | "disconnected";
 
 const SERVICE_NAME = "LoupGarouLight";
@@ -8,31 +10,38 @@ const COMMAND_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb"; // Peut v
 
 type LightCode = "JOUR" | "NUIT" | "VOTE" | "LOUP";
 
+type BluetoothDeviceCustom = any;
+type BluetoothRemoteGATTServerCustom = any;
+
 export function useLightBLE() {
   const [status, setStatus] = useState<BLEStatus>("idle");
   const [error, setError] = useState<string | null>(null);
-  const [device, setDevice] = useState<BluetoothDevice | null>(null);
-  const [server, setServer] = useState<BluetoothRemoteGATTServer | null>(null);
+  const [device, setDevice] = useState<BluetoothDeviceCustom | null>(null);
+  const [server, setServer] = useState<BluetoothRemoteGATTServerCustom | null>(null);
 
   // Vérifie si le navigateur supporte l'API Bluetooth
   const isBLESupported = (): boolean => {
-    return typeof navigator !== 'undefined' && 'bluetooth' in navigator;
+    try {
+      return typeof window !== 'undefined' && typeof window.navigator === 'object' && "bluetooth" in window.navigator;
+    } catch {
+      return false;
+    }
   };
 
   // Connexion et maintient l'objet device/server en mémoire si besoin de renvoyer d'autres commandes
   async function connect() {
     setStatus("connecting");
     setError(null);
-    
+
     if (!isBLESupported()) {
       setError("Bluetooth non supporté par ce navigateur");
       setStatus("error");
       return null;
     }
-    
+
     try {
       // Demande le device avec le service custom qui porte le nom « LoupGarouLight »
-      const device = await navigator.bluetooth.requestDevice({
+      const device = await (window.navigator as any).bluetooth.requestDevice({
         filters: [{ name: SERVICE_NAME }],
         optionalServices: [SERVICE_NAME] // Cela doit correspondre à l'UUID du service
       });
