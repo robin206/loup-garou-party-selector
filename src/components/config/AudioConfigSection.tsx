@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Music2, Volume, Volume2, FileAudio, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-
 interface AudioConfigSectionProps {
   dayMusic: string;
   nightMusic: string;
@@ -16,7 +14,10 @@ interface AudioConfigSectionProps {
   setVoteMusic: React.Dispatch<React.SetStateAction<string>>;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
-  audioOptions: { value: string; label: string }[];
+  audioOptions: {
+    value: string;
+    label: string;
+  }[];
   playDayMusic: () => void;
   playNightMusic: () => void;
   playVoteMusic: () => void;
@@ -24,19 +25,27 @@ interface AudioConfigSectionProps {
   audioService: any;
   handleGoToMusicAdmin: () => void;
 }
-
 const AudioConfigSection: React.FC<AudioConfigSectionProps> = ({
-  dayMusic, nightMusic, voteMusic,
-  setDayMusic, setNightMusic, setVoteMusic,
-  volume, setVolume,
-  audioOptions, playDayMusic, playNightMusic, playVoteMusic, stopMusic,
-  audioService, handleGoToMusicAdmin
+  dayMusic,
+  nightMusic,
+  voteMusic,
+  setDayMusic,
+  setNightMusic,
+  setVoteMusic,
+  volume,
+  setVolume,
+  audioOptions,
+  playDayMusic,
+  playNightMusic,
+  playVoteMusic,
+  stopMusic,
+  audioService,
+  handleGoToMusicAdmin
 }) => {
   const handleMusicChange = (value: string, setMusic: React.Dispatch<React.SetStateAction<string>>) => {
     setMusic(value);
     toast.success('Configuration sauvegardée');
   };
-
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
@@ -44,20 +53,17 @@ const AudioConfigSection: React.FC<AudioConfigSectionProps> = ({
     localStorage.setItem('werewolf-volume', newVolume.toString());
     toast.success('Volume sauvegardé');
   };
-
   const testAudio = (playFunction: () => void) => {
     stopMusic();
     playFunction();
     toast.info('Test audio en cours...');
   };
-
-  return (
-    <>
+  return <>
       <section className="text-center mb-10 space-y-4">
         <div className="inline-flex items-center justify-center p-3 bg-werewolf-accent/10 rounded-full mb-4 animate-fade-in">
           <Settings className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl animate-fade-up">
+        <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl animate-fade-up text-slate-800">
           Configuration Audio et Lumière
         </h1>
       </section>
@@ -161,8 +167,6 @@ const AudioConfigSection: React.FC<AudioConfigSectionProps> = ({
           </p>
         </div>
       </div>
-    </>
-  );
+    </>;
 };
-
 export default AudioConfigSection;
