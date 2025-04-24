@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Music2, Volume, Volume2, FileAudio } from "lucide-react";
+import { Music2, Volume, Volume2, FileAudio, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -55,16 +55,17 @@ const AudioConfigSection: React.FC<AudioConfigSectionProps> = ({
     <>
       <section className="text-center mb-10 space-y-4">
         <div className="inline-flex items-center justify-center p-3 bg-werewolf-accent/10 rounded-full mb-4 animate-fade-in">
-          <Music2 className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
+          <Settings className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
         </div>
         <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl animate-fade-up">
-          Configuration Audio
+          Configuration Audio et Lumière
         </h1>
-        <p className="mx-auto max-w-2xl text-gray-500 text-lg animate-fade-up" style={{ animationDelay: '0.1s' }}>
-          Personnalisez les ambiances sonores pour votre partie de Loup Garou
-        </p>
       </section>
       <div className="glass-card p-8 rounded-xl space-y-8 animate-scale-in">
+        <div className="flex items-center gap-3 mb-4">
+          <Music2 className="text-yellow-400 h-7 w-7" />
+        <h2 className="text-2xl font-semibold">Configuration musique</h2>
+      </div>
         <div className="space-y-4">
           <div className="grid gap-6">
             <div className="space-y-2">
