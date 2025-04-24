@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Book, Music2 } from 'lucide-react';
+import { Book, Settings } from 'lucide-react';
 const Header = () => {
   const location = useLocation();
   const gameState = location.state;
@@ -17,7 +17,7 @@ const Header = () => {
             <span>Règles</span>
           </Link>
           <Link to="/config" state={gameState} className="flex items-center gap-1 text-gray-300 hover:text-werewolf-accent">
-            <Music2 className="h-5 w-5" />
+            <Settings className="h-5 w-5" />
             <span>Configuration
           </span>
           </Link>
