@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Play, Pause, Sun, Vote, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ const iconMap = {
   day: Sun,
   vote: Vote,
   night: Moon,
-  wolf: Moon, // Changed from Wolf to Moon since Wolf isn't available
+  wolf: Moon, // Changed from Wolf to Moon since Wolf isn't available in lucide-react
 };
 
 interface AudioLightButtonProps {
