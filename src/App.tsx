@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { LightControlProvider } from "@/hooks/LightControlContext";
 import Index from "./pages/Index";
 import Game from "./pages/Game";
 import Rules from "./pages/Rules";
@@ -20,27 +21,29 @@ const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="light" enableSystem={false}>
-          <TooltipProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/game" element={<Game />} />
-              <Route path="/rules" element={<Rules />} />
-              <Route path="/config" element={<Config />} />
-              <Route path="/setup" element={<Setup />} />
-              <Route path="/distribution" element={<Distribution />} />
-              <Route path="/music-admin" element={<MusicAdmin />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-            <Sonner />
-          </TooltipProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" enableSystem={false}>
+        <TooltipProvider>
+          <LightControlProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/game" element={<Game />} />
+                <Route path="/rules" element={<Rules />} />
+                <Route path="/config" element={<Config />} />
+                <Route path="/setup" element={<Setup />} />
+                <Route path="/distribution" element={<Distribution />} />
+                <Route path="/music-admin" element={<MusicAdmin />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+              <Sonner />
+            </BrowserRouter>
+          </LightControlProvider>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
