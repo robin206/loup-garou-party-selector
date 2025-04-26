@@ -1,10 +1,9 @@
-
 import React, { createContext, useContext, useMemo, useState, ReactNode } from "react";
 import { useLightBLE, BLEStatus } from "./useLightBLE";
 import { useLightWiFi } from "./useLightWiFi";
 
 export type LightMode = "none" | "ble" | "wifi";
-export type LightCommand = "JOUR" | "NUIT" | "VOTE" | "LOUP";
+export type LightCommand = "JOUR" | "NUIT" | "VOTE";
 
 // Store les URLs pour les requêtes WiFi
 function readWiFiCommandUrls(): Record<LightCommand, string> {
@@ -15,8 +14,7 @@ function readWiFiCommandUrls(): Record<LightCommand, string> {
   return {
     JOUR: "",
     NUIT: "",
-    VOTE: "",
-    LOUP: ""
+    VOTE: ""
   };
 }
 

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Switch } from "@/components/ui/switch";
 import { Settings, Zap, ZapOff, Wifi } from "lucide-react";
@@ -138,21 +137,13 @@ const LightsConfigSection: React.FC = () => {
                 >
                   Lumière Vote
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={bleStatus !== "connected"}
-                  onClick={() => sendLightCommand("LOUP")}
-                >
-                  Lumière Loup
-                </Button>
               </div>
             </div>
           )}
 
           {lightMode === "wifi" && (
             <div className="space-y-4">
-              {(["JOUR", "NUIT", "VOTE", "LOUP"] as LightCommand[]).map((command) => (
+              {(["JOUR", "NUIT", "VOTE"] as LightCommand[]).map((command) => (
                 <div key={command} className="grid gap-2">
                   <Label htmlFor={`wifi-${command}`}>URL Lumière {command}</Label>
                   <div className="flex gap-2">

@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLightControl } from "@/hooks/LightControlContext";
 
-type AudioType = "day" | "night" | "vote" | "wolf";
+type AudioType = "day" | "night" | "vote";
 const iconMap = {
   day: Sun,
   vote: Vote,
-  night: Moon,
-  wolf: Moon, // Changed from Wolf to Moon since Wolf isn't available in lucide-react
+  night: Moon
 };
 
 interface AudioLightButtonProps {
@@ -35,16 +34,15 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSendingLight, setIsSendingLight] = useState(false);
 
-  const { lightEnabled, bleStatus, sendLightCommand } = useLightControl();
+  const { lightEnabled, lightMode, sendLightCommand } = useLightControl();
   const IconComp = iconMap[type];
 
   // Associe le type à la commande lumière
-  const getLightCode = (): "JOUR" | "NUIT" | "VOTE" | "LOUP" | null => {
+  const getLightCode = (): "JOUR" | "NUIT" | "VOTE" | null => {
     switch(type) {
       case "day": return "JOUR";
       case "night": return "NUIT";
       case "vote": return "VOTE";
-      case "wolf": return "LOUP";
       default: return null;
     }
   };
@@ -61,8 +59,8 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
       setIsPlaying(true);
     }
 
-    // On déclenche la lumière, sauf si type=wolf où il n'y a que la lumière
-    if (lightEnabled && getLightCode() && bleStatus === "connected") {
+    // On déclenche la lumière si elle est activée
+    if (lightEnabled && getLightCode()) {
       setIsSendingLight(true);
       try {
         await sendLightCommand(getLightCode()!);
@@ -72,37 +70,31 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
     }
   };
 
-  // Si bouton wolf, il ne contrôle QUE la lumière !
-  const showPlayPause = type !== "wolf";
-  const disabled = (type === "wolf" && (!lightEnabled || bleStatus !== "connected"));
-
   return (
     <Button
       variant={variant}
       onClick={handleClick}
       className={`flex items-center gap-2 ${className}`}
-      disabled={disabled || isSendingLight}
+      disabled={isSendingLight}
     >
       {IconComp && <IconComp className="h-4 w-4" />}
-      {showPlayPause ? (
-        isPlaying ? (
-          <>
-            <Pause className="h-4 w-4" />
-            <span>{label}</span>
-            <Badge
-              variant="secondary"
-              className="ml-1 animate-pulse bg-green-100 text-green-800"
-            >
-              En cours
-            </Badge>
-          </>
-        ) : (
-          <>
-            <Play className="h-4 w-4" />
-            <span>{label}</span>
-          </>
-        )
-      ) : <span>{label}</span>}
+      {isPlaying ? (
+        <>
+          <Pause className="h-4 w-4" />
+          <span>{label}</span>
+          <Badge
+            variant="secondary"
+            className="ml-1 animate-pulse bg-green-100 text-green-800"
+          >
+            En cours
+          </Badge>
+        </>
+      ) : (
+        <>
+          <Play className="h-4 w-4" />
+          <span>{label}</span>
+        </>
+      )}
       {isSendingLight && <Badge className="ml-1 animate-pulse" variant="outline">Lumière...</Badge>}
     </Button>
   );
