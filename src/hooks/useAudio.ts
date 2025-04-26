@@ -52,6 +52,7 @@ export function useAudio() {
 
   const playDayMusic = useCallback(() => {
     try {
+      audioService.stopMusic(); // Stop any playing music first
       const dayMusic = localStorage.getItem('werewolf-day-music') || 'ambiance_cobblevillage.webm';
       audioService.playAudio(dayMusic, true);
     } catch (error) {
@@ -61,6 +62,7 @@ export function useAudio() {
   
   const playNightMusic = useCallback(() => {
     try {
+      audioService.stopMusic(); // Stop any playing music first
       const nightMusic = localStorage.getItem('werewolf-night-music') || 'ambiance_defautnuit.webm';
       audioService.playAudio(nightMusic, true);
     } catch (error) {
@@ -70,13 +72,14 @@ export function useAudio() {
   
   const playVoteMusic = useCallback(() => {
     try {
+      audioService.stopMusic(); // Stop any playing music first
       const voteMusic = localStorage.getItem('werewolf-vote-music') || 'ambiance_clear-haken.webm';
       audioService.playAudio(voteMusic, true);
     } catch (error) {
       console.error('Erreur lors de la lecture de la musique de vote:', error);
     }
   }, []);
-  
+
   const stopMusic = useCallback(() => {
     try {
       audioService.stopAudio();

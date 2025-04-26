@@ -2,9 +2,8 @@ import React from 'react';
 import { GamePhase, CharacterType } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users, ArrowLeft } from 'lucide-react';
-import AudioLightButton from './AudioLightButton';
-import { useAudio } from '@/hooks/useAudio';
 import Timer from './Timer';
+import { AudioPhaseControls } from './AudioPhaseControls';
 
 interface GameMasterGuideProps {
   characters: CharacterType[];
@@ -23,13 +22,6 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   aliveCharacters = [],
   onReturnToSetup
 }) => {
-  const {
-    playDayMusic,
-    playNightMusic,
-    playVoteMusic,
-    stopMusic
-  } = useAudio();
-
   const hasDevotedServant = characters.some(char => char.id === 'devoted-servant');
 
   const getPhaseTitle = () => {
@@ -67,10 +59,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       case 'firstDay':
         return (
           <div>
-            <div className="mb-4 flex gap-2">
-              <AudioLightButton label="Jour" type="day" playMusic={playDayMusic} stopMusic={stopMusic} />
-              <AudioLightButton label="Vote" type="vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
-            </div>
+            <AudioPhaseControls />
             <div className="mb-4">
               <Timer defaultMinutes={5} />
             </div>
@@ -99,9 +88,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         const nightActions = getOrderedCharacterActions(characters, 'night', true, aliveCharacters);
         return (
           <div>
-            <div className="mb-4 flex gap-2">
-              <AudioLightButton label="Nuit" type="night" playMusic={playNightMusic} stopMusic={stopMusic} />
-            </div>
+            <AudioPhaseControls />
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
@@ -139,15 +126,10 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         const dayActions = getOrderedCharacterActions(characters, 'day', false, aliveCharacters);
         return (
           <div>
-            <div className="mb-4 flex gap-2">
-              <AudioLightButton label="Jour" type="day" playMusic={playDayMusic} stopMusic={stopMusic} />
-              <AudioLightButton label="Vote" type="vote" playMusic={playVoteMusic} stopMusic={stopMusic} />
-            </div>
-            
+            <AudioPhaseControls />
             <div className="mb-4">
               <Timer defaultMinutes={5} />
             </div>
-            
             <p className="mb-4">1. Annoncez les victimes de la nuit, s'il y en a.</p>
             <p className="mb-4">2. Laissez les joueurs débattre pour trouver les Loups-Garous.</p>
             
@@ -195,9 +177,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         const regularNightActions = getOrderedCharacterActions(characters, 'night', false, aliveCharacters);
         return (
           <div>
-            <div className="mb-4 flex gap-2">
-              <AudioLightButton label="Nuit" type="night" playMusic={playNightMusic} stopMusic={stopMusic} />
-            </div>
+            <AudioPhaseControls />
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
