@@ -22,7 +22,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="dark">
+        <ThemeProvider defaultTheme="light" enableSystem={false}>
           <TooltipProvider>
             <Routes>
               <Route path="/" element={<Index />} />

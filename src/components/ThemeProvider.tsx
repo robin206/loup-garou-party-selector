@@ -9,7 +9,7 @@ export interface ThemeProviderProps extends Omit<NextThemeProviderProps, 'attrib
 
 export function ThemeProvider({ 
   children,
-  defaultTheme = 'dark',
+  defaultTheme = 'light',
   enableSystem = false,
   ...props
 }: ThemeProviderProps) {
