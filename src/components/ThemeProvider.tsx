@@ -11,6 +11,7 @@ export function ThemeProvider({
   children,
   defaultTheme = 'light',
   enableSystem = false,
+  storageKey = 'theme',
   ...props
 }: ThemeProviderProps) {
   return (
@@ -18,6 +19,7 @@ export function ThemeProvider({
       attribute="class"
       defaultTheme={defaultTheme}
       enableSystem={enableSystem}
+      storageKey={storageKey}
       {...props}
     >
       {children}

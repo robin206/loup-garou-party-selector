@@ -22,7 +22,7 @@ const queryClient = new QueryClient();
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" enableSystem={false}>
+      <ThemeProvider defaultTheme="light" enableSystem={false} storageKey="werewolf-theme">
         <TooltipProvider>
           <LightControlProvider>
             <BrowserRouter>
