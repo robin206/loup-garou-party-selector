@@ -101,7 +101,6 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           <div>
             <div className="mb-4 flex gap-2">
               <AudioLightButton label="Nuit" type="night" playMusic={playNightMusic} stopMusic={stopMusic} />
-              <AudioLightButton label="Loup" type="wolf" />
             </div>
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
@@ -198,7 +197,6 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           <div>
             <div className="mb-4 flex gap-2">
               <AudioLightButton label="Nuit" type="night" playMusic={playNightMusic} stopMusic={stopMusic} />
-              <AudioLightButton label="Loup" type="wolf" />
             </div>
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
