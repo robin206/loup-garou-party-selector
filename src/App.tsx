@@ -20,7 +20,6 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Use React.StrictMode to help catch bugs early
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
