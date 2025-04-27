@@ -88,7 +88,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
                         {getCharacterIcon(char.icon)}
                       </div>
                       <div className="display:inline;">
-                        <div className="font-medium">{char.name} :</div>
+                        <div className="font-medium text-white">{char.name} :</div>
                         <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
                       </div>
                     </div>
