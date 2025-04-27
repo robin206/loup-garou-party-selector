@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Plus, Minus } from 'lucide-react';
 import TooltipWrapper from './TooltipWrapper';
+
 interface CharacterCardProps {
   character: CharacterType;
   isSelected: boolean;
@@ -13,6 +14,7 @@ interface CharacterCardProps {
   onIncrease?: (id: string) => void;
   onDecrease?: (id: string) => void;
 }
+
 const getExpansionColor = (expansion: string): string => {
   switch (expansion) {
     case 'base':
@@ -29,6 +31,7 @@ const getExpansionColor = (expansion: string): string => {
       return 'bg-gray-100 text-gray-700';
   }
 };
+
 const getExpansionName = (expansion: string): string => {
   switch (expansion) {
     case 'base':
@@ -45,6 +48,7 @@ const getExpansionName = (expansion: string): string => {
       return '';
   }
 };
+
 const CharacterCard: React.FC<CharacterCardProps> = ({
   character,
   isSelected,
@@ -66,14 +70,23 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
         return 'from-gray-500/10 to-gray-500/20';
     }
   };
+
   const handleCardClick = (e: React.MouseEvent) => {
     // Only trigger selection if not clicking on the counter buttons
     if (!(e.target instanceof HTMLButtonElement)) {
       onSelect(character.id);
     }
   };
+
   return <TooltipWrapper character={character} isAlive={isAlive}>
-      <div className={cn("character-card glass-card animate-scale-in", isSelected && "selected ring-2 ring-werewolf-accent", !isAlive && "grayscale opacity-70")} onClick={handleCardClick}>
+      <div 
+        className={cn(
+          "character-card glass-card animate-scale-in", 
+          isSelected && "selected ring-2 ring-werewolf-accent bg-gray-800", 
+          !isAlive && "grayscale opacity-70"
+        )} 
+        onClick={handleCardClick}
+      >
         <div className={cn("character-card-image", getTeamColor(character.team))}>
           {character.icon && character.icon.startsWith('/') ? <img src={character.icon} alt={character.name} className="h-12 w-12 object-contain" /> : <div className="h-12 w-12 flex items-center justify-center bg-gray-200 rounded-full">
               <span className="text-sm">{character.name.charAt(0)}</span>
@@ -83,19 +96,29 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
         
         
         {isSelected && selectedCount > 0 && <div className="flex justify-center items-center space-x-1 mt-2">
-            {onDecrease && <Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={e => {
-          e.stopPropagation();
-          onDecrease(character.id);
-        }}>
+            {onDecrease && <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-6 w-6 rounded-full text-black" 
+              onClick={e => {
+                e.stopPropagation();
+                onDecrease(character.id);
+              }}
+            >
                 <Minus className="h-3 w-3" />
               </Button>}
             <span className="text-sm font-medium bg-werewolf-accent/10 text-werewolf-accent px-2 py-0.5 rounded-full">
               {selectedCount}
             </span>
-            {onIncrease && <Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={e => {
-          e.stopPropagation();
-          onIncrease(character.id);
-        }}>
+            {onIncrease && <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-6 w-6 rounded-full text-black" 
+              onClick={e => {
+                e.stopPropagation();
+                onIncrease(character.id);
+              }}
+            >
                 <Plus className="h-3 w-3" />
               </Button>}
           </div>}
@@ -111,4 +134,5 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
       </div>
     </TooltipWrapper>;
 };
+
 export default CharacterCard;

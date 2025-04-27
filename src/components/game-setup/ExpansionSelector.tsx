@@ -25,7 +25,7 @@ const ExpansionSelector: React.FC<ExpansionSelectorProps> = ({
       </h2>
       <div className="px-4">
         <Select value={selectedExpansion} onValueChange={onExpansionChange}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full text-black">
             <SelectValue placeholder="Sélectionnez une extension" />
           </SelectTrigger>
           <SelectContent>

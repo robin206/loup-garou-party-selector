@@ -39,7 +39,7 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
         className={cn(
           "simple-character-card p-2 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm cursor-pointer transition-all",
           "hover:shadow-md hover:-translate-y-1 flex flex-col items-center gap-2",
-          isSelected && "ring-2 ring-werewolf-accent bg-werewolf-accent/5",
+          isSelected && "ring-2 ring-werewolf-accent bg-gray-800",
           !isAlive && "grayscale opacity-70"
         )}
         onClick={handleCardClick}
@@ -66,7 +66,7 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-6 w-6" 
+                className="h-6 w-6 text-black" 
                 onClick={(e) => {
                   e.stopPropagation();
                   onDecrease(character.id);
@@ -82,7 +82,7 @@ const SimpleCharacterCard: React.FC<SimpleCharacterCardProps> = ({
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-6 w-6" 
+                className="h-6 w-6 text-black" 
                 onClick={(e) => {
                   e.stopPropagation();
                   onIncrease(character.id);
