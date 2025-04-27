@@ -17,35 +17,40 @@ import MusicAdmin from "./pages/MusicAdmin";
 import NotFound from "./pages/NotFound";
 
 // Create a client outside of the component
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false
+    }
+  }
+});
 
 const App = () => {
   return (
-    <React.StrictMode>
+    <ThemeProvider defaultTheme="light" enableSystem={false} storageKey="werewolf-theme">
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="light" enableSystem={false} storageKey="werewolf-theme">
-          <TooltipProvider>
-            <LightControlProvider>
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/game" element={<Game />} />
-                  <Route path="/rules" element={<Rules />} />
-                  <Route path="/config" element={<Config />} />
-                  <Route path="/setup" element={<Setup />} />
-                  <Route path="/distribution" element={<Distribution />} />
-                  <Route path="/music-admin" element={<MusicAdmin />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                <Toaster />
-                <Sonner />
-              </BrowserRouter>
-            </LightControlProvider>
-          </TooltipProvider>
-        </ThemeProvider>
+        <TooltipProvider>
+          <LightControlProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/game" element={<Game />} />
+                <Route path="/rules" element={<Rules />} />
+                <Route path="/config" element={<Config />} />
+                <Route path="/setup" element={<Setup />} />
+                <Route path="/distribution" element={<Distribution />} />
+                <Route path="/music-admin" element={<MusicAdmin />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+              <Sonner />
+            </BrowserRouter>
+          </LightControlProvider>
+        </TooltipProvider>
       </QueryClientProvider>
-    </React.StrictMode>
+    </ThemeProvider>
   );
 };
 
