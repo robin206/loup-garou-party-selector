@@ -78,7 +78,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         const nightActions = getOrderedCharacterActions(characters, 'night', true, aliveCharacters);
         return <div>
             <AudioPhaseControls className="text-white" />
-            <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
+            <p className="mb-4 text-slate-100">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
               <ol className="list-decimal list-inside pl-4 space-y-2 px-0">
