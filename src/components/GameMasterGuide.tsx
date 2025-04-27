@@ -57,7 +57,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               <Timer defaultMinutes={5} />
             </div>
             <p className="mb-4">1. Demandez à tous les joueurs d'ouvrir les yeux.</p>
-            <p className="mb-4 text-base text-neutral-50">2. Annoncez l'élection du maire :</p>
+            <p className="mb-4">2. Annoncez l'élection du maire :</p>
             <ul className="list-disc list-inside mb-4 pl-4">
               <li>Chaque joueur peut se présenter en 30 secondes</li>
               <li>Procédez au vote (le maire aura une voix prépondérante en cas d'égalité)</li>
@@ -77,7 +77,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       case 'firstNight':
         const nightActions = getOrderedCharacterActions(characters, 'night', true, aliveCharacters);
         return <div>
-            <AudioPhaseControls />
+            <AudioPhaseControls className="text-white" />
             <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
               <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
