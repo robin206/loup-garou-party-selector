@@ -1,18 +1,18 @@
 
 import React from 'react';
 
-interface ClassNameWrapperProps {
-  component: React.ComponentType;
+interface ClassNameWrapperProps<T = {}> {
+  component: React.ComponentType<T & { className?: string }>;
   className?: string;
   [key: string]: any;
 }
 
-const ClassNameWrapper: React.FC<ClassNameWrapperProps> = ({ 
+const ClassNameWrapper = <T extends {}>({ 
   component: Component, 
   className, 
   ...props 
-}) => {
-  return <Component {...props} className={className} />;
+}: ClassNameWrapperProps<T>) => {
+  return <Component {...props as T} className={className} />;
 };
 
 export default ClassNameWrapper;

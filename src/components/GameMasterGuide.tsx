@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users, ArrowLeft } from 'lucide-react';
 import Timer from './Timer';
 import { AudioPhaseControls } from './AudioPhaseControls';
+
 interface GameMasterGuideProps {
   characters: CharacterType[];
   phase: GamePhase;
@@ -12,6 +13,7 @@ interface GameMasterGuideProps {
   aliveCharacters?: string[];
   onReturnToSetup?: () => void;
 }
+
 const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   characters,
   phase,
@@ -21,6 +23,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   onReturnToSetup
 }) => {
   const hasDevotedServant = characters.some(char => char.id === 'devoted-servant');
+
   const getPhaseTitle = () => {
     switch (phase) {
       case 'setup':
@@ -39,6 +42,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return 'Phase inconnue';
     }
   };
+
   const getPhaseInstructions = () => {
     switch (phase) {
       case 'setup':
@@ -77,7 +81,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       case 'firstNight':
         const nightActions = getOrderedCharacterActions(characters, 'night', true, aliveCharacters);
         return <div>
-            <AudioPhaseControls className="text-white" />
+            <AudioPhaseControls />
             <p className="mb-4 text-slate-100">Demandez à tous les joueurs de fermer les yeux.</p>
             <div className="mb-4">
               <h3 className="font-semibold mb-2 text-slate-100">Actions à effectuer dans l'ordre :</h3>
@@ -195,6 +199,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return <p>Instructions non disponibles</p>;
     }
   };
+
   const getCharacterIcon = (iconName: string) => {
     switch (iconName) {
       case 'moon':
@@ -208,6 +213,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return null;
     }
   };
+
   const getOrderedCharacterActions = (chars: CharacterType[], phase: 'night' | 'day', isFirstNight: boolean = false, aliveChars: string[] = []) => {
     const uniqueCharIds = new Set<string>();
     const uniqueChars: CharacterType[] = [];
@@ -223,6 +229,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     });
     return uniqueChars.sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
   };
+
   const getPhaseIcon = () => {
     switch (phase) {
       case 'firstDay':
@@ -239,6 +246,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         return null;
     }
   };
+
   const getCurrentTeamCounts = () => {
     const teamCounts: Record<string, number> = {
       village: 0,
@@ -266,6 +274,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           </div>}
       </div>;
   };
+
   return <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
       <div className="flex items-center mb-4">
         {getPhaseIcon()}
@@ -279,4 +288,5 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       </div>
     </div>;
 };
+
 export default GameMasterGuide;
