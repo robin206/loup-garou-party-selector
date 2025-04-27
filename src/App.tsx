@@ -20,30 +20,33 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
+  // Use React.StrictMode to help catch bugs early
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" enableSystem={false} storageKey="werewolf-theme">
-        <TooltipProvider>
-          <LightControlProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/game" element={<Game />} />
-                <Route path="/rules" element={<Rules />} />
-                <Route path="/config" element={<Config />} />
-                <Route path="/setup" element={<Setup />} />
-                <Route path="/distribution" element={<Distribution />} />
-                <Route path="/music-admin" element={<MusicAdmin />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-              <Sonner />
-            </BrowserRouter>
-          </LightControlProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="light" enableSystem={false} storageKey="werewolf-theme">
+          <TooltipProvider>
+            <LightControlProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/game" element={<Game />} />
+                  <Route path="/rules" element={<Rules />} />
+                  <Route path="/config" element={<Config />} />
+                  <Route path="/setup" element={<Setup />} />
+                  <Route path="/distribution" element={<Distribution />} />
+                  <Route path="/music-admin" element={<MusicAdmin />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+                <Sonner />
+              </BrowserRouter>
+            </LightControlProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
   );
 };
 

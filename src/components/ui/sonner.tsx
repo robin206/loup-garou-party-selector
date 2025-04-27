@@ -5,8 +5,14 @@ import { Toaster as Sonner } from "sonner"
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  // Get theme safely with fallback to "light" if context is not available
-  const { theme = "light" } = useTheme ? useTheme() : { theme: "light" }
+  // Safe theme access with try/catch to prevent context errors
+  let theme = "light";
+  try {
+    const themeContext = useTheme();
+    theme = themeContext?.theme || "light";
+  } catch (error) {
+    console.warn("Theme context not available, defaulting to light theme");
+  }
 
   return (
     <Sonner

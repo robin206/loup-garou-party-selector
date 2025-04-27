@@ -1,6 +1,5 @@
 
 import { createRoot } from 'react-dom/client'
-import React from 'react';
 import App from './App.tsx'
 import './index.css'
 
@@ -19,18 +18,14 @@ const updateServiceWorker = async () => {
   }
 };
 
-// Timestamp for update: 2025-04-13-2
+// Timestamp for update: 2025-04-14-1
 // Au chargement de l'application, on force la mise à jour
 updateServiceWorker();
 
 const root = document.getElementById("root");
 if (root) {
   const rootInstance = createRoot(root);
-  rootInstance.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
+  rootInstance.render(<App />);
 } else {
   console.error("Root element not found");
 }
