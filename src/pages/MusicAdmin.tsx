@@ -1,16 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, FileAudio2, Music2 } from 'lucide-react';
+import { ArrowLeft, Upload, FileAudio, Music } from 'lucide-react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { useAudio } from '@/hooks/useAudio';
 import audioService from '@/services/audioService';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AudioFileUploader from '@/components/AudioFileUploader';
 
 const MusicAdmin = () => {
@@ -39,7 +37,6 @@ const MusicAdmin = () => {
   };
   
   const handleMusicUploaded = (fileName: string) => {
-    toast.success(`Musique ${fileName} ajoutée avec succès`);
     // Rafraîchir la liste des fichiers
     setAudioFiles(getAvailableAudios());
   };
@@ -63,7 +60,7 @@ const MusicAdmin = () => {
         
         <section className="text-center mb-10 space-y-4">
           <div className="inline-flex items-center justify-center p-3 bg-werewolf-accent/10 rounded-full mb-4 animate-fade-in">
-            <Music2 className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
+            <Music className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
           </div>
           
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl animate-fade-up">
@@ -80,10 +77,10 @@ const MusicAdmin = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="h-5 w-5" />
-                Ajouter une nouvelle musique
+                Ajouter des nouvelles musiques
               </CardTitle>
               <CardDescription>
-                Formats acceptés: MP3, WEBM. Taille maximale: 10 MB
+                Formats acceptés: MP3, WEBM, OGG. Taille maximale: 10 MB par fichier
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -93,7 +90,7 @@ const MusicAdmin = () => {
           
           <div className="space-y-4 mt-8">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <FileAudio2 className="h-5 w-5" />
+              <FileAudio className="h-5 w-5" />
               Musiques disponibles
             </h2>
             
