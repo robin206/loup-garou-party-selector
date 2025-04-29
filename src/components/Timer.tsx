@@ -71,7 +71,7 @@ const Timer: React.FC<TimerProps> = ({ defaultMinutes = 5 }) => {
           variant="outline"
           size="sm"
           onClick={toggleTimer}
-          className="bg-gray-950/70 hover:bg-gray-800"
+          className="bg-gray-950/70; text-gray-100 hover:bg-gray-800"
         >
           {isActive ? <Pause size={18} /> : <Play size={18} />}
         </Button>
@@ -79,7 +79,7 @@ const Timer: React.FC<TimerProps> = ({ defaultMinutes = 5 }) => {
           variant="outline"
           size="sm"
           onClick={resetTimer}
-          className="bg-gray-950/70 hover:bg-gray-800"
+          className="bg-gray-950/70; text-gray-100 hover:bg-gray-800"
         >
           <RotateCcw size={18} />
         </Button>
@@ -87,7 +87,7 @@ const Timer: React.FC<TimerProps> = ({ defaultMinutes = 5 }) => {
           variant="outline"
           size="sm"
           onClick={removeMinute}
-          className="bg-gray-950/70 hover:bg-gray-800"
+          className="bg-gray-950/70; text-gray-100 hover:bg-gray-800"
         >
           <Minus size={18} />
         </Button>
@@ -95,7 +95,7 @@ const Timer: React.FC<TimerProps> = ({ defaultMinutes = 5 }) => {
           variant="outline"
           size="sm"
           onClick={addMinute}
-          className="bg-gray-950/70 hover:bg-gray-800"
+          className="bg-gray-950/70; text-gray-100 hover:bg-gray-800"
         >
           <Plus size={18} />
         </Button>
