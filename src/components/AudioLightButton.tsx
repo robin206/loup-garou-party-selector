@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Play, Pause, Sun, Vote, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,8 +63,12 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
     // On déclenche la lumière si elle est activée
     if (lightEnabled && getLightCode()) {
       setIsSendingLight(true);
+      console.log(`AudioLightButton: envoi de la commande ${getLightCode()}`);
       try {
-        await sendLightCommand(getLightCode()!);
+        const result = await sendLightCommand(getLightCode()!);
+        console.log(`AudioLightButton: résultat de l'envoi: ${result}`);
+      } catch (err) {
+        console.error("Erreur lors de l'envoi de la commande lumière:", err);
       } finally {
         setIsSendingLight(false);
       }

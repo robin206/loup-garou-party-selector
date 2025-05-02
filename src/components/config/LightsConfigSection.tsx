@@ -1,6 +1,7 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import { Settings, Zap, ZapOff, Wifi } from "lucide-react";
+import { Settings, Zap, ZapOff, Wifi, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,11 @@ const LightsConfigSection: React.FC = () => {
     isBLESupported,
     wifiUrls,
     setWifiUrl,
+    bleConfig,
+    updateBLEConfig
   } = useLightControl();
+
+  const [showAdvancedBLE, setShowAdvancedBLE] = useState(false);
 
   return (
     <section className="glass-card p-8 rounded-xl space-y-8 animate-scale-in mt-10">
@@ -109,6 +114,49 @@ const LightsConfigSection: React.FC = () => {
                 </span>
                 {bleError && (
                   <span className="ml-3 text-red-400">Erreur : {bleError}</span>
+                )}
+              </div>
+
+              {/* Nouvelle section déroulante pour la configuration avancée BLE */}
+              <div className="mt-4 border rounded-md p-4 bg-gray-50/50">
+                <button 
+                  className="flex items-center justify-between w-full font-medium text-sm text-gray-700"
+                  onClick={() => setShowAdvancedBLE(!showAdvancedBLE)}
+                >
+                  Configuration avancée BLE
+                  {showAdvancedBLE ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </button>
+                
+                {showAdvancedBLE && (
+                  <div className="mt-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="ble-service-uuid">Service UUID</Label>
+                      <Input
+                        id="ble-service-uuid"
+                        value={bleConfig.serviceUUID}
+                        onChange={(e) => updateBLEConfig({ serviceUUID: e.target.value })}
+                        placeholder="d752c5fb-1380-4cd5-b0ef-cac7d72cff20"
+                        className="font-mono text-xs"
+                      />
+                      <p className="text-xs text-gray-500">UUID du service BLE (configuré dans l'ESP32)</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="ble-characteristic-uuid">Characteristic UUID</Label>
+                      <Input
+                        id="ble-characteristic-uuid"
+                        value={bleConfig.characteristicUUID}
+                        onChange={(e) => updateBLEConfig({ characteristicUUID: e.target.value })}
+                        placeholder="2d30c082-f39f-4ce6-923f-3484ea480596"
+                        className="font-mono text-xs"
+                      />
+                      <p className="text-xs text-gray-500">UUID de la caractéristique d'écriture</p>
+                    </div>
+                  </div>
                 )}
               </div>
 

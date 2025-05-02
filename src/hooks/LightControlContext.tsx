@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useMemo, useState, ReactNode } from "react";
 import { useLightBLE, BLEStatus } from "./useLightBLE";
 import { useLightWiFi } from "./useLightWiFi";
@@ -31,6 +32,16 @@ interface LightControlContextValue {
   isBLESupported: boolean;
   wifiUrls: Record<LightCommand, string>;
   setWifiUrl: (command: LightCommand, url: string) => void;
+  bleConfig: {
+    serviceName: string;
+    serviceUUID: string;
+    characteristicUUID: string;
+  };
+  updateBLEConfig: (config: Partial<{
+    serviceName: string;
+    serviceUUID: string;
+    characteristicUUID: string;
+  }>) => void;
 }
 
 const LightControlContext = createContext<LightControlContextValue | undefined>(undefined);
@@ -68,15 +79,16 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
   };
 
   // On utilise le bon service selon le mode
-  const sendLightCommand = (command: LightCommand) => {
+  const sendLightCommand = async (command: LightCommand) => {
     if (!lightEnabled) return;
+    
+    console.log(`Tentative d'envoi de commande lumière: ${command} en mode ${lightMode}`);
+    
     switch (lightMode) {
       case "ble":
-        ble.sendLightCommand(command);
-        break;
+        return await ble.sendLightCommand(command);
       case "wifi":
-        wifi.sendCommand(command);
-        break;
+        return wifi.sendCommand(command);
     }
   };
 
@@ -93,6 +105,8 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
     isBLESupported: ble.isBLESupported,
     wifiUrls,
     setWifiUrl,
+    bleConfig: ble.bleConfig,
+    updateBLEConfig: ble.updateBLEConfig
   }), [lightEnabled, lightMode, ble, wifiUrls]);
 
   return (

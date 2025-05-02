@@ -1,24 +1,44 @@
 
 import { useState } from "react";
 
-// Type definitions : on tolère l’absence de types bluetooth en environnement non compatible (TS ignore)
+// Type definitions : on tolère l'absence de types bluetooth en environnement non compatible (TS ignore)
 // Utilisation de types any ou fallback.
 export type BLEStatus = "idle" | "connecting" | "connected" | "error" | "disconnected";
 
-const SERVICE_NAME = "LG_ESP32"; //ancien paramètre du BLE
-const SERVICE_UUID = "d752c5fb-1380-4cd5-b0ef-cac7d72cff20";
-const COMMAND_CHARACTERISTIC = "2d30c082-f39f-4ce6-923f-3484ea480596"; // Peut varier selon l'ESP32, à adapter si besoin
+// Valeurs par défaut pour la configuration BLE
+const DEFAULT_SERVICE_NAME = "LG_ESP32"; // Pour compatibilité avec anciennes configs
+const DEFAULT_SERVICE_UUID = "d752c5fb-1380-4cd5-b0ef-cac7d72cff20";
+const DEFAULT_COMMAND_CHARACTERISTIC = "2d30c082-f39f-4ce6-923f-3484ea480596";
 
 type LightCode = "JOUR" | "NUIT" | "VOTE" | "LOUP";
 
 type BluetoothDeviceCustom = any;
 type BluetoothRemoteGATTServerCustom = any;
 
+// Configuration BLE stockée dans localStorage
+const getBLEConfig = () => {
+  try {
+    const savedConfig = localStorage.getItem('werewolf-ble-config');
+    if (savedConfig) {
+      return JSON.parse(savedConfig);
+    }
+  } catch (e) {
+    console.error("Erreur lors du chargement de la config BLE:", e);
+  }
+  
+  return {
+    serviceName: DEFAULT_SERVICE_NAME,
+    serviceUUID: DEFAULT_SERVICE_UUID,
+    characteristicUUID: DEFAULT_COMMAND_CHARACTERISTIC
+  };
+};
+
 export function useLightBLE() {
   const [status, setStatus] = useState<BLEStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [device, setDevice] = useState<BluetoothDeviceCustom | null>(null);
   const [server, setServer] = useState<BluetoothRemoteGATTServerCustom | null>(null);
+  const [bleConfig, setBLEConfig] = useState(getBLEConfig());
 
   // Vérifie si le navigateur supporte l'API Bluetooth
   const isBLESupported = (): boolean => {
@@ -29,7 +49,15 @@ export function useLightBLE() {
     }
   };
 
-  // Connexion et maintient l'objet device/server en mémoire si besoin de renvoyer d'autres commandes
+  // Fonction pour changer la configuration BLE
+  const updateBLEConfig = (newConfig: Partial<typeof bleConfig>) => {
+    const updatedConfig = { ...bleConfig, ...newConfig };
+    setBLEConfig(updatedConfig);
+    localStorage.setItem('werewolf-ble-config', JSON.stringify(updatedConfig));
+    return updatedConfig;
+  };
+
+  // Connexion avec les nouveaux paramètres de configuration
   async function connect() {
     setStatus("connecting");
     setError(null);
@@ -41,24 +69,34 @@ export function useLightBLE() {
     }
 
     try {
-      // Demande le device avec le service id configuré »
-      const device = await (window.navigator as any).bluetooth.requestDevice({
-        filters: [{ name: SERVICE_NAME }],
-        optionalServices: [SERVICE_UUID] // Cela doit correspondre à l'UUID du service
-      });
+      // Préparation des options de requête Bluetooth selon la configuration
+      const bleRequestOptions: any = {
+        // Utiliser des filtres sur le service UUID plutôt que le nom, comme dans votre exemple
+        filters: [{ services: [bleConfig.serviceUUID] }],
+        optionalServices: [] // Pas besoin car déjà inclus dans les filtres
+      };
+
+      console.log("Demande de connexion BLE avec options:", bleRequestOptions);
+
+      // Demande le device avec le service UUID configuré
+      const device = await (window.navigator as any).bluetooth.requestDevice(bleRequestOptions);
       setDevice(device);
+      console.log("Appareil BLE trouvé:", device);
 
       // Connexion GATT
       if (device.gatt) {
         const server = await device.gatt.connect();
         setServer(server);
         setStatus("connected");
+        console.log("Connecté au serveur GATT");
         return server;
       } else {
         throw new Error("GATT non disponible sur cet appareil");
       }
     } catch (e: any) {
-      setError(e.message || String(e));
+      const errorMsg = e.message || String(e);
+      console.error("Erreur de connexion BLE:", errorMsg);
+      setError(errorMsg);
       setStatus("error");
       return null;
     }
@@ -70,24 +108,35 @@ export function useLightBLE() {
     if (!device || !server) {
       setError("Non connecté !");
       setStatus("disconnected");
-      return;
+      return false;
     }
+
     try {
-      // Récupère le service (par UUID, peut nécessiter le service UUID réel si le nom ne fonctionne pas)
-      const service =
-        await server.getPrimaryService(SERVICE_UUID).catch(() =>
-          // fallback, si `SERVICE_UUID` ne marche pas (UUID typique pour custom peut être "2d30c082-f39f-4ce6-923f-3484ea480596")
-          server.getPrimaryService("2d30c082-f39f-4ce6-923f-3484ea480596")
-        );
+      console.log(`Tentative d'envoi de la commande BLE: ${code}`);
+      
+      // Récupère le service par UUID (utiliser le service UUID spécifié dans la config)
+      const service = await server.getPrimaryService(bleConfig.serviceUUID);
       if (!service) throw new Error("Service non trouvé");
+      
+      console.log("Service BLE trouvé, recherche de la caractéristique...");
+      
       // Caractéristique d'écriture
-      const characteristic = await service.getCharacteristic(COMMAND_CHARACTERISTIC);
+      const characteristic = await service.getCharacteristic(bleConfig.characteristicUUID);
       if (!characteristic) throw new Error("Caractéristique non trouvée");
+      
+      console.log("Caractéristique BLE trouvée, envoi de la commande...");
+      
       // Encode la commande en UTF-8
-      await characteristic.writeValue(new TextEncoder().encode(code));
+      const encodedValue = new TextEncoder().encode(code);
+      console.log(`Envoi de la valeur encodée: ${code}`, encodedValue);
+      
+      await characteristic.writeValue(encodedValue);
+      console.log(`Commande BLE "${code}" envoyée avec succès!`);
       return true;
     } catch (e: any) {
-      setError(e.message || String(e));
+      const errorMsg = e.message || String(e);
+      console.error("Erreur lors de l'envoi de la commande BLE:", errorMsg);
+      setError(errorMsg);
       setStatus("error");
       return false;
     }
@@ -96,6 +145,7 @@ export function useLightBLE() {
   function disconnect() {
     if (device?.gatt) {
       device.gatt.disconnect();
+      console.log("Déconnecté du périphérique BLE");
     }
     setDevice(null);
     setServer(null);
@@ -109,5 +159,7 @@ export function useLightBLE() {
     sendLightCommand,
     disconnect,
     isBLESupported: isBLESupported(),
+    bleConfig,
+    updateBLEConfig
   };
 }
