@@ -165,7 +165,7 @@ const LightsConfigSection: React.FC = () => {
                   variant="outline"
                   size="sm"
                   disabled={bleStatus !== "connected"}
-                  onClick={() => sendLightCommand("JOUR")}
+                  onClick={() => sendLightCommand("jour")}
                 >
                   Lumière Jour
                 </Button>
@@ -173,7 +173,7 @@ const LightsConfigSection: React.FC = () => {
                   variant="outline"
                   size="sm"
                   disabled={bleStatus !== "connected"}
-                  onClick={() => sendLightCommand("NUIT")}
+                  onClick={() => sendLightCommand("nuit")}
                 >
                   Lumière Nuit
                 </Button>
@@ -181,7 +181,7 @@ const LightsConfigSection: React.FC = () => {
                   variant="outline"
                   size="sm"
                   disabled={bleStatus !== "connected"}
-                  onClick={() => sendLightCommand("VOTE")}
+                  onClick={() => sendLightCommand("vote")}
                 >
                   Lumière Vote
                 </Button>
