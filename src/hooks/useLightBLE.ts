@@ -10,7 +10,7 @@ const DEFAULT_SERVICE_NAME = "LG_ESP32"; // Pour compatibilité avec anciennes c
 const DEFAULT_SERVICE_UUID = "d752c5fb-1380-4cd5-b0ef-cac7d72cff20";
 const DEFAULT_COMMAND_CHARACTERISTIC = "2d30c082-f39f-4ce6-923f-3484ea480596";
 
-type LightCode = "JOUR" | "NUIT" | "VOTE" | "LOUP";
+type LightCode = "jour" | "nuit" | "vote" | "loup";
 
 type BluetoothDeviceCustom = any;
 type BluetoothRemoteGATTServerCustom = any;
