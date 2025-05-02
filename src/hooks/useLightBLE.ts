@@ -5,8 +5,8 @@ import { useState } from "react";
 // Utilisation de types any ou fallback.
 export type BLEStatus = "idle" | "connecting" | "connected" | "error" | "disconnected";
 
-const SERVICE_NAME = "LoupGarouLight";
-const COMMAND_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb"; // Peut varier selon l'ESP32, à adapter si besoin
+const SERVICE_NAME = "LG_ESP32";
+const COMMAND_CHARACTERISTIC = "2d30c082-f39f-4ce6-923f-3484ea480596"; // Peut varier selon l'ESP32, à adapter si besoin
 
 type LightCode = "JOUR" | "NUIT" | "VOTE" | "LOUP";
 
