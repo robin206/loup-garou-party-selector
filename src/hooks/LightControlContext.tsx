@@ -4,7 +4,7 @@ import { useLightBLE, BLEStatus } from "./useLightBLE";
 import { useLightWiFi } from "./useLightWiFi";
 
 export type LightMode = "none" | "ble" | "wifi";
-export type LightCommand = "JOUR" | "NUIT" | "VOTE";
+export type LightCommand = "jour" | "nuit" | "vote";
 
 // Store les URLs pour les requêtes WiFi
 function readWiFiCommandUrls(): Record<LightCommand, string> {
