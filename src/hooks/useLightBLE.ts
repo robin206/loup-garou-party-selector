@@ -5,7 +5,7 @@ import { useState } from "react";
 // Utilisation de types any ou fallback.
 export type BLEStatus = "idle" | "connecting" | "connected" | "error" | "disconnected";
 
-//const SERVICE_NAME = "LG_ESP32"; ancien paramètre du BLE
+const SERVICE_NAME = "LG_ESP32"; //ancien paramètre du BLE
 const SERVICE_UUID = "d752c5fb-1380-4cd5-b0ef-cac7d72cff20";
 const COMMAND_CHARACTERISTIC = "2d30c082-f39f-4ce6-923f-3484ea480596"; // Peut varier selon l'ESP32, à adapter si besoin
 
@@ -43,7 +43,7 @@ export function useLightBLE() {
     try {
       // Demande le device avec le service id configuré »
       const device = await (window.navigator as any).bluetooth.requestDevice({
-        filters: [{ name: SERVICE_UUID }],
+        filters: [{ name: SERVICE_name }],
         optionalServices: [SERVICE_UUID] // Cela doit correspondre à l'UUID du service
       });
       setDevice(device);
