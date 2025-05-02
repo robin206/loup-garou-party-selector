@@ -43,7 +43,7 @@ export function useLightBLE() {
     try {
       // Demande le device avec le service id configuré »
       const device = await (window.navigator as any).bluetooth.requestDevice({
-        filters: [{ name: SERVICE_name }],
+        filters: [{ name: SERVICE_NAME }],
         optionalServices: [SERVICE_UUID] // Cela doit correspondre à l'UUID du service
       });
       setDevice(device);
