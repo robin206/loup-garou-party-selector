@@ -76,8 +76,8 @@ export function useLightBLE() {
       // Récupère le service (par UUID, peut nécessiter le service UUID réel si le nom ne fonctionne pas)
       const service =
         await server.getPrimaryService(SERVICE_UUID).catch(() =>
-          // fallback, si `SERVICE_UUID` ne marche pas (UUID typique pour custom peut être "0000ffe0-0000-1000-8000-00805f9b34fb")
-          server.getPrimaryService("0000ffe0-0000-1000-8000-00805f9b34fb")
+          // fallback, si `SERVICE_UUID` ne marche pas (UUID typique pour custom peut être "2d30c082-f39f-4ce6-923f-3484ea480596")
+          server.getPrimaryService("2d30c082-f39f-4ce6-923f-3484ea480596")
         );
       if (!service) throw new Error("Service non trouvé");
       // Caractéristique d'écriture
