@@ -5,7 +5,8 @@ import { useState } from "react";
 // Utilisation de types any ou fallback.
 export type BLEStatus = "idle" | "connecting" | "connected" | "error" | "disconnected";
 
-const SERVICE_NAME = "LG_ESP32";
+//const SERVICE_NAME = "LG_ESP32"; ancien paramètre du BLE
+const SERVICE_UUID = "d752c5fb-1380-4cd5-b0ef-cac7d72cff20";
 const COMMAND_CHARACTERISTIC = "2d30c082-f39f-4ce6-923f-3484ea480596"; // Peut varier selon l'ESP32, à adapter si besoin
 
 type LightCode = "JOUR" | "NUIT" | "VOTE" | "LOUP";
@@ -40,10 +41,10 @@ export function useLightBLE() {
     }
 
     try {
-      // Demande le device avec le service custom qui porte le nom « LoupGarouLight »
+      // Demande le device avec le service id configuré »
       const device = await (window.navigator as any).bluetooth.requestDevice({
-        filters: [{ name: SERVICE_NAME }],
-        optionalServices: [SERVICE_NAME] // Cela doit correspondre à l'UUID du service
+        filters: [{ name: SERVICE_UUID }],
+        optionalServices: [SERVICE_UUID] // Cela doit correspondre à l'UUID du service
       });
       setDevice(device);
 
@@ -74,8 +75,8 @@ export function useLightBLE() {
     try {
       // Récupère le service (par UUID, peut nécessiter le service UUID réel si le nom ne fonctionne pas)
       const service =
-        await server.getPrimaryService(SERVICE_NAME).catch(() =>
-          // fallback, si `SERVICE_NAME` ne marche pas (UUID typique pour custom peut être "0000ffe0-0000-1000-8000-00805f9b34fb")
+        await server.getPrimaryService(SERVICE_UUID).catch(() =>
+          // fallback, si `SERVICE_UUID` ne marche pas (UUID typique pour custom peut être "0000ffe0-0000-1000-8000-00805f9b34fb")
           server.getPrimaryService("0000ffe0-0000-1000-8000-00805f9b34fb")
         );
       if (!service) throw new Error("Service non trouvé");
