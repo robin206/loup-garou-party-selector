@@ -39,7 +39,7 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
   const IconComp = iconMap[type];
 
   // Associe le type à la commande lumière
-  const getLightCode = (): "jour" | "nuit" | "vote" | null => {
+  const getLightCode = (): "JOUR" | "NUIT" | "VOTE" | null => {
     switch(type) {
       case "day": return "jour";
       case "night": return "nuit";
