@@ -4,7 +4,7 @@ import { useLightBLE, BLEStatus } from "./useLightBLE";
 import { useLightWiFi } from "./useLightWiFi";
 
 export type LightMode = "none" | "ble" | "wifi";
-export type LightCommand = "jour" | "nuit" | "vote";
+export type LightCommand = "jour" | "nuit" | "vote" | "loup";
 
 // Store les URLs pour les requêtes WiFi
 function readWiFiCommandUrls(): Record<LightCommand, string> {
@@ -13,9 +13,10 @@ function readWiFiCommandUrls(): Record<LightCommand, string> {
     if (saved) return JSON.parse(saved);
   } catch {}
   return {
-    JOUR: "",
-    NUIT: "",
-    VOTE: ""
+    jour: "",
+    nuit: "",
+    vote: "",
+    loup: ""
   };
 }
 
@@ -66,10 +67,8 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
   const setLightMode = (mode: LightMode) => {
     setLightModeState(mode);
     localStorage.setItem("werewolf-light-mode", mode);
-    // Déconnexion BLE si on change de mode
-    if (mode !== "ble" && ble.status === "connected") {
-      ble.disconnect();
-    }
+    // Ne pas déconnecter automatiquement si on change de mode pour permettre la persistance
+    // entre les pages
   };
 
   const setWifiUrl = (command: LightCommand, url: string) => {

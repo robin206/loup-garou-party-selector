@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Type definitions : on tolère l'absence de types bluetooth en environnement non compatible (TS ignore)
 // Utilisation de types any ou fallback.
@@ -15,10 +15,15 @@ type LightCode = "jour" | "nuit" | "vote" | "loup";
 type BluetoothDeviceCustom = any;
 type BluetoothRemoteGATTServerCustom = any;
 
+// Clés pour le stockage de l'état BLE
+const BLE_CONFIG_KEY = 'werewolf-ble-config';
+const BLE_DEVICE_ID_KEY = 'werewolf-ble-device-id';
+const BLE_CONNECTION_STATE_KEY = 'werewolf-ble-connection-state';
+
 // Configuration BLE stockée dans localStorage
 const getBLEConfig = () => {
   try {
-    const savedConfig = localStorage.getItem('werewolf-ble-config');
+    const savedConfig = localStorage.getItem(BLE_CONFIG_KEY);
     if (savedConfig) {
       return JSON.parse(savedConfig);
     }
@@ -33,8 +38,40 @@ const getBLEConfig = () => {
   };
 };
 
+// Gestion de la persistance de l'état de connexion
+const saveBLEConnectionState = (connected: boolean, deviceId?: string) => {
+  try {
+    localStorage.setItem(BLE_CONNECTION_STATE_KEY, connected ? "connected" : "disconnected");
+    if (deviceId) {
+      localStorage.setItem(BLE_DEVICE_ID_KEY, deviceId);
+    } else if (!connected) {
+      localStorage.removeItem(BLE_DEVICE_ID_KEY);
+    }
+  } catch (e) {
+    console.error("Erreur lors de l'enregistrement de l'état BLE:", e);
+  }
+};
+
+// Lecture de l'état de connexion persistant
+const getBLEConnectionState = (): { wasConnected: boolean; deviceId?: string } => {
+  try {
+    const state = localStorage.getItem(BLE_CONNECTION_STATE_KEY);
+    const deviceId = localStorage.getItem(BLE_DEVICE_ID_KEY);
+    return { 
+      wasConnected: state === "connected", 
+      deviceId: deviceId || undefined 
+    };
+  } catch (e) {
+    console.error("Erreur lors de la lecture de l'état BLE:", e);
+    return { wasConnected: false };
+  }
+};
+
 export function useLightBLE() {
-  const [status, setStatus] = useState<BLEStatus>("idle");
+  const [status, setStatus] = useState<BLEStatus>(() => {
+    const { wasConnected } = getBLEConnectionState();
+    return wasConnected ? "connected" : "idle";
+  });
   const [error, setError] = useState<string | null>(null);
   const [device, setDevice] = useState<BluetoothDeviceCustom | null>(null);
   const [server, setServer] = useState<BluetoothRemoteGATTServerCustom | null>(null);
@@ -53,9 +90,23 @@ export function useLightBLE() {
   const updateBLEConfig = (newConfig: Partial<typeof bleConfig>) => {
     const updatedConfig = { ...bleConfig, ...newConfig };
     setBLEConfig(updatedConfig);
-    localStorage.setItem('werewolf-ble-config', JSON.stringify(updatedConfig));
+    localStorage.setItem(BLE_CONFIG_KEY, JSON.stringify(updatedConfig));
     return updatedConfig;
   };
+
+  // Effet pour essayer de restaurer la connexion au chargement
+  useEffect(() => {
+    const { wasConnected, deviceId } = getBLEConnectionState();
+    
+    // Si on était connecté précédemment et qu'on a un ID de périphérique
+    if (wasConnected && deviceId && isBLESupported()) {
+      console.log("Tentative de restauration de la connexion BLE...");
+      
+      // On ne peut pas directement restaurer une connexion BLE avec un ID
+      // On définit l'état comme "déconnecté" pour que l'utilisateur puisse reconnecter manuellement
+      setStatus("disconnected");
+    }
+  }, []);
 
   // Connexion avec les nouveaux paramètres de configuration
   async function connect() {
@@ -71,7 +122,7 @@ export function useLightBLE() {
     try {
       // Préparation des options de requête Bluetooth selon la configuration
       const bleRequestOptions: any = {
-        // Utiliser des filtres sur le service UUID plutôt que le nom, comme dans votre exemple
+        // Utiliser des filtres sur le service UUID plutôt que le nom
         filters: [{ services: [bleConfig.serviceUUID] }],
         optionalServices: [] // Pas besoin car déjà inclus dans les filtres
       };
@@ -83,11 +134,25 @@ export function useLightBLE() {
       setDevice(device);
       console.log("Appareil BLE trouvé:", device);
 
+      // Enregistre l'ID du périphérique pour référence future
+      if (device && device.id) {
+        saveBLEConnectionState(true, device.id);
+      }
+
+      // Ajout d'un gestionnaire de déconnexion
+      device.addEventListener('gattserverdisconnected', () => {
+        console.log("Déconnexion GATT détectée");
+        setStatus("disconnected");
+        setServer(null);
+        saveBLEConnectionState(false);
+      });
+
       // Connexion GATT
       if (device.gatt) {
         const server = await device.gatt.connect();
         setServer(server);
         setStatus("connected");
+        saveBLEConnectionState(true, device.id);
         console.log("Connecté au serveur GATT");
         return server;
       } else {
@@ -98,21 +163,38 @@ export function useLightBLE() {
       console.error("Erreur de connexion BLE:", errorMsg);
       setError(errorMsg);
       setStatus("error");
+      saveBLEConnectionState(false);
       return null;
     }
   }
 
-  // Envoie une commande (string, ex : "JOUR")
+  // Envoie une commande (string, ex : "jour")
   async function sendLightCommand(code: LightCode) {
     setError(null);
     if (!device || !server) {
+      console.error("Tentative d'envoi de commande sans connexion BLE");
       setError("Non connecté !");
       setStatus("disconnected");
+      saveBLEConnectionState(false);
       return false;
     }
 
     try {
       console.log(`Tentative d'envoi de la commande BLE: ${code}`);
+
+      // Vérifier si le serveur est toujours connecté
+      if (!server.connected) {
+        console.log("Serveur GATT déconnecté, tentative de reconnexion...");
+        try {
+          await device.gatt?.connect();
+        } catch (reconnectError) {
+          console.error("Échec de reconnexion:", reconnectError);
+          setError("Erreur de reconnexion au périphérique");
+          setStatus("disconnected");
+          saveBLEConnectionState(false);
+          return false;
+        }
+      }
       
       // Récupère le service par UUID (utiliser le service UUID spécifié dans la config)
       const service = await server.getPrimaryService(bleConfig.serviceUUID);
@@ -137,7 +219,15 @@ export function useLightBLE() {
       const errorMsg = e.message || String(e);
       console.error("Erreur lors de l'envoi de la commande BLE:", errorMsg);
       setError(errorMsg);
-      setStatus("error");
+      
+      // Si l'erreur est liée à la connexion, on mise à jour l'état
+      if (errorMsg.includes("disconnected") || errorMsg.includes("GATT")) {
+        setStatus("disconnected");
+        saveBLEConnectionState(false);
+      } else {
+        setStatus("error");
+      }
+      
       return false;
     }
   }
@@ -150,6 +240,7 @@ export function useLightBLE() {
     setDevice(null);
     setServer(null);
     setStatus("disconnected");
+    saveBLEConnectionState(false);
   }
 
   return {

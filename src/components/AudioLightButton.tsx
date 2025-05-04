@@ -38,7 +38,7 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
   const { lightEnabled, lightMode, sendLightCommand } = useLightControl();
   const IconComp = iconMap[type];
 
-  // Associe le type à la commande lumière
+  // Associe le type à la commande lumière (en minuscules)
   const getLightCode = (): "jour" | "nuit" | "vote" | null => {
     switch(type) {
       case "day": return "jour";
