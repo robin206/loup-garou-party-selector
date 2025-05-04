@@ -191,7 +191,7 @@ const LightsConfigSection: React.FC = () => {
 
           {lightMode === "wifi" && (
             <div className="space-y-4">
-              {(["JOUR", "NUIT", "VOTE"] as LightCommand[]).map((command) => (
+              {(["jour", "nuit", "vote"] as LightCommand[]).map((command) => (
                 <div key={command} className="grid gap-2">
                   <Label htmlFor={`wifi-${command}`}>URL Lumière {command}</Label>
                   <div className="flex gap-2">
