@@ -161,6 +161,7 @@ const LightsConfigSection: React.FC = () => {
               </div>
 
               <div className="flex gap-2 mt-2 flex-wrap">
+                {/* Fix for the type mismatch: Use lowercase commands as per the LightCommand type */}
                 <Button
                   variant="outline"
                   size="sm"
