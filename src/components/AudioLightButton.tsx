@@ -96,7 +96,7 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
       ) : (
         <>
           <Play className="h-4 w-4" />
-          <span>{label}</span>
+          <span>A {label}</span>
         </>
       )}
       {isSendingLight && <Badge className="ml-1 animate-pulse" variant="outline">Lumière...</Badge>}
