@@ -75,11 +75,16 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
     }
   };
 
+  // Déterminer la variante du bouton selon l'état de lecture
+  const buttonVariant = isPlaying ? "default" : variant;
+  // Ajouter une classe personnalisée si la lecture est active
+  const buttonClassName = `flex items-center gap-2 ${isPlaying ? 'bg-green-500 hover:bg-green-600 text-white' : ''} ${className}`;
+
   return (
     <Button
-      variant={variant}
+      variant={buttonVariant}
       onClick={handleClick}
-      className={`flex items-center gap-2 ${className}`}
+      className={buttonClassName}
       disabled={isSendingLight}
     >
       {IconComp && <IconComp className="h-4 w-4" />}
@@ -87,12 +92,6 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
         <>
           <Pause className="h-4 w-4" />
           <span>{label}</span>
-          <Badge
-            variant="secondary"
-            className="ml-1 animate-pulse bg-green-100 text-green-800"
-          >
-            En cours
-          </Badge>
         </>
       ) : (
         <>
