@@ -11,6 +11,7 @@ interface NumberInputProps {
   max?: number;
   step?: number;
   className?: string;
+  id?: string; // Added id property
 }
 
 const NumberInput: React.FC<NumberInputProps> = ({
@@ -20,6 +21,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
   max = 100,
   step = 1,
   className = '',
+  id,
 }) => {
   const handleIncrease = () => {
     if (value < max) {
@@ -53,6 +55,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
       </Button>
       <Input
         type="number"
+        id={id}
         value={value}
         onChange={handleChange}
         min={min}

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 
 // Type definitions : on tolère l'absence de types bluetooth en environnement non compatible (TS ignore)
@@ -11,7 +12,7 @@ const DEFAULT_COMMAND_CHARACTERISTIC = "2d30c082-f39f-4ce6-923f-3484ea480596";
 const DEFAULT_LED_COUNT = 50;
 const DEFAULT_BRIGHTNESS = 150;
 
-type LightCode = "jour" | "nuit" | "vote" | "loup" | "off";
+type LightCode = "jour" | "nuit" | "vote" | "loup" | "off" | string;
 
 type BluetoothDeviceCustom = any;
 type BluetoothRemoteGATTServerCustom = any;
@@ -172,7 +173,7 @@ export function useLightBLE() {
   }
 
   // Envoie une commande (string, ex : "jour") ou paramètres spéciaux (ledcount:50, brightness:150)
-  async function sendLightCommand(code: LightCode | string) {
+  async function sendLightCommand(code: LightCode) {
     setError(null);
     if (!device || !server) {
       console.error("Tentative d'envoi de commande sans connexion BLE");
