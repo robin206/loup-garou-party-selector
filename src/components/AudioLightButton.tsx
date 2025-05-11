@@ -1,15 +1,16 @@
 
 import React, { useState } from "react";
-import { Play, Pause, Sun, Vote, Moon } from "lucide-react";
+import { Play, Pause, Sun, Vote, Moon, PowerOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLightControl } from "@/hooks/LightControlContext";
 
-type AudioType = "day" | "night" | "vote";
+type AudioType = "day" | "night" | "vote" | "off";
 const iconMap = {
   day: Sun,
   vote: Vote,
-  night: Moon
+  night: Moon,
+  off: PowerOff
 };
 
 interface AudioLightButtonProps {
@@ -39,11 +40,12 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
   const IconComp = iconMap[type];
 
   // Associe le type à la commande lumière (en minuscules)
-  const getLightCode = (): "jour" | "nuit" | "vote" | null => {
+  const getLightCode = (): "jour" | "nuit" | "vote" | "off" | null => {
     switch(type) {
       case "day": return "jour";
       case "night": return "nuit";
       case "vote": return "vote";
+      case "off": return "off";
       default: return null;
     }
   };

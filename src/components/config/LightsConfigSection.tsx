@@ -1,11 +1,20 @@
 
 import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import { Settings, Zap, ZapOff, Wifi, ChevronDown, ChevronUp } from "lucide-react";
+import { 
+  Settings, 
+  Zap, 
+  ZapOff, 
+  Wifi, 
+  ChevronDown, 
+  ChevronUp, 
+  PowerOff 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import NumberInput from "@/components/NumberInput";
 import { useLightControl, LightCommand } from "@/hooks/LightControlContext";
 
 const LightsConfigSection: React.FC = () => {
@@ -27,6 +36,26 @@ const LightsConfigSection: React.FC = () => {
   } = useLightControl();
 
   const [showAdvancedBLE, setShowAdvancedBLE] = useState(false);
+  const [ledCount, setLedCount] = useState(bleConfig.ledCount || 50);
+  const [brightness, setBrightness] = useState(bleConfig.brightness || 150);
+
+  const handleLedCountChange = (value: number) => {
+    setLedCount(value);
+    updateBLEConfig({ ledCount: value });
+  };
+
+  const handleBrightnessChange = (value: number) => {
+    setBrightness(value);
+    updateBLEConfig({ brightness: value });
+  };
+
+  const sendLedCountCommand = () => {
+    sendLightCommand(`ledcount:${ledCount}`);
+  };
+
+  const sendBrightnessCommand = () => {
+    sendLightCommand(`brightness:${brightness}`);
+  };
 
   return (
     <section className="glass-card p-8 rounded-xl space-y-8 animate-scale-in mt-10">
@@ -117,7 +146,7 @@ const LightsConfigSection: React.FC = () => {
                 )}
               </div>
 
-              {/* Nouvelle section déroulante pour la configuration avancée BLE */}
+              {/* Section déroulante pour la configuration avancée BLE */}
               <div className="mt-4 border rounded-md p-4 bg-gray-50/50">
                 <button 
                   className="flex items-center justify-between w-full font-medium text-sm text-gray-700"
@@ -156,12 +185,61 @@ const LightsConfigSection: React.FC = () => {
                       />
                       <p className="text-xs text-gray-500">UUID de la caractéristique d'écriture</p>
                     </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="ble-led-count">Nombre de LEDs</Label>
+                        <div className="flex gap-2">
+                          <NumberInput
+                            id="ble-led-count"
+                            value={ledCount}
+                            onChange={handleLedCountChange}
+                            min={1}
+                            max={300}
+                            step={1}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={sendLedCountCommand}
+                            disabled={bleStatus !== "connected"}
+                          >
+                            Synchroniser nb LEDs
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">Nombre de LEDs dans votre bandeau (1-300)</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="ble-brightness">Intensité lumineuse</Label>
+                        <div className="flex gap-2">
+                          <NumberInput
+                            id="ble-brightness"
+                            value={brightness}
+                            onChange={handleBrightnessChange}
+                            min={0}
+                            max={250}
+                            step={1}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={sendBrightnessCommand}
+                            disabled={bleStatus !== "connected"}
+                          >
+                            Synchroniser luminosité
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">Intensité de la lumière (0-250)</p>
+                    </div>
                   </div>
                 )}
               </div>
 
               <div className="flex gap-2 mt-2 flex-wrap">
-                {/* Fix for the type mismatch: Use lowercase commands as per the LightCommand type */}
                 <Button
                   variant="outline"
                   size="sm"
@@ -186,13 +264,21 @@ const LightsConfigSection: React.FC = () => {
                 >
                   Lumière Vote
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={bleStatus !== "connected"}
+                  onClick={() => sendLightCommand("off")}
+                >
+                  Lumière Off
+                </Button>
               </div>
             </div>
           )}
 
           {lightMode === "wifi" && (
             <div className="space-y-4">
-              {(["jour", "nuit", "vote"] as LightCommand[]).map((command) => (
+              {(["jour", "nuit", "vote", "off"] as LightCommand[]).map((command) => (
                 <div key={command} className="grid gap-2">
                   <Label htmlFor={`wifi-${command}`}>URL Lumière {command}</Label>
                   <div className="flex gap-2">

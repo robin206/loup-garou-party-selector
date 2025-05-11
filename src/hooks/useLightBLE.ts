@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 
 // Type definitions : on tolère l'absence de types bluetooth en environnement non compatible (TS ignore)
@@ -9,8 +8,10 @@ export type BLEStatus = "idle" | "connecting" | "connected" | "error" | "disconn
 const DEFAULT_SERVICE_NAME = "LG_ESP32"; // Pour compatibilité avec anciennes configs
 const DEFAULT_SERVICE_UUID = "d752c5fb-1380-4cd5-b0ef-cac7d72cff20";
 const DEFAULT_COMMAND_CHARACTERISTIC = "2d30c082-f39f-4ce6-923f-3484ea480596";
+const DEFAULT_LED_COUNT = 50;
+const DEFAULT_BRIGHTNESS = 150;
 
-type LightCode = "jour" | "nuit" | "vote" | "loup";
+type LightCode = "jour" | "nuit" | "vote" | "loup" | "off";
 
 type BluetoothDeviceCustom = any;
 type BluetoothRemoteGATTServerCustom = any;
@@ -34,7 +35,9 @@ const getBLEConfig = () => {
   return {
     serviceName: DEFAULT_SERVICE_NAME,
     serviceUUID: DEFAULT_SERVICE_UUID,
-    characteristicUUID: DEFAULT_COMMAND_CHARACTERISTIC
+    characteristicUUID: DEFAULT_COMMAND_CHARACTERISTIC,
+    ledCount: DEFAULT_LED_COUNT,
+    brightness: DEFAULT_BRIGHTNESS
   };
 };
 
@@ -168,8 +171,8 @@ export function useLightBLE() {
     }
   }
 
-  // Envoie une commande (string, ex : "jour")
-  async function sendLightCommand(code: LightCode) {
+  // Envoie une commande (string, ex : "jour") ou paramètres spéciaux (ledcount:50, brightness:150)
+  async function sendLightCommand(code: LightCode | string) {
     setError(null);
     if (!device || !server) {
       console.error("Tentative d'envoi de commande sans connexion BLE");

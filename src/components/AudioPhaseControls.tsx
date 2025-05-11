@@ -4,11 +4,11 @@ import AudioLightButton from './AudioLightButton';
 import { useAudio } from '@/hooks/useAudio';
 import { useLightControl } from '@/hooks/LightControlContext';
 import { Button } from '@/components/ui/button';
-import { Bluetooth, BluetoothConnected, BluetoothOff } from 'lucide-react';
+import { Bluetooth, BluetoothConnected, BluetoothOff, PowerOff } from 'lucide-react';
 
 export const AudioPhaseControls = () => {
   const { playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
-  const { lightEnabled, lightMode, bleStatus, bleConnect, bleDisconnect } = useLightControl();
+  const { lightEnabled, lightMode, bleStatus, bleConnect, bleDisconnect, sendLightCommand } = useLightControl();
 
   const handlePlayDay = () => {
     playDayMusic();
@@ -20,6 +20,13 @@ export const AudioPhaseControls = () => {
 
   const handlePlayVote = () => {
     playVoteMusic();
+  };
+
+  // Handle light off button (only affects lights, no audio)
+  const handleLightOff = () => {
+    if (lightEnabled) {
+      sendLightCommand("off");
+    }
   };
 
   // Function to handle BLE connection/disconnection
@@ -62,6 +69,19 @@ export const AudioPhaseControls = () => {
         playMusic={handlePlayNight} 
         stopMusic={stopMusic} 
       />
+      
+      {/* Light Off Button - only show if light mode is enabled */}
+      {lightEnabled && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-10 w-10"
+          onClick={handleLightOff}
+          title="Éteindre les lumières"
+        >
+          <PowerOff className="h-4 w-4" />
+        </Button>
+      )}
       
       {/* BLE Connection Button - only show if light mode is set to BLE */}
       {lightEnabled && lightMode === "ble" && (

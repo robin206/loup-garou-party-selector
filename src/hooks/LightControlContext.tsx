@@ -1,10 +1,9 @@
-
 import React, { createContext, useContext, useMemo, useState, ReactNode } from "react";
 import { useLightBLE, BLEStatus } from "./useLightBLE";
 import { useLightWiFi } from "./useLightWiFi";
 
 export type LightMode = "none" | "ble" | "wifi";
-export type LightCommand = "jour" | "nuit" | "vote" | "loup";
+export type LightCommand = "jour" | "nuit" | "vote" | "loup" | "off";
 
 // Store les URLs pour les requêtes WiFi
 function readWiFiCommandUrls(): Record<LightCommand, string> {
@@ -16,7 +15,8 @@ function readWiFiCommandUrls(): Record<LightCommand, string> {
     jour: "",
     nuit: "",
     vote: "",
-    loup: ""
+    loup: "",
+    off: ""
   };
 }
 
@@ -37,11 +37,15 @@ interface LightControlContextValue {
     serviceName: string;
     serviceUUID: string;
     characteristicUUID: string;
+    ledCount: number;
+    brightness: number;
   };
   updateBLEConfig: (config: Partial<{
     serviceName: string;
     serviceUUID: string;
     characteristicUUID: string;
+    ledCount: number;
+    brightness: number;
   }>) => void;
 }
 
