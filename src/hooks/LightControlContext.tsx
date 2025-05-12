@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useMemo, useState, ReactNode } from "react";
 import { useLightBLE, BLEStatus } from "./useLightBLE";
 import { useLightWiFi } from "./useLightWiFi";
@@ -91,7 +92,7 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
       case "ble":
         return await ble.sendLightCommand(command);
       case "wifi":
-        // Ensure we're calling the WiFi command correctly
+        // On s'assure d'appeler la bonne méthode WiFi
         return await wifi.sendCommand(command);
       default:
         console.log("Mode lumière non reconnu ou désactivé");
