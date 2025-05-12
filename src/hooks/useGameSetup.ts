@@ -20,7 +20,15 @@ const expansionPacks: ExpansionType[] = [{
 }))];
 
 export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
-  const navigate = useNavigate();
+  // Make navigate optional by checking if we're in a Router context
+  let navigate;
+  try {
+    navigate = useNavigate();
+  } catch (error) {
+    // Not in a router context, navigation will be handled by the component that uses this hook
+    navigate = null;
+  }
+
   const [selectedCharacters, setSelectedCharacters] = useState<string[]>([]);
   const [characters] = useState<CharacterType[]>(allCharacters);
   const [selectedExpansion, setSelectedExpansion] = useState<string>('all');
@@ -171,9 +179,11 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
       onStartGame(gameState);
     }
     toast.success("Partie initialisée! Mode maître du jeu activé.");
-    navigate('/game', {
-      state: gameState
-    });
+    
+    // Only navigate if the navigate function is available
+    if (navigate) {
+      navigate('/game', { state: gameState });
+    }
   };
 
   const handleContinueGame = () => {
@@ -181,7 +191,9 @@ export const useGameSetup = (onStartGame?: (gameState: GameState) => void) => {
       const gameState = JSON.parse(localStorage.getItem(GAME_STATE_STORAGE_KEY) || '{}');
       if (gameState && gameState.players) {
         toast.success("Reprise de la partie en cours...");
-        navigate('/game', { state: gameState });
+        if (navigate) {
+          navigate('/game', { state: gameState });
+        }
       } else {
         toast.error("Impossible de reprendre la partie");
         localStorage.removeItem(GAME_STATE_STORAGE_KEY);
