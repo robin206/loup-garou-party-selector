@@ -91,7 +91,11 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
       case "ble":
         return await ble.sendLightCommand(command);
       case "wifi":
-        return wifi.sendCommand(command);
+        // Ensure we're calling the WiFi command correctly
+        return await wifi.sendCommand(command);
+      default:
+        console.log("Mode lumière non reconnu ou désactivé");
+        return false;
     }
   };
 
