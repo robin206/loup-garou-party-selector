@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { 
@@ -8,7 +7,8 @@ import {
   Wifi, 
   ChevronDown, 
   ChevronUp, 
-  PowerOff 
+  PowerOff,
+  Volume2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import NumberInput from "@/components/NumberInput";
 import { useLightControl, LightCommand } from "@/hooks/LightControlContext";
+import { Separator } from "@/components/ui/separator";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const LightsConfigSection: React.FC = () => {
   const {
@@ -36,6 +38,7 @@ const LightsConfigSection: React.FC = () => {
   } = useLightControl();
 
   const [showAdvancedBLE, setShowAdvancedBLE] = useState(false);
+  const [showSamplerUrls, setShowSamplerUrls] = useState(false);
   const [ledCount, setLedCount] = useState(bleConfig.ledCount || 50);
   const [brightness, setBrightness] = useState(bleConfig.brightness || 150);
 
@@ -56,6 +59,16 @@ const LightsConfigSection: React.FC = () => {
   const sendBrightnessCommand = () => {
     sendLightCommand(`brightness:${brightness}`);
   };
+
+  // Liste des sons du sampler pour les URLs WiFi
+  const samplerSounds = [
+    { id: "sampler_loup", name: "Loup" },
+    { id: "sampler_ours", name: "Ours" },
+    { id: "sampler_clocher", name: "Clocher" },
+    { id: "sampler_tonnerre", name: "Tonnerre" },
+    { id: "sampler_clock", name: "Horloge" },
+    { id: "sampler_violon", name: "Violon" }
+  ];
 
   return (
     <section className="glass-card p-8 rounded-xl space-y-8 animate-scale-in mt-10">
@@ -278,29 +291,96 @@ const LightsConfigSection: React.FC = () => {
 
           {lightMode === "wifi" && (
             <div className="space-y-4">
-              {(["jour", "nuit", "vote", "off"] as LightCommand[]).map((command) => (
-                <div key={command} className="grid gap-2">
-                  <Label htmlFor={`wifi-${command}`}>URL Lumière {command}</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id={`wifi-${command}`}
-                      value={wifiUrls[command]}
-                      onChange={(e) => setWifiUrl(command, e.target.value)}
-                      placeholder="http://192.168.1.xxx/commande"
-                      className="flex-1"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => sendLightCommand(command)}
-                      disabled={!wifiUrls[command]}
-                    >
-                      <Wifi className="h-4 w-4" />
-                    </Button>
+              {/* URLs pour les phases de jeu */}
+              <div className="space-y-4">
+                {(["jour", "nuit", "vote", "off"] as LightCommand[]).map((command) => (
+                  <div key={command} className="grid gap-2">
+                    <Label htmlFor={`wifi-${command}`}>URL Lumière {command}</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id={`wifi-${command}`}
+                        value={wifiUrls[command]}
+                        onChange={(e) => setWifiUrl(command, e.target.value)}
+                        placeholder="http://192.168.1.xxx/commande"
+                        className="flex-1"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => sendLightCommand(command)}
+                        disabled={!wifiUrls[command]}
+                      >
+                        <Wifi className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
-              <p className="text-sm text-gray-400">
+                ))}
+              </div>
+              
+              {/* Section déroulante pour les URLs des sons du sampler */}
+              <div className="mt-8 border rounded-md p-4 bg-gray-50/50">
+                <button 
+                  className="flex items-center justify-between w-full font-medium text-sm text-gray-700"
+                  onClick={() => setShowSamplerUrls(!showSamplerUrls)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Volume2 className="h-4 w-4 text-gray-600" />
+                    Configuration URLs pour les sons du sampler
+                  </div>
+                  {showSamplerUrls ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </button>
+                
+                {showSamplerUrls && (
+                  <div className="mt-4 space-y-4">
+                    <p className="text-sm text-gray-500">
+                      Configurez des URLs HTTP à appeler lorsque chaque son du sampler est déclenché.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {samplerSounds.map((sound) => (
+                        <div key={sound.id} className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={`/img/${sound.id}.svg`} 
+                              alt={sound.name} 
+                              className="h-6 w-6" 
+                              onError={(e) => {
+                                // Fallback if image doesn't exist
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                            <Label htmlFor={`wifi-${sound.id}`}>URL {sound.name}</Label>
+                          </div>
+                          <div className="flex gap-2">
+                            <Input
+                              id={`wifi-${sound.id}`}
+                              value={wifiUrls[sound.id]}
+                              onChange={(e) => setWifiUrl(sound.id as LightCommand, e.target.value)}
+                              placeholder="http://192.168.1.xxx/commande"
+                              className="flex-1"
+                            />
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => sendLightCommand(sound.id as LightCommand)}
+                              disabled={!wifiUrls[sound.id]}
+                              title={`Tester l'URL pour ${sound.name}`}
+                            >
+                              <Wifi className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <p className="text-sm text-gray-400 mt-2">
                 Saisissez les URLs à appeler pour chaque scénario de lumière
               </p>
             </div>

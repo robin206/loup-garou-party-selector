@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useAudio } from '@/hooks/useAudio';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX } from 'lucide-react';
+import { useLightControl } from '@/hooks/LightControlContext';
 
 interface SoundSamplerProps {
   className?: string;
@@ -10,6 +11,7 @@ interface SoundSamplerProps {
 
 const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   const { playSampleSound, stopMusic, isAudioReady, playViolinSound } = useAudio();
+  const { lightEnabled, lightMode, sendLightCommand } = useLightControl();
   const [muted, setMuted] = React.useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
@@ -164,15 +166,30 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
     preloadImages();
   }, []);
 
+  // Fonction pour jouer un son et envoyer une commande lumière si configuré
   const handlePlaySound = (soundName: string) => {
     if (!muted) {
       playSampleSound(soundName);
+      
+      // Si le mode lumière WiFi est activé, envoyer la commande HTTP correspondante
+      if (lightEnabled && lightMode === 'wifi') {
+        const commandName = `sampler_${soundName.replace('.ogg', '')}`;
+        console.log(`Envoi commande lumière pour sampler: ${commandName}`);
+        sendLightCommand(commandName);
+      }
     }
   };
   
+  // Fonction spécifique pour le violon
   const handlePlayViolinSound = () => {
     if (!muted) {
       playViolinSound();
+      
+      // Si le mode lumière WiFi est activé, envoyer la commande HTTP
+      if (lightEnabled && lightMode === 'wifi') {
+        console.log('Envoi commande lumière pour violon');
+        sendLightCommand('sampler_violon');
+      }
     }
   };
 
@@ -192,7 +209,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
       
       <div className="grid grid-cols-6 gap-4">
         <button
-          onClick={() => handlePlaySound('sampler_loup.ogg')}
+          onClick={() => handlePlaySound('loup.ogg')}
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
           disabled={!isAudioReady}
         >
@@ -201,7 +218,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
         </button>
 
         <button
-          onClick={() => handlePlaySound('sampler_ours.ogg')}
+          onClick={() => handlePlaySound('ours.ogg')}
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
           disabled={!isAudioReady}
         >
@@ -210,7 +227,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
         </button>
 
         <button
-          onClick={() => handlePlaySound('sampler_clocher.ogg')}
+          onClick={() => handlePlaySound('clocher.ogg')}
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
           disabled={!isAudioReady}
         >
@@ -219,7 +236,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
         </button>
 
         <button
-          onClick={() => handlePlaySound('sampler_tonnerre.ogg')}
+          onClick={() => handlePlaySound('tonnerre.ogg')}
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
           disabled={!isAudioReady}
         >
@@ -228,7 +245,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
         </button>
         
         <button
-          onClick={() => handlePlaySound('sampler_clock.ogg')}
+          onClick={() => handlePlaySound('clock.ogg')}
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-800 transition-colors"
           disabled={!isAudioReady}
         >
