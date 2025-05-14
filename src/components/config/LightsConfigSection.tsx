@@ -114,7 +114,7 @@ const LightsConfigSection: React.FC = () => {
               <Button
                 variant={bleStatus === "connected" ? "secondary" : "outline"}
                 size="sm"
-                className="inline-flex items-center gap-2 w-fit"
+                className="inline-flex items-center gap-2 w-fit text-gray-900"
                 disabled={bleStatus === "connecting"}
                 onClick={bleStatus === "connected" ? bleDisconnect : bleConnect}
               >
@@ -131,6 +131,7 @@ const LightsConfigSection: React.FC = () => {
                   ? "Tester la connexion BLE (ESP32)"
                   : "BLE non supporté"}
               </Button>
+              
               <div className="text-sm text-gray-400">
                 <span>
                   État BLE :{" "}
@@ -256,6 +257,7 @@ const LightsConfigSection: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="text-gray-900"
                   disabled={bleStatus !== "connected"}
                   onClick={() => sendLightCommand("jour")}
                 >
@@ -264,6 +266,7 @@ const LightsConfigSection: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="text-gray-900"
                   disabled={bleStatus !== "connected"}
                   onClick={() => sendLightCommand("nuit")}
                 >
@@ -272,6 +275,7 @@ const LightsConfigSection: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="text-gray-900"
                   disabled={bleStatus !== "connected"}
                   onClick={() => sendLightCommand("vote")}
                 >
@@ -280,6 +284,7 @@ const LightsConfigSection: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="text-gray-900"
                   disabled={bleStatus !== "connected"}
                   onClick={() => sendLightCommand("off")}
                 >

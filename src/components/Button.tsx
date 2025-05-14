@@ -42,6 +42,7 @@ const Button: React.FC<ButtonProps> = ({
       title={title}
       className={cn(
         fullWidth && 'w-full',
+        variant === 'outline' && 'text-foreground',
         className
       )}
       asChild={!!href}

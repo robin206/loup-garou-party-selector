@@ -214,3 +214,12 @@
 .animate-wild-child-transform {
   animation: wild-child-transform 20s ease-in-out 1;
 }
+
+/* Configuration page specific button overrides */
+.glass-card button[class*="outline"] {
+  @apply text-gray-900 border-gray-300 bg-white/90 hover:bg-gray-100 hover:text-gray-900;
+}
+
+.glass-card .flex button[disabled] {
+  @apply text-gray-900 bg-gray-200/90;
+}
