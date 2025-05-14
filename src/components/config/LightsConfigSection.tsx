@@ -307,7 +307,7 @@ const LightsConfigSection: React.FC = () => {
                         value={wifiUrls[command]}
                         onChange={(e) => setWifiUrl(command, e.target.value)}
                         placeholder="http://192.168.1.xxx/commande"
-                        className="flex-1"
+                        className="flex-1 text-gray-900"
                       />
                       <Button
                         variant="outline"
@@ -366,7 +366,7 @@ const LightsConfigSection: React.FC = () => {
                               value={wifiUrls[sound.id]}
                               onChange={(e) => setWifiUrl(sound.id as LightCommand, e.target.value)}
                               placeholder="http://192.168.1.xxx/commande"
-                              className="flex-1"
+                              className="flex-1 text-gray-900"
                             />
                             <Button
                               variant="outline"
