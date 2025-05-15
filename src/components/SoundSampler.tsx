@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useAudio } from '@/hooks/useAudio';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ interface SoundSamplerProps {
 
 const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   const { playSampleSound, stopMusic, isAudioReady, playViolinSound } = useAudio();
-  const { lightEnabled, lightMode, sendLightCommand } = useLightControl();
+  const { lightEnabled, lightMode, sendLightCommand, bleSamplerCommands } = useLightControl();
   const [muted, setMuted] = React.useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
@@ -171,11 +170,21 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
     if (!muted) {
       playSampleSound(soundName);
       
-      // Si le mode lumière WiFi est activé, envoyer la commande HTTP correspondante
-      if (lightEnabled && lightMode === 'wifi') {
+      if (lightEnabled) {
         const commandName = `sampler_${soundName.replace('.ogg', '')}`;
-        console.log(`Envoi commande lumière pour sampler: ${commandName}`);
-        sendLightCommand(commandName);
+        
+        if (lightMode === 'wifi') {
+          // Envoyer la commande WiFi HTTP
+          console.log(`Envoi commande lumière WiFi pour sampler: ${commandName}`);
+          sendLightCommand(commandName);
+        } else if (lightMode === 'ble' && bleSamplerCommands) {
+          // Envoyer la commande BLE personnalisée pour ce son
+          const bleCommand = bleSamplerCommands[commandName];
+          if (bleCommand) {
+            console.log(`Envoi commande lumière BLE pour sampler: ${bleCommand}`);
+            sendLightCommand(bleCommand);
+          }
+        }
       }
     }
   };
@@ -185,10 +194,21 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
     if (!muted) {
       playViolinSound();
       
-      // Si le mode lumière WiFi est activé, envoyer la commande HTTP
-      if (lightEnabled && lightMode === 'wifi') {
-        console.log('Envoi commande lumière pour violon');
-        sendLightCommand('sampler_violon');
+      if (lightEnabled) {
+        const commandName = 'sampler_violon';
+        
+        if (lightMode === 'wifi') {
+          // Envoyer la commande WiFi HTTP pour le violon
+          console.log('Envoi commande lumière WiFi pour violon');
+          sendLightCommand(commandName);
+        } else if (lightMode === 'ble' && bleSamplerCommands) {
+          // Envoyer la commande BLE personnalisée pour le violon
+          const bleCommand = bleSamplerCommands[commandName];
+          if (bleCommand) {
+            console.log(`Envoi commande lumière BLE pour violon: ${bleCommand}`);
+            sendLightCommand(bleCommand);
+          }
+        }
       }
     }
   };

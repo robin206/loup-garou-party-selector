@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { 
@@ -8,7 +9,8 @@ import {
   ChevronDown, 
   ChevronUp, 
   PowerOff,
-  Volume2
+  Volume2,
+  Bluetooth
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -33,12 +35,15 @@ const LightsConfigSection: React.FC = () => {
     isBLESupported,
     wifiUrls,
     setWifiUrl,
+    bleSamplerCommands,
+    setBLESamplerCommand,
     bleConfig,
     updateBLEConfig
   } = useLightControl();
 
   const [showAdvancedBLE, setShowAdvancedBLE] = useState(false);
   const [showSamplerUrls, setShowSamplerUrls] = useState(false);
+  const [showBleSamplerCommands, setShowBleSamplerCommands] = useState(false);
   const [ledCount, setLedCount] = useState(bleConfig.ledCount || 50);
   const [brightness, setBrightness] = useState(bleConfig.brightness || 150);
 
@@ -60,7 +65,7 @@ const LightsConfigSection: React.FC = () => {
     sendLightCommand(`brightness:${brightness}`);
   };
 
-  // Liste des sons du sampler pour les URLs WiFi
+  // Liste des sons du sampler pour les URLs WiFi et commandes BLE
   const samplerSounds = [
     { id: "sampler_loup", name: "Loup" },
     { id: "sampler_ours", name: "Ours" },
@@ -217,6 +222,7 @@ const LightsConfigSection: React.FC = () => {
                             size="sm"
                             onClick={sendLedCountCommand}
                             disabled={bleStatus !== "connected"}
+                            className="text-gray-900"
                           >
                             Synchroniser nb LEDs
                           </Button>
@@ -242,12 +248,76 @@ const LightsConfigSection: React.FC = () => {
                             size="sm"
                             onClick={sendBrightnessCommand}
                             disabled={bleStatus !== "connected"}
+                            className="text-gray-900"
                           >
                             Synchroniser luminosité
                           </Button>
                         </div>
                       </div>
                       <p className="text-xs text-gray-500">Intensité de la lumière (0-250)</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Section déroulante pour la configuration des commandes BLE du sampler */}
+              <div className="mt-4 border rounded-md p-4 bg-gray-50/50">
+                <button 
+                  className="flex items-center justify-between w-full font-medium text-sm text-gray-700"
+                  onClick={() => setShowBleSamplerCommands(!showBleSamplerCommands)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Bluetooth className="h-4 w-4 text-gray-600" />
+                    Configuration BLE pour les sons du sampler
+                  </div>
+                  {showBleSamplerCommands ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </button>
+                
+                {showBleSamplerCommands && (
+                  <div className="mt-4 space-y-4">
+                    <p className="text-sm text-gray-500">
+                      Configurez les commandes BLE envoyées pour chaque son du sampler.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {samplerSounds.map((sound) => (
+                        <div key={sound.id} className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={`/img/${sound.id}.svg`} 
+                              alt={sound.name} 
+                              className="h-6 w-6" 
+                              onError={(e) => {
+                                // Fallback if image doesn't exist
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                            <Label htmlFor={`ble-${sound.id}`}>Commande {sound.name}</Label>
+                          </div>
+                          <div className="flex gap-2">
+                            <Input
+                              id={`ble-${sound.id}`}
+                              value={bleSamplerCommands[sound.id] || ""}
+                              onChange={(e) => setBLESamplerCommand(sound.id, e.target.value)}
+                              placeholder={sound.name.toLowerCase()}
+                              className="flex-1 text-gray-900"
+                            />
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => sendLightCommand(bleSamplerCommands[sound.id])}
+                              disabled={bleStatus !== "connected" || !bleSamplerCommands[sound.id]}
+                              title={`Tester la commande pour ${sound.name}`}
+                            >
+                              <Bluetooth className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

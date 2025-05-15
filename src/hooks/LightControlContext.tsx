@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useMemo, useState, ReactNode } from "react";
 import { useLightBLE, BLEStatus } from "./useLightBLE";
 import { useLightWiFi } from "./useLightWiFi";
@@ -26,6 +27,22 @@ function readWiFiCommandUrls(): Record<LightCommand, string> {
   };
 }
 
+// Stocke les commandes BLE personnalisées pour les sons du sampler
+function readBLESamplerCommands(): Record<string, string> {
+  try {
+    const saved = localStorage.getItem("werewolf-light-ble-sampler-commands");
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return {
+    sampler_loup: "loup",
+    sampler_ours: "ours",
+    sampler_clocher: "clocher",
+    sampler_tonnerre: "tonnerre",
+    sampler_clock: "horloge",
+    sampler_violon: "violon"
+  };
+}
+
 interface LightControlContextValue {
   lightEnabled: boolean;
   setLightEnabled: (enabled: boolean) => void;
@@ -39,6 +56,8 @@ interface LightControlContextValue {
   isBLESupported: boolean;
   wifiUrls: Record<LightCommand, string>;
   setWifiUrl: (command: LightCommand, url: string) => void;
+  bleSamplerCommands: Record<string, string>;
+  setBLESamplerCommand: (samplerKey: string, command: string) => void;
   bleConfig: {
     serviceName: string;
     serviceUUID: string;
@@ -65,6 +84,7 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
     (localStorage.getItem("werewolf-light-mode") as LightMode) || "none"
   );
   const [wifiUrls, setWifiUrls] = useState(readWiFiCommandUrls());
+  const [bleSamplerCommands, setBLESamplerCommandsState] = useState(readBLESamplerCommands());
   
   const ble = useLightBLE();
   const wifi = useLightWiFi(wifiUrls);
@@ -86,6 +106,13 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
     setWifiUrls(newUrls);
     localStorage.setItem("werewolf-light-wifi-urls", JSON.stringify(newUrls));
   };
+  
+  // Fonction pour mettre à jour une commande BLE pour un échantillon du sampler
+  const setBLESamplerCommand = (samplerKey: string, command: string) => {
+    const newCommands = { ...bleSamplerCommands, [samplerKey]: command };
+    setBLESamplerCommandsState(newCommands);
+    localStorage.setItem("werewolf-light-ble-sampler-commands", JSON.stringify(newCommands));
+  };
 
   // On utilise le bon service selon le mode
   const sendLightCommand = async (command: LightCommand) => {
@@ -95,6 +122,10 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
     
     switch (lightMode) {
       case "ble":
+        // Si c'est une commande de sampler et qu'elle a une commande BLE personnalisée
+        if (command.startsWith("sampler_") && bleSamplerCommands[command]) {
+          return await ble.sendLightCommand(bleSamplerCommands[command]);
+        }
         return await ble.sendLightCommand(command);
       case "wifi":
         // On s'assure d'appeler la bonne méthode WiFi
@@ -118,9 +149,11 @@ export function LightControlProvider({ children }: { children: ReactNode }) {
     isBLESupported: ble.isBLESupported,
     wifiUrls,
     setWifiUrl,
+    bleSamplerCommands,
+    setBLESamplerCommand,
     bleConfig: ble.bleConfig,
     updateBLEConfig: ble.updateBLEConfig
-  }), [lightEnabled, lightMode, ble, wifiUrls]);
+  }), [lightEnabled, lightMode, ble, wifiUrls, bleSamplerCommands]);
 
   return (
     <LightControlContext.Provider value={value}>
