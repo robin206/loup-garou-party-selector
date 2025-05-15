@@ -183,7 +183,7 @@ const LightsConfigSection: React.FC = () => {
                         value={bleConfig.serviceUUID}
                         onChange={(e) => updateBLEConfig({ serviceUUID: e.target.value })}
                         placeholder="d752c5fb-1380-4cd5-b0ef-cac7d72cff20"
-                        className="font-mono text-xs"
+                        className="font-mono text-xs text-gray-500"
                       />
                       <p className="text-xs text-gray-500">UUID du service BLE (configuré dans l'ESP32)</p>
                     </div>
@@ -195,7 +195,7 @@ const LightsConfigSection: React.FC = () => {
                         value={bleConfig.characteristicUUID}
                         onChange={(e) => updateBLEConfig({ characteristicUUID: e.target.value })}
                         placeholder="2d30c082-f39f-4ce6-923f-3484ea480596"
-                        className="font-mono text-xs"
+                        className="font-mono text-xs text-gray-500"
                       />
                       <p className="text-xs text-gray-500">UUID de la caractéristique d'écriture</p>
                     </div>
@@ -203,7 +203,7 @@ const LightsConfigSection: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="ble-led-count">Nombre de LEDs</Label>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 text-gray-500">
                           <NumberInput
                             id="ble-led-count"
                             value={ledCount}
@@ -228,7 +228,7 @@ const LightsConfigSection: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="ble-brightness">Intensité lumineuse</Label>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 text-gray-500">
                           <NumberInput
                             id="ble-brightness"
                             value={brightness}
