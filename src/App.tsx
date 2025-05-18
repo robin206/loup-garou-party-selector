@@ -16,7 +16,7 @@ import Distribution from "./pages/Distribution";
 import MusicAdmin from "./pages/MusicAdmin";
 import NotFound from "./pages/NotFound";
 
-// Create a client outside of the component
+// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -28,11 +28,11 @@ const queryClient = new QueryClient({
 
 const App = () => {
   return (
-    <ThemeProvider defaultTheme="light" enableSystem={false} storageKey="werewolf-theme">
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <LightControlProvider>
-            <BrowserRouter>
+    <BrowserRouter>
+      <ThemeProvider defaultTheme="light" enableSystem={false} storageKey="werewolf-theme">
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <LightControlProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/game" element={<Game />} />
@@ -46,11 +46,11 @@ const App = () => {
               </Routes>
               <Toaster />
               <Sonner />
-            </BrowserRouter>
-          </LightControlProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+            </LightControlProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 };
 

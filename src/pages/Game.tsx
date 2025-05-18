@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useAudio } from '@/hooks/useAudio';
 import { Button } from "@/components/ui/button";
-import { LightControlProvider } from "@/hooks/LightControlContext";
 
 const GAME_STATE_STORAGE_KEY = 'werewolf-game-current-state';
 
@@ -437,62 +436,60 @@ const Game = () => {
   };
 
   return (
-    <LightControlProvider>
-      <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
-        <Header />
-        <main className="flex-1 w-full max-w-6xl mx-auto pt-24 pb-24 px-4 flex flex-col items-center justify-center">
-          <div className="w-full flex flex-col items-center">
-            <GameMasterGuide 
-              characters={selectedGameCharacters}
-              phase={gamePhase}
-              onPhaseChange={handlePhaseChange}
-              dayCount={dayCount}
-              aliveCharacters={aliveCharacters}
-              onReturnToSetup={gamePhase !== 'setup' ? handleReturnToSetup : undefined}
-            />
-            {selectedGameCharacters.length > 0 && (
-              <div className="mt-6 w-full max-w-md">
-                {gamePhase === 'setup' && (
-                  <div className="mb-4">
-                    <PlayerNamesEditor
-                      characters={selectedGameCharacters}
-                      onPlayerNameChange={handlePlayerNameChange}
-                    />
-                  </div>
-                )}
-                <CharactersList 
-                  characters={selectedGameCharacters}
-                  aliveCharacters={aliveCharacters}
-                  onKillCharacter={handleKillCharacter}
-                  characterLinks={characterLinks}
-                  onLinkCharacter={handleLinkCharacter}
-                  showPlayerNames={showPlayerNames}
-                  onTogglePlayerNames={togglePlayerNames}
-                />
-                <GameNotifications 
-                  notifications={gameNotifications} 
-                  onDismiss={dismissNotification} 
-                />
-                <div className="mt-10 flex justify-center">
-                  <Button
-                    variant="destructive"
-                    size="lg"
-                    onClick={handleEndGame}
-                    className="w-full"
-                  >
-                    <Skull className="mr-2 h-5 w-5" />
-                    Terminer la partie
-                  </Button>
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
+      <Header />
+      <main className="flex-1 w-full max-w-6xl mx-auto pt-24 pb-24 px-4 flex flex-col items-center justify-center">
+        <div className="w-full flex flex-col items-center">
+          <GameMasterGuide 
+            characters={selectedGameCharacters}
+            phase={gamePhase}
+            onPhaseChange={handlePhaseChange}
+            dayCount={dayCount}
+            aliveCharacters={aliveCharacters}
+            onReturnToSetup={gamePhase !== 'setup' ? handleReturnToSetup : undefined}
+          />
+          {selectedGameCharacters.length > 0 && (
+            <div className="mt-6 w-full max-w-md">
+              {gamePhase === 'setup' && (
+                <div className="mb-4">
+                  <PlayerNamesEditor
+                    characters={selectedGameCharacters}
+                    onPlayerNameChange={handlePlayerNameChange}
+                  />
                 </div>
+              )}
+              <CharactersList 
+                characters={selectedGameCharacters}
+                aliveCharacters={aliveCharacters}
+                onKillCharacter={handleKillCharacter}
+                characterLinks={characterLinks}
+                onLinkCharacter={handleLinkCharacter}
+                showPlayerNames={showPlayerNames}
+                onTogglePlayerNames={togglePlayerNames}
+              />
+              <GameNotifications 
+                notifications={gameNotifications} 
+                onDismiss={dismissNotification} 
+              />
+              <div className="mt-10 flex justify-center">
+                <Button
+                  variant="destructive"
+                  size="lg"
+                  onClick={handleEndGame}
+                  className="w-full"
+                >
+                  <Skull className="mr-2 h-5 w-5" />
+                  Terminer la partie
+                </Button>
               </div>
-            )}
-          </div>
-        </main>
-        <div className="sticky bottom-0 left-0 right-0 w-full">
-          <SoundSampler />
+            </div>
+          )}
         </div>
+      </main>
+      <div className="sticky bottom-0 left-0 right-0 w-full">
+        <SoundSampler />
       </div>
-    </LightControlProvider>
+    </div>
   );
 };
 
