@@ -49,8 +49,8 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
           '/audio/sampler/sampler_clocher.ogg',
           '/audio/sampler/sampler_tonnerre.ogg',
           '/audio/sampler/sampler_hunter.ogg',
-          '/audio/sampler/sampler_clock.ogg',    // Added clock sound
-          '/audio/sampler/sampler_violon_1.ogg'  // Added violin sound
+          '/audio/sampler/sampler_clock.ogg',
+          '/audio/sampler/sampler_violon.ogg'
         ];
         
         // Créer les éléments audio mais sans les ajouter au DOM
@@ -168,10 +168,15 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   // Fonction pour jouer un son et envoyer une commande lumière si configuré
   const handlePlaySound = (soundName: string) => {
     if (!muted) {
-      playSampleSound(soundName);
+      // S'assurer que le nom du fichier a le préfixe "sampler_"
+      const fullSoundName = soundName.startsWith('sampler_') ? soundName : `sampler_${soundName}`;
+      
+      playSampleSound(fullSoundName);
       
       if (lightEnabled) {
-        const commandName = `sampler_${soundName.replace('.ogg', '')}`;
+        // Pour les commandes BLE/WiFi, on extrait le nom sans extension
+        const baseSoundName = soundName.replace('.ogg', '');
+        const commandName = `sampler_${baseSoundName}`;
         
         if (lightMode === 'wifi') {
           // Envoyer la commande WiFi HTTP

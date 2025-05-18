@@ -99,7 +99,9 @@ export function useAudio() {
   
   const playSampleSound = useCallback((soundName: string) => {
     try {
-      audioService.playSampleSound(soundName);
+      // S'assurer que le nom du fichier contient le préfixe "sampler_"
+      const fullSoundName = soundName.startsWith('sampler_') ? soundName : `sampler_${soundName}`;
+      audioService.playSampleSound(fullSoundName);
     } catch (error) {
       console.error('Erreur lors de la lecture du son:', error);
     }

@@ -108,20 +108,24 @@ class AudioService {
    */
   public playSampleSound(soundName: string): void {
     try {
+      // S'assurer que le nom contient bien le préfixe "sampler_"
+      const fullSoundName = soundName.startsWith('sampler_') ? soundName : `sampler_${soundName}`;
+      
       // Vérifier si le son est préchargé
-      const cacheKey = `sampler/${soundName}`;
+      const cacheKey = `sampler/${fullSoundName}`;
       let sampleSound: HTMLAudioElement;
       
       if (this.preloadedAudios.has(cacheKey)) {
         sampleSound = this.preloadedAudios.get(cacheKey)!.cloneNode(true) as HTMLAudioElement;
       } else {
-        sampleSound = new Audio(`/audio/sampler/${soundName}`);
-        console.warn(`Son ${soundName} non préchargé, chargement à la volée`);
+        // Construire le chemin complet avec le préfixe s'il n'est pas déjà présent
+        sampleSound = new Audio(`/audio/sampler/${fullSoundName}`);
+        console.warn(`Son ${fullSoundName} non préchargé, chargement à la volée`);
       }
       
       sampleSound.volume = this.volume;
       sampleSound.play().catch(error => {
-        console.error(`Erreur lors de la lecture du son ${soundName}:`, error);
+        console.error(`Erreur lors de la lecture du son ${fullSoundName}:`, error);
       });
     } catch (error) {
       console.error('Erreur lors de la création de l\'élément audio pour le sampler:', error);
