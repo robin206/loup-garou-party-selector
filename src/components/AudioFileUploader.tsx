@@ -39,8 +39,8 @@ const AudioFileUploader: React.FC<AudioFileUploaderProps> = ({ onFileUploaded })
         }
         
         // Vérifier la taille du fichier (10MB max)
-        if (file.size > 10 * 1024 * 1024) {
-          invalidFiles.push(`${file.name} (taille > 10MB)`);
+        if (file.size > 15 * 1024 * 1024) {
+          invalidFiles.push(`${file.name} (taille > 15MB)`);
           return;
         }
         
