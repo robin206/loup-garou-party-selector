@@ -103,7 +103,7 @@
 }
 
 .character-card.selected {
-  @apply ring-2 ring-werewolf-accent bg-secondary/80;
+  @apply ring-2 ring-werewolf-accent bg-secondary/10;
 }
 
 .character-card-image {
