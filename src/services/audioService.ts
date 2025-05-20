@@ -1,3 +1,4 @@
+
 type FadeDirection = 'in' | 'out';
 
 class AudioService {
@@ -8,10 +9,10 @@ class AudioService {
   private preloadComplete: boolean = false;
   private customAudios: Set<string> = new Set();
   
-  // Musiques par défaut
-  private defaultDayMusic = 'Ambiance_medieval-citytavern-ambient-235876.mp3';
-  private defaultNightMusic = 'Ambiance_ominous-horror-soundtrack-312558.mp3';
-  private defaultVoteMusic = 'Ambiance_dark-ambient-atmosphere-1-141313.mp3';
+  // Musiques par défaut mises à jour avec les nouveaux fichiers d'ambiance
+  private defaultDayMusic = 'ambiance/cobblevillage.webm';
+  private defaultNightMusic = 'ambiance/night_village.webm';
+  private defaultVoteMusic = 'ambiance/epic_Paint_It_Black.mp3';
   
   constructor() {
     // Charger les fichiers audio personnalisés précédemment ajoutés
@@ -172,9 +173,7 @@ class AudioService {
           'sampler_tonnerre.ogg',
           'sampler_hunter.ogg',
           'sampler_clock.ogg',
-          'sampler_violon_1.ogg',
-          'sampler_violon_2.ogg',
-          'sampler_violon_3.ogg'
+          'sampler_violon.ogg'
         ];
         
         // Ajouter les fichiers personnalisés à précharger
@@ -196,7 +195,9 @@ class AudioService {
         // Préchargement des fichiers audio principaux
         audioFiles.forEach(file => {
           try {
-            const audio = new Audio(`/audio/${file}`);
+            // Vérifier si c'est un fichier d'ambiance (nouveau dossier)
+            const audioPath = file.startsWith('ambiance/') ? `/audio/${file}` : `/audio/${file}`;
+            const audio = new Audio(audioPath);
             audio.preload = 'auto';
             
             // Gérer les événements de chargement
@@ -393,13 +394,22 @@ class AudioService {
    * Obtient la liste des fichiers audio disponibles
    */
   public getAvailableAudioFiles(): string[] {
-    // Liste des fichiers audio par défaut
+    // Liste des fichiers audio par défaut (mise à jour avec les nouveaux fichiers d'ambiance)
     const defaultAudios = [
-      'Ambiance_dark-ambient-atmosphere-1-141313.mp3',
-      'Ambiance_medieval-ambient-236809.mp3',
-      'Ambiance_medieval-citytavern-ambient-235876.mp3',
-      'Ambiance_medieval-the-tournament-280277.mp3',
-      'Ambiance_ominous-horror-soundtrack-312558.mp3'
+      'ambiance/cobblevillage.webm',
+      'ambiance/night_village.webm',
+      'ambiance/epic_Paint_It_Black.mp3',
+      'ambiance/braveheart.webm',
+      'ambiance/clear-haken.webm',
+      'ambiance/diablo.webm',
+      'ambiance/epic_toxic.mp3',
+      'ambiance/FF7_CosmoCanion.webm',
+      'ambiance/naruto.webm',
+      'ambiance/pirate_blackpearl.webm',
+      'ambiance/The_Last_of_Us.mp3',
+      'ambiance/Violin.mp3',
+      'ambiance/wow_elwynnforest.webm',
+      'ambiance/Dark.mp3'
     ];
     
     // Ajouter les fichiers audio personnalisés
@@ -407,11 +417,11 @@ class AudioService {
   }
   
   /**
-   * Obtient uniquement les fichiers audio qui commencent par "ambiance_"
+   * Obtient uniquement les fichiers audio qui commencent par "ambiance/"
    */
   public getAmbianceAudioFiles(): string[] {
     return this.getAvailableAudioFiles().filter(file => 
-      file.startsWith('ambiance_') || file.startsWith('Ambiance_')
+      file.startsWith('ambiance/')
     );
   }
   

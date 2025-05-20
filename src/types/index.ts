@@ -1,3 +1,4 @@
+
 export type CharacterType = {
   id: string;
   name: string;
@@ -65,3 +66,11 @@ export type GameNotification = {
   duration?: number; // Time in milliseconds before the notification is automatically removed
   timestamp: number; // To sort notifications by time
 };
+
+// Ajouter un type pour les musiques d'ambiance
+export type AmbianceMusic = {
+  id: string;
+  name: string;
+  file: string;
+  category: 'day' | 'night' | 'vote';
+}

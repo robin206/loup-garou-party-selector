@@ -12,15 +12,15 @@ export function useAudio() {
       
       try {
         if (!localStorage.getItem('werewolf-day-music')) {
-          localStorage.setItem('werewolf-day-music', 'Ambiance_medieval-citytavern-ambient-235876.mp3');
+          localStorage.setItem('werewolf-day-music', 'ambiance/cobblevillage.webm');
         }
         
         if (!localStorage.getItem('werewolf-night-music')) {
-          localStorage.setItem('werewolf-night-music', 'Ambiance_ominous-horror-soundtrack-312558.mp3');
+          localStorage.setItem('werewolf-night-music', 'ambiance/night_village.webm');
         }
         
         if (!localStorage.getItem('werewolf-vote-music')) {
-          localStorage.setItem('werewolf-vote-music', 'Ambiance_dark-ambient-atmosphere-1-141313.mp3');
+          localStorage.setItem('werewolf-vote-music', 'ambiance/epic_Paint_It_Black.mp3');
         }
         
         if ('caches' in window) {
@@ -53,8 +53,8 @@ export function useAudio() {
 
   const playDayMusic = useCallback(() => {
     try {
-      audioService.stopAudio(); // Changed from stopMusic to stopAudio
-      const dayMusic = localStorage.getItem('werewolf-day-music') || 'ambiance_cobblevillage.webm';
+      audioService.stopAudio();
+      const dayMusic = localStorage.getItem('werewolf-day-music') || 'ambiance/cobblevillage.webm';
       audioService.playAudio(dayMusic, true);
     } catch (error) {
       console.error('Erreur lors de la lecture de la musique de jour:', error);
@@ -63,8 +63,8 @@ export function useAudio() {
   
   const playNightMusic = useCallback(() => {
     try {
-      audioService.stopAudio(); // Changed from stopMusic to stopAudio
-      const nightMusic = localStorage.getItem('werewolf-night-music') || 'ambiance_defautnuit.webm';
+      audioService.stopAudio();
+      const nightMusic = localStorage.getItem('werewolf-night-music') || 'ambiance/night_village.webm';
       audioService.playAudio(nightMusic, true);
     } catch (error) {
       console.error('Erreur lors de la lecture de la musique de nuit:', error);
@@ -73,8 +73,8 @@ export function useAudio() {
   
   const playVoteMusic = useCallback(() => {
     try {
-      audioService.stopAudio(); // Changed from stopMusic to stopAudio
-      const voteMusic = localStorage.getItem('werewolf-vote-music') || 'ambiance_clear-haken.webm';
+      audioService.stopAudio();
+      const voteMusic = localStorage.getItem('werewolf-vote-music') || 'ambiance/epic_Paint_It_Black.mp3';
       audioService.playAudio(voteMusic, true);
     } catch (error) {
       console.error('Erreur lors de la lecture de la musique de vote:', error);
