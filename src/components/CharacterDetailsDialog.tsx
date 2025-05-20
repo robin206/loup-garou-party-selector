@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { CharacterType, CharacterLinks } from '@/types';
 import { 
@@ -151,6 +152,9 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
                             className="w-4 h-4 object-contain" 
                           />
                           {char.name}
+                          {char.playerName && (
+                            <span className="ml-1 text-gray-500">({char.playerName})</span>
+                          )}
                         </Button>
                       ))}
                   </div>
