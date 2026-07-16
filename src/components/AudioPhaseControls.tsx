@@ -5,6 +5,7 @@ import { useAudio } from '@/hooks/useAudio';
 import { useLightControl } from '@/hooks/LightControlContext';
 import { Button } from '@/components/ui/button';
 import { Bluetooth, BluetoothConnected, BluetoothOff, PowerOff } from 'lucide-react';
+import { projector } from '@/lib/projector';
 
 export const AudioPhaseControls = () => {
   const { playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
@@ -12,14 +13,17 @@ export const AudioPhaseControls = () => {
 
   const handlePlayDay = () => {
     playDayMusic();
+    projector.day();
   };
 
   const handlePlayNight = () => {
     playNightMusic();
+    projector.night();
   };
 
   const handlePlayVote = () => {
     playVoteMusic();
+    projector.vote();
   };
 
   // Handle light off button (only affects lights, no audio)
