@@ -8,10 +8,12 @@ import SoundSampler from '@/components/SoundSampler';
 import CharactersList from '@/components/CharactersList';
 import GameNotifications from '@/components/GameNotifications';
 import PlayerNamesEditor from '@/components/PlayerNamesEditor';
+import ProjectorButton from '@/components/ProjectorButton';
 import { Heart, Skull, Leaf, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useAudio } from '@/hooks/useAudio';
+import { projector } from '@/lib/projector';
 import { Button } from "@/components/ui/button";
 
 const GAME_STATE_STORAGE_KEY = 'werewolf-game-current-state';
