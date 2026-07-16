@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loup-Garou - Projecteur</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      cursor: none;
+    }
+    #projector-video {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      background: #000;
+    }
+    .controls {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+      opacity: 0.25;
+      transition: opacity 0.2s ease;
+      cursor: default;
+    }
+    .controls:hover { opacity: 1; }
+    .controls button {
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: system-ui, sans-serif;
+    }
+    .controls button:hover { background: rgba(0, 0, 0, 0.85); }
+    .controls button.active { background: rgba(255, 255, 255, 0.85); color: #000; }
+  </style>
+</head>
+<body>
+  <!--
+    Fichiers vidéo attendus dans /public/videos/ :
+      - village_loop.mp4       (DAY)
+      - foret_nuit_loop.mp4    (NIGHT)
+      - conseil_vote_loop.mp4  (VOTE)
+      - victoire_loop.mp4      (END)
+    Ces fichiers doivent être ajoutés manuellement.
+  -->
+  <video id="projector-video" autoplay loop muted playsinline></video>
+
+  <div class="controls" aria-label="Contrôles manuels">
+    <button data-mode="DAY">Jour</button>
+    <button data-mode="NIGHT">Nuit</button>
+    <button data-mode="VOTE">Vote</button>
+    <button data-mode="END">Fin</button>
+  </div>
+
+  <script>
+    const SOURCES = {
+      DAY: "/videos/village_loop.mp4",
+      NIGHT: "/videos/foret_nuit_loop.mp4",
+      VOTE: "/videos/conseil_vote_loop.mp4",
+      END: "/videos/victoire_loop.mp4",
+    };
+
+    const video = document.getElementById("projector-video");
+    const buttons = document.querySelectorAll(".controls button");
+    let currentMode = null;
+
+    function setMode(mode) {
+      if (!SOURCES[mode] || mode === currentMode) return;
+      currentMode = mode;
+      video.src = SOURCES[mode];
+      video.play().catch(() => { /* autoplay may be blocked until user interacts */ });
+      buttons.forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => setMode(btn.dataset.mode));
+    });
+
+    // BroadcastChannel sync with main app
+    try {
+      const channel = new BroadcastChannel("loupgarou-projector");
+      channel.addEventListener("message", (event) => {
+        const data = event.data;
+        if (data && data.type === "CHANGE_PROJECTOR_MODE" && SOURCES[data.mode]) {
+          setMode(data.mode);
+        }
+      });
+    } catch (e) {
+      console.warn("BroadcastChannel non supporté:", e);
+    }
+
+    // Default mode
+    setMode("DAY");
+  </script>
+</body>
+</html>
