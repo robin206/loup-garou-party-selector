@@ -427,6 +427,7 @@ const Game = () => {
   };
   
   const handleEndGame = () => {
+    projector.end();
     localStorage.removeItem(GAME_STATE_STORAGE_KEY);
     toast.success("Partie terminée et sauvegarde effacée");
     navigate("/", { replace: true });
