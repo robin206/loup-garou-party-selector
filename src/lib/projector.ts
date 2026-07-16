@@ -1,9 +1,11 @@
 /**
  * Helper de communication avec la page /projector.html
  * via BroadcastChannel "loupgarou-projector".
+ *
+ * Seuls les modes DAY et NIGHT sont pris en compte par le projecteur.
  */
 
-export type ProjectorMode = "DAY" | "NIGHT" | "VOTE" | "END";
+export type ProjectorMode = "DAY" | "NIGHT";
 
 const CHANNEL_NAME = "loupgarou-projector";
 
@@ -37,8 +39,10 @@ function send(mode: ProjectorMode) {
 export const projector = {
   day: () => send("DAY"),
   night: () => send("NIGHT"),
-  vote: () => send("VOTE"),
-  end: () => send("END"),
+  /** @deprecated conservé pour compatibilité, sans effet côté projecteur */
+  vote: () => { /* ignoré */ },
+  /** @deprecated conservé pour compatibilité, sans effet côté projecteur */
+  end: () => { /* ignoré */ },
   setMode: (mode: ProjectorMode) => send(mode),
 };
 
