@@ -10,7 +10,7 @@ interface TimerProps {
 const Timer: React.FC<TimerProps> = ({ defaultMinutes = 5 }) => {
   const [totalSeconds, setTotalSeconds] = useState(defaultMinutes * 60);
   const [isActive, setIsActive] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (isActive && totalSeconds > 0) {
