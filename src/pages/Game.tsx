@@ -427,7 +427,7 @@ const Game = () => {
   };
   
   const handleEndGame = () => {
-    projector.end();
+    // La fin de partie n'impacte plus le projecteur (reste sur la vidéo en cours)
     localStorage.removeItem(GAME_STATE_STORAGE_KEY);
     toast.success("Partie terminée et sauvegarde effacée");
     navigate("/", { replace: true });

@@ -23,7 +23,7 @@ export const AudioPhaseControls = () => {
 
   const handlePlayVote = () => {
     playVoteMusic();
-    projector.vote();
+    // Le vote ne modifie pas l'état du projecteur (reste sur JOUR ou NUIT en cours)
   };
 
   // Handle light off button (only affects lights, no audio)
