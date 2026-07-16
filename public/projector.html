@@ -13,7 +13,7 @@
       background: #000;
       cursor: none;
     }
-    #projector-video {
+    video.layer {
       position: fixed;
       inset: 0;
       width: 100vw;
@@ -51,60 +51,120 @@
 <body>
   <!--
     Fichiers vidéo attendus dans /public/videos/ :
-      - village_loop.mp4       (DAY)
-      - foret_nuit_loop.mp4    (NIGHT)
-      - conseil_vote_loop.mp4  (VOTE)
-      - victoire_loop.mp4      (END)
-    Ces fichiers doivent être ajoutés manuellement.
+      - village_loop.mp4            (DAY loop)
+      - foret_nuit_loop.mp4         (NIGHT loop)
+      - transition_jour_nuit.mp4    (DAY -> NIGHT transition)
+      - transition_nuit_jour.mp4    (NIGHT -> DAY transition)
   -->
-  <video id="projector-video" autoplay loop muted playsinline></video>
+  <video id="video-loop" class="layer" autoplay loop muted playsinline></video>
+  <video id="video-transition" class="layer" style="display:none" muted playsinline></video>
 
   <div class="controls" aria-label="Contrôles manuels">
     <button data-mode="DAY">Jour</button>
     <button data-mode="NIGHT">Nuit</button>
-    <button data-mode="VOTE">Vote</button>
-    <button data-mode="END">Fin</button>
   </div>
 
   <script>
-    const SOURCES = {
+    const LOOPS = {
       DAY: "/videos/village_loop.mp4",
       NIGHT: "/videos/foret_nuit_loop.mp4",
-      VOTE: "/videos/conseil_vote_loop.mp4",
-      END: "/videos/victoire_loop.mp4",
+    };
+    const TRANSITIONS = {
+      "DAY->NIGHT": "/videos/transition_jour_nuit.mp4",
+      "NIGHT->DAY": "/videos/transition_nuit_jour.mp4",
     };
 
-    const video = document.getElementById("projector-video");
+    const loopEl = document.getElementById("video-loop");
+    const transEl = document.getElementById("video-transition");
     const buttons = document.querySelectorAll(".controls button");
+
     let currentMode = null;
+    let isTransitioning = false;
+
+    function updateButtons() {
+      buttons.forEach(b => b.classList.toggle("active", b.dataset.mode === currentMode));
+    }
+
+    function playLoop(mode) {
+      loopEl.src = LOOPS[mode];
+      loopEl.loop = true;
+      loopEl.style.display = "";
+      transEl.style.display = "none";
+      transEl.removeAttribute("src");
+      loopEl.play().catch(() => {});
+      currentMode = mode;
+      updateButtons();
+    }
+
+    function playTransitionThen(fromTo, nextMode) {
+      const src = TRANSITIONS[fromTo];
+      if (!src) {
+        playLoop(nextMode);
+        return;
+      }
+      isTransitioning = true;
+      transEl.src = src;
+      transEl.loop = false;
+      transEl.style.display = "";
+      loopEl.style.display = "none";
+
+      const onEnded = () => {
+        transEl.removeEventListener("ended", onEnded);
+        transEl.removeEventListener("error", onError);
+        isTransitioning = false;
+        playLoop(nextMode);
+      };
+      const onError = () => {
+        transEl.removeEventListener("ended", onEnded);
+        transEl.removeEventListener("error", onError);
+        isTransitioning = false;
+        playLoop(nextMode);
+      };
+      transEl.addEventListener("ended", onEnded);
+      transEl.addEventListener("error", onError);
+      transEl.play().catch(() => {
+        // Autoplay bloqué : passer directement à la boucle
+        isTransitioning = false;
+        playLoop(nextMode);
+      });
+    }
 
     function setMode(mode) {
-      if (!SOURCES[mode] || mode === currentMode) return;
-      currentMode = mode;
-      video.src = SOURCES[mode];
-      video.play().catch(() => { /* autoplay may be blocked until user interacts */ });
-      buttons.forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+      if (mode !== "DAY" && mode !== "NIGHT") return;
+      if (isTransitioning) return;
+      if (mode === currentMode) return;
+
+      if (currentMode === "DAY" && mode === "NIGHT") {
+        playTransitionThen("DAY->NIGHT", "NIGHT");
+      } else if (currentMode === "NIGHT" && mode === "DAY") {
+        playTransitionThen("NIGHT->DAY", "DAY");
+      } else {
+        // Aucun état courant (chargement initial) : lancer direct la boucle
+        playLoop(mode);
+      }
     }
 
     buttons.forEach(btn => {
       btn.addEventListener("click", () => setMode(btn.dataset.mode));
     });
 
-    // BroadcastChannel sync with main app
+    // BroadcastChannel sync avec l'app principale
     try {
       const channel = new BroadcastChannel("loupgarou-projector");
       channel.addEventListener("message", (event) => {
         const data = event.data;
-        if (data && data.type === "CHANGE_PROJECTOR_MODE" && SOURCES[data.mode]) {
+        if (!data || data.type !== "CHANGE_PROJECTOR_MODE") return;
+        if (data.mode === "DAY" || data.mode === "NIGHT") {
           setMode(data.mode);
         }
+        // Autres modes (VOTE, END, ...) : ignorés proprement
       });
     } catch (e) {
       console.warn("BroadcastChannel non supporté:", e);
     }
 
-    // Default mode
-    setMode("DAY");
+    // Mode initial : JOUR en boucle
+    playLoop("DAY");
   </script>
 </body>
 </html>
