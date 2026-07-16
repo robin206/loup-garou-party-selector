@@ -492,6 +492,7 @@ const Game = () => {
       <div className="sticky bottom-0 left-0 right-0 w-full">
         <SoundSampler />
       </div>
+      <ProjectorButton />
     </div>
   );
 };
