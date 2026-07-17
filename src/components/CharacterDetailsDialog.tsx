@@ -72,6 +72,8 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
 }) => {
   const playingTip = getPlayingTip(character);
   const [linkSelectionOpen, setLinkSelectionOpen] = useState<'cupid' | 'wildChild' | null>(null);
+  const projectedRoleId = useProjectedRoleId();
+  const isProjected = projectedRoleId === character.id;
   
   const isWildChild = character.id === 'wild-child';
   const isCupid = character.id === 'cupid';
