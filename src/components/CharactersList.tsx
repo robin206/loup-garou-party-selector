@@ -203,6 +203,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>}
                   {renderPlayerName(character)}
+                  {renderProjectorButton(character)}
                 </div>
               </TooltipWrapper>)}
           </div>
@@ -218,6 +219,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>}
                   {renderPlayerName(character)}
+                  {renderProjectorButton(character)}
                 </div>
               </TooltipWrapper>)}
           </div>
@@ -233,6 +235,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>}
                   {renderPlayerName(character)}
+                  {renderProjectorButton(character)}
                 </div>
               </TooltipWrapper>)}
           </div>
