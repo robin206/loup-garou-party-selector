@@ -3,9 +3,10 @@ import { CharacterType, CharacterLinks } from '@/types';
 import TooltipWrapper from './TooltipWrapper';
 import { cn } from '@/lib/utils';
 import CharacterDetailsDialog from './CharacterDetailsDialog';
-import { Users, Heart, Leaf, Eye, EyeOff } from 'lucide-react';
+import { Users, Heart, Leaf, Eye, EyeOff, Projector } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import projector, { useProjectedRoleId } from '@/lib/projector';
 interface CharactersListProps {
   characters: CharacterType[];
   className?: string;
