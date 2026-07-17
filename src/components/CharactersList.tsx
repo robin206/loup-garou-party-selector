@@ -3,9 +3,10 @@ import { CharacterType, CharacterLinks } from '@/types';
 import TooltipWrapper from './TooltipWrapper';
 import { cn } from '@/lib/utils';
 import CharacterDetailsDialog from './CharacterDetailsDialog';
-import { Users, Heart, Leaf, Eye, EyeOff } from 'lucide-react';
+import { Users, Heart, Leaf, Eye, EyeOff, Projector } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import projector, { useProjectedRoleId } from '@/lib/projector';
 interface CharactersListProps {
   characters: CharacterType[];
   className?: string;
@@ -31,6 +32,31 @@ const CharactersList: React.FC<CharactersListProps> = ({
   onTogglePlayerNames
 }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterType | null>(null);
+  const projectedRoleId = useProjectedRoleId();
+
+  const handleToggleProject = (e: React.MouseEvent, character: CharacterType) => {
+    e.stopPropagation();
+    projector.toggleRoleCard(character.id, character.name, character.icon);
+  };
+
+  const renderProjectorButton = (character: CharacterType) => {
+    const active = projectedRoleId === character.id;
+    return (
+      <button
+        type="button"
+        onClick={(e) => handleToggleProject(e, character)}
+        title={active ? "Masquer la carte du projecteur" : "Afficher sur le projecteur"}
+        className={cn(
+          "absolute -top-1 -right-1 z-10 h-6 w-6 rounded-full flex items-center justify-center border transition-all",
+          active
+            ? "bg-werewolf-accent text-white border-werewolf-accent shadow-[0_0_10px_2px_rgba(234,179,8,0.7)] ring-2 ring-werewolf-accent/60"
+            : "bg-black/70 text-white border-white/30 hover:bg-black/90 opacity-80 hover:opacity-100"
+        )}
+      >
+        <Projector className="h-3 w-3" />
+      </button>
+    );
+  };
 
   // Group characters by team
   const villageChars = characters.filter(char => char.team === 'village');
@@ -171,12 +197,13 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {werewolfChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6", isAlive(character) ? "border-werewolf-blood/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
+                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-werewolf-blood/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
                   <img src={character.icon} alt={character.name} className={cn("w-full h-full object-contain p-1", character.id === 'wild-child' && character.team === 'werewolf' && "animate-pulse-subtle")} />
                   {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>}
                   {renderPlayerName(character)}
+                  {renderProjectorButton(character)}
                 </div>
               </TooltipWrapper>)}
           </div>
@@ -186,12 +213,13 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {villageChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6", isAlive(character) ? "border-blue-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
+                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-blue-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
                   <img src={character.icon} alt={character.name} className="w-full h-full object-contain p-1" />
                   {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>}
                   {renderPlayerName(character)}
+                  {renderProjectorButton(character)}
                 </div>
               </TooltipWrapper>)}
           </div>
@@ -201,12 +229,13 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {soloChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6", isAlive(character) ? "border-amber-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
+                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-amber-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
                   <img src={character.icon} alt={character.name} className="w-full h-full object-contain p-1" />
                   {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
                     </div>}
                   {renderPlayerName(character)}
+                  {renderProjectorButton(character)}
                 </div>
               </TooltipWrapper>)}
           </div>

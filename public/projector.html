@@ -46,6 +46,70 @@
     }
     .controls button:hover { background: rgba(0, 0, 0, 0.85); }
     .controls button.active { background: rgba(255, 255, 255, 0.85); color: #000; }
+
+    /* ===== Role card overlay ===== */
+    .role-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.85) 100%);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 400ms ease;
+    }
+    .role-overlay.visible { opacity: 1; }
+    .role-card {
+      height: 50vh;
+      aspect-ratio: 3 / 4;
+      background: linear-gradient(160deg, #f5e6c8 0%, #e8cf9a 45%, #c9a86a 100%);
+      border: 6px solid #3a2a10;
+      border-radius: 24px;
+      box-shadow:
+        0 0 0 2px rgba(255, 220, 150, 0.4) inset,
+        0 30px 60px rgba(0, 0, 0, 0.75),
+        0 0 80px rgba(255, 200, 100, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4vh 3vh;
+      font-family: "Cinzel", "Trajan Pro", Georgia, serif;
+      color: #2a1a05;
+      transform: scale(0.85) rotate(-2deg);
+      transition: transform 500ms cubic-bezier(0.2, 0.9, 0.3, 1.2), opacity 300ms ease;
+      position: relative;
+    }
+    .role-overlay.visible .role-card { transform: scale(1) rotate(0deg); }
+    .role-card::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 2px solid rgba(58, 42, 16, 0.55);
+      border-radius: 16px;
+      pointer-events: none;
+    }
+    .role-card img {
+      max-height: 60%;
+      max-width: 85%;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+      transition: opacity 200ms ease;
+    }
+    .role-card .role-name {
+      margin-top: 3vh;
+      font-size: 4vh;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      text-shadow: 0 2px 0 rgba(255,255,255,0.35), 0 3px 6px rgba(0,0,0,0.25);
+      transition: opacity 200ms ease;
+    }
+    .role-card.swapping img,
+    .role-card.swapping .role-name { opacity: 0; }
   </style>
 </head>
 <body>
@@ -58,6 +122,13 @@
   -->
   <video id="video-loop" class="layer" autoplay loop muted playsinline></video>
   <video id="video-transition" class="layer" style="display:none" muted playsinline></video>
+
+  <div id="role-overlay" class="role-overlay" aria-hidden="true">
+    <div id="role-card" class="role-card">
+      <img id="role-image" src="" alt="" />
+      <div id="role-name" class="role-name"></div>
+    </div>
+  </div>
 
   <div class="controls" aria-label="Contrôles manuels">
     <button data-mode="DAY">Jour</button>
@@ -148,16 +219,59 @@
       btn.addEventListener("click", () => setMode(btn.dataset.mode));
     });
 
+    // ===== Role card overlay =====
+    const overlayEl = document.getElementById("role-overlay");
+    const cardEl = document.getElementById("role-card");
+    const roleImgEl = document.getElementById("role-image");
+    const roleNameEl = document.getElementById("role-name");
+    let currentRoleId = null;
+
+    function applyRole(roleId, roleName, roleIcon) {
+      currentRoleId = roleId;
+      roleImgEl.src = roleIcon || "";
+      roleImgEl.alt = roleName || "";
+      roleNameEl.textContent = roleName || "";
+    }
+
+    function showRoleCard(roleId, roleName, roleIcon) {
+      if (overlayEl.classList.contains("visible") && currentRoleId !== roleId) {
+        // Transition douce entre deux cartes
+        cardEl.classList.add("swapping");
+        setTimeout(() => {
+          applyRole(roleId, roleName, roleIcon);
+          cardEl.classList.remove("swapping");
+        }, 200);
+      } else {
+        applyRole(roleId, roleName, roleIcon);
+        overlayEl.classList.add("visible");
+        overlayEl.setAttribute("aria-hidden", "false");
+      }
+    }
+
+    function hideRoleCard() {
+      overlayEl.classList.remove("visible");
+      overlayEl.setAttribute("aria-hidden", "true");
+      currentRoleId = null;
+    }
+
     // BroadcastChannel sync avec l'app principale
     try {
       const channel = new BroadcastChannel("loupgarou-projector");
       channel.addEventListener("message", (event) => {
         const data = event.data;
-        if (!data || data.type !== "CHANGE_PROJECTOR_MODE") return;
-        if (data.mode === "DAY" || data.mode === "NIGHT") {
-          setMode(data.mode);
+        if (!data || !data.type) return;
+        if (data.type === "CHANGE_PROJECTOR_MODE") {
+          if (data.mode === "DAY" || data.mode === "NIGHT") setMode(data.mode);
+          return;
         }
-        // Autres modes (VOTE, END, ...) : ignorés proprement
+        if (data.type === "SHOW_ROLE_CARD") {
+          showRoleCard(data.roleId, data.roleName, data.roleIcon);
+          return;
+        }
+        if (data.type === "HIDE_ROLE_CARD") {
+          hideRoleCard();
+          return;
+        }
       });
     } catch (e) {
       console.warn("BroadcastChannel non supporté:", e);
