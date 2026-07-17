@@ -217,6 +217,21 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
             </div>
           )}
           
+          <Button
+            variant="outline"
+            onClick={() =>
+              projector.toggleRoleCard(character.id, character.name, character.icon)
+            }
+            className={
+              isProjected
+                ? "w-full border-werewolf-accent text-werewolf-accent shadow-[0_0_10px_rgba(234,179,8,0.5)]"
+                : "w-full"
+            }
+          >
+            <Projector className="mr-2 h-4 w-4" />
+            {isProjected ? "Masquer du projecteur" : "Afficher sur le projecteur"}
+          </Button>
+
           {isAlive ? (
             <Button 
               variant="destructive" 
