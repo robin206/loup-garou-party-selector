@@ -14,9 +14,11 @@ import {
   Skull, 
   Leaf, 
   Unlink,
-  Heart
+  Heart,
+  Projector
 } from 'lucide-react';
 import { toast } from 'sonner';
+import projector, { useProjectedRoleId } from '@/lib/projector';
 
 interface CharacterDetailsDialogProps {
   character: CharacterType;
