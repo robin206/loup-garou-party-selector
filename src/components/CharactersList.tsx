@@ -32,6 +32,31 @@ const CharactersList: React.FC<CharactersListProps> = ({
   onTogglePlayerNames
 }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterType | null>(null);
+  const projectedRoleId = useProjectedRoleId();
+
+  const handleToggleProject = (e: React.MouseEvent, character: CharacterType) => {
+    e.stopPropagation();
+    projector.toggleRoleCard(character.id, character.name, character.icon);
+  };
+
+  const renderProjectorButton = (character: CharacterType) => {
+    const active = projectedRoleId === character.id;
+    return (
+      <button
+        type="button"
+        onClick={(e) => handleToggleProject(e, character)}
+        title={active ? "Masquer la carte du projecteur" : "Afficher sur le projecteur"}
+        className={cn(
+          "absolute -top-1 -right-1 z-10 h-6 w-6 rounded-full flex items-center justify-center border transition-all",
+          active
+            ? "bg-werewolf-accent text-white border-werewolf-accent shadow-[0_0_10px_2px_rgba(234,179,8,0.7)] ring-2 ring-werewolf-accent/60"
+            : "bg-black/70 text-white border-white/30 hover:bg-black/90 opacity-80 hover:opacity-100"
+        )}
+      >
+        <Projector className="h-3 w-3" />
+      </button>
+    );
+  };
 
   // Group characters by team
   const villageChars = characters.filter(char => char.team === 'village');
