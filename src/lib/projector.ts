@@ -1,9 +1,9 @@
 /**
  * Helper de communication avec la page /projector.html
  * via BroadcastChannel "loupgarou-projector".
- *
- * Seuls les modes DAY et NIGHT sont pris en compte par le projecteur.
  */
+
+import { useEffect, useState } from "react";
 
 export type ProjectorMode = "DAY" | "NIGHT";
 
@@ -26,7 +26,7 @@ function getChannel(): BroadcastChannel | null {
   return channel;
 }
 
-function send(mode: ProjectorMode) {
+function sendMode(mode: ProjectorMode) {
   const ch = getChannel();
   if (!ch) return;
   try {
@@ -36,14 +36,74 @@ function send(mode: ProjectorMode) {
   }
 }
 
+// ----- Role card overlay state (shared) -----
+let currentRoleId: string | null = null;
+const listeners = new Set<(roleId: string | null) => void>();
+
+function setCurrentRole(roleId: string | null) {
+  currentRoleId = roleId;
+  listeners.forEach((l) => l(currentRoleId));
+}
+
+function showRoleCard(roleId: string, roleName: string, roleIcon: string) {
+  const ch = getChannel();
+  if (ch) {
+    try {
+      ch.postMessage({
+        type: "SHOW_ROLE_CARD",
+        roleId,
+        roleName,
+        roleIcon,
+      });
+    } catch (e) {
+      console.warn("Envoi projecteur échoué:", e);
+    }
+  }
+  setCurrentRole(roleId);
+}
+
+function hideRoleCard() {
+  const ch = getChannel();
+  if (ch) {
+    try {
+      ch.postMessage({ type: "HIDE_ROLE_CARD" });
+    } catch (e) {
+      console.warn("Envoi projecteur échoué:", e);
+    }
+  }
+  setCurrentRole(null);
+}
+
+export function useProjectedRoleId(): string | null {
+  const [id, setId] = useState<string | null>(currentRoleId);
+  useEffect(() => {
+    const l = (v: string | null) => setId(v);
+    listeners.add(l);
+    return () => {
+      listeners.delete(l);
+    };
+  }, []);
+  return id;
+}
+
 export const projector = {
-  day: () => send("DAY"),
-  night: () => send("NIGHT"),
+  day: () => sendMode("DAY"),
+  night: () => sendMode("NIGHT"),
   /** @deprecated conservé pour compatibilité, sans effet côté projecteur */
-  vote: () => { /* ignoré */ },
+  vote: () => {},
   /** @deprecated conservé pour compatibilité, sans effet côté projecteur */
-  end: () => { /* ignoré */ },
-  setMode: (mode: ProjectorMode) => send(mode),
+  end: () => {},
+  setMode: (mode: ProjectorMode) => sendMode(mode),
+  showRoleCard,
+  hideRoleCard,
+  toggleRoleCard: (roleId: string, roleName: string, roleIcon: string) => {
+    if (currentRoleId === roleId) {
+      hideRoleCard();
+    } else {
+      showRoleCard(roleId, roleName, roleIcon);
+    }
+  },
+  getProjectedRoleId: () => currentRoleId,
 };
 
 export default projector;
