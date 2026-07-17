@@ -219,16 +219,59 @@
       btn.addEventListener("click", () => setMode(btn.dataset.mode));
     });
 
+    // ===== Role card overlay =====
+    const overlayEl = document.getElementById("role-overlay");
+    const cardEl = document.getElementById("role-card");
+    const roleImgEl = document.getElementById("role-image");
+    const roleNameEl = document.getElementById("role-name");
+    let currentRoleId = null;
+
+    function applyRole(roleId, roleName, roleIcon) {
+      currentRoleId = roleId;
+      roleImgEl.src = roleIcon || "";
+      roleImgEl.alt = roleName || "";
+      roleNameEl.textContent = roleName || "";
+    }
+
+    function showRoleCard(roleId, roleName, roleIcon) {
+      if (overlayEl.classList.contains("visible") && currentRoleId !== roleId) {
+        // Transition douce entre deux cartes
+        cardEl.classList.add("swapping");
+        setTimeout(() => {
+          applyRole(roleId, roleName, roleIcon);
+          cardEl.classList.remove("swapping");
+        }, 200);
+      } else {
+        applyRole(roleId, roleName, roleIcon);
+        overlayEl.classList.add("visible");
+        overlayEl.setAttribute("aria-hidden", "false");
+      }
+    }
+
+    function hideRoleCard() {
+      overlayEl.classList.remove("visible");
+      overlayEl.setAttribute("aria-hidden", "true");
+      currentRoleId = null;
+    }
+
     // BroadcastChannel sync avec l'app principale
     try {
       const channel = new BroadcastChannel("loupgarou-projector");
       channel.addEventListener("message", (event) => {
         const data = event.data;
-        if (!data || data.type !== "CHANGE_PROJECTOR_MODE") return;
-        if (data.mode === "DAY" || data.mode === "NIGHT") {
-          setMode(data.mode);
+        if (!data || !data.type) return;
+        if (data.type === "CHANGE_PROJECTOR_MODE") {
+          if (data.mode === "DAY" || data.mode === "NIGHT") setMode(data.mode);
+          return;
         }
-        // Autres modes (VOTE, END, ...) : ignorés proprement
+        if (data.type === "SHOW_ROLE_CARD") {
+          showRoleCard(data.roleId, data.roleName, data.roleIcon);
+          return;
+        }
+        if (data.type === "HIDE_ROLE_CARD") {
+          hideRoleCard();
+          return;
+        }
       });
     } catch (e) {
       console.warn("BroadcastChannel non supporté:", e);
