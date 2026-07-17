@@ -197,7 +197,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {werewolfChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6", isAlive(character) ? "border-werewolf-blood/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
+                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-werewolf-blood/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
                   <img src={character.icon} alt={character.name} className={cn("w-full h-full object-contain p-1", character.id === 'wild-child' && character.team === 'werewolf' && "animate-pulse-subtle")} />
                   {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
@@ -213,7 +213,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {villageChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6", isAlive(character) ? "border-blue-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
+                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-blue-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
                   <img src={character.icon} alt={character.name} className="w-full h-full object-contain p-1" />
                   {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
@@ -229,7 +229,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
           <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
           <div className={cn("flex flex-wrap", containerClass)}>
             {soloChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full overflow-hidden border bg-zinc-900 cursor-pointer transition-all relative mb-6", isAlive(character) ? "border-amber-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
+                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-amber-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
                   <img src={character.icon} alt={character.name} className="w-full h-full object-contain p-1" />
                   {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
                       <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
