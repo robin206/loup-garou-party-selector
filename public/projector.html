@@ -13,13 +13,23 @@
       background: #000;
       cursor: none;
     }
+    #fallback-background {
+      position: fixed;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 0;
+    }
     video.layer {
       position: fixed;
       inset: 0;
       width: 100vw;
       height: 100vh;
       object-fit: cover;
-      background: #000;
+      background: transparent;
+      z-index: 1;
+      transition: opacity 350ms ease;
     }
     .controls {
       position: fixed;
@@ -120,8 +130,9 @@
       - transition_jour_nuit.mp4    (DAY -> NIGHT transition)
       - transition_nuit_jour.mp4    (NIGHT -> DAY transition)
   -->
-  <video id="video-loop" class="layer" autoplay loop muted playsinline></video>
-  <video id="video-transition" class="layer" style="display:none" muted playsinline></video>
+  <div id="fallback-background"></div>
+    <video id="video-loop" class="layer" autoplay loop muted playsinline></video>
+    <video id="video-transition" class="layer" style="display:none" muted playsinline></video>
 
   <div id="role-overlay" class="role-overlay" aria-hidden="true">
     <div id="role-card" class="role-card">
@@ -144,9 +155,14 @@
       "DAY->NIGHT": "/videos/transition_jour_nuit.mp4",
       "NIGHT->DAY": "/videos/transition_nuit_jour.mp4",
     };
+    const LAST_FRAMES = {
+      DAY: "/videos/day_last_frame.jpg",
+      NIGHT: "/videos/night_last_frame.jpg"
+    };
 
     const loopEl = document.getElementById("video-loop");
     const transEl = document.getElementById("video-transition");
+    const backgroundEl = document.getElementById("fallback-background");
     const buttons = document.querySelectorAll(".controls button");
 
     let currentMode = null;
@@ -156,47 +172,86 @@
       buttons.forEach(b => b.classList.toggle("active", b.dataset.mode === currentMode));
     }
 
-    function playLoop(mode) {
+    async function playLoop(mode) {
+      setBackground(mode);
+      loopEl.style.opacity = "0";    
       loopEl.src = LOOPS[mode];
+      loopEl.load();
       loopEl.loop = true;
+    
+      await waitForCanPlay(loopEl);
+    
       loopEl.style.display = "";
-      transEl.style.display = "none";
-      transEl.removeAttribute("src");
+      transEl.style.display = "none";   
       loopEl.play().catch(() => {});
+    
+      requestAnimationFrame(() => {
+        loopEl.style.opacity = "1";
+      });
+    
+      transEl.removeAttribute("src");
+    
       currentMode = mode;
+    
       updateButtons();
     }
 
-    function playTransitionThen(fromTo, nextMode) {
+    async function playTransitionThen(fromTo, nextMode) {
+    
       const src = TRANSITIONS[fromTo];
+    
       if (!src) {
         playLoop(nextMode);
         return;
       }
+    
       isTransitioning = true;
+    
+      setBackground(currentMode);
+    
+      transEl.style.opacity = "0";
+    
       transEl.src = src;
+      transEl.load();
       transEl.loop = false;
       transEl.style.display = "";
+    
+      await waitForCanPlay(transEl);
+    
+      requestAnimationFrame(() => {
+        transEl.style.opacity = "1";
+      });
+    
       loopEl.style.display = "none";
+    
+      const onEnded = async () => {
+    
+        transEl.removeEventListener("ended", onEnded);
+    
+        await playLoop(nextMode);
+    
+        isTransitioning = false;
+      };
+    
+      const onError = async () => {
 
-      const onEnded = () => {
         transEl.removeEventListener("ended", onEnded);
         transEl.removeEventListener("error", onError);
+      
+        await playLoop(nextMode);
+      
         isTransitioning = false;
-        playLoop(nextMode);
       };
-      const onError = () => {
-        transEl.removeEventListener("ended", onEnded);
-        transEl.removeEventListener("error", onError);
-        isTransitioning = false;
-        playLoop(nextMode);
-      };
+    
       transEl.addEventListener("ended", onEnded);
       transEl.addEventListener("error", onError);
-      transEl.play().catch(() => {
-        // Autoplay bloqué : passer directement à la boucle
+    
+      transEl.play().catch(async () => {
+    
+        await playLoop(nextMode);
+    
         isTransitioning = false;
-        playLoop(nextMode);
+    
       });
     }
 
@@ -253,6 +308,32 @@
       overlayEl.setAttribute("aria-hidden", "true");
       currentRoleId = null;
     }
+    
+    function setBackground(mode) {
+      const image = LAST_FRAMES[mode];
+    
+      if (!image) return;
+    
+      backgroundEl.style.backgroundImage =
+        `url('${image}')`;
+    }
+    
+    function waitForCanPlay(video) {
+      return new Promise(resolve => {
+    
+        if (video.readyState >= 3) {
+          resolve();
+          return;
+        }
+    
+        const done = () => {
+          video.removeEventListener("canplay", done);
+          resolve();
+        };
+    
+        video.addEventListener("canplay", done);
+      });
+    }
 
     // BroadcastChannel sync avec l'app principale
     try {
@@ -278,6 +359,16 @@
     }
 
     // Mode initial : JOUR en boucle
+    [
+      "/videos/village_loop.mp4",
+      "/videos/foret_nuit_loop.mp4",
+      "/videos/transition_jour_nuit.mp4",
+      "/videos/transition_nuit_jour.mp4"
+    ].forEach(src => {
+      const v = document.createElement("video");
+      v.preload = "auto";
+      v.src = src;
+    });
     playLoop("DAY");
   </script>
 </body>
