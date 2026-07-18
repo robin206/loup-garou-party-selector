@@ -229,7 +229,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
             }
           >
             <Projector className="mr-2 h-4 w-4" />
-            {isProjected ? "Masquer du projecteur" : "Afficher sur le projecteur"}
+            {isProjected ? "Masquer" : "Projeter"}
           </Button>
 
           {isAlive ? (
@@ -238,7 +238,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
               onClick={() => onKillCharacter(character.instanceId || character.id)}
               className="w-full"
             >
-              <Skull className="mr-2 h-4 w-4" /> Éliminer ce personnage
+              <Skull className="mr-2 h-4 w-4" /> Éliminer
             </Button>
           ) : (
             <Button 
@@ -246,7 +246,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
               onClick={() => onKillCharacter(character.instanceId || character.id)}
               className="w-full"
             >
-              Ressusciter ce personnage
+              Ressusciter
             </Button>
           )}
         </DialogFooter>
