@@ -129,6 +129,37 @@ const Game = () => {
     projector.updatePlayers(payload);
   }, [selectedGameCharacters, aliveCharacters, projectorEnabled, projectorPlayersEnabled]);
 
+  // Répondre aux "PROJECTOR_READY" (nouvelle fenêtre projecteur ouverte)
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const ch = new BroadcastChannel("loupgarou-projector");
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type !== "PROJECTOR_READY") return;
+      if (!projectorEnabled) return;
+      if (!projectorPlayersEnabled) {
+        projector.hidePlayers();
+        return;
+      }
+      const payload = selectedGameCharacters.map((c) => {
+        const id = c.instanceId || c.id;
+        return {
+          id,
+          name: c.name,
+          icon: c.icon,
+          playerName: c.playerName,
+          team: c.team,
+          alive: aliveCharacters.includes(id),
+        };
+      });
+      projector.updatePlayers(payload);
+    };
+    ch.addEventListener("message", handler);
+    return () => {
+      ch.removeEventListener("message", handler);
+      ch.close();
+    };
+  }, [selectedGameCharacters, aliveCharacters, projectorEnabled, projectorPlayersEnabled]);
+
   const createCharacterWithActions = (char: CharacterType): CharacterType => {
     if (char.id === 'werewolf') {
       return {
