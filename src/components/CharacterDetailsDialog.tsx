@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import projector, { useProjectedRoleId } from '@/lib/projector';
+import { useProjectorSettings } from '@/lib/projectorSettings';
 
 interface CharacterDetailsDialogProps {
   character: CharacterType;
@@ -74,6 +75,7 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
   const [linkSelectionOpen, setLinkSelectionOpen] = useState<'cupid' | 'wildChild' | null>(null);
   const projectedRoleId = useProjectedRoleId();
   const isProjected = projectedRoleId === character.id;
+  const { enabled: projectorEnabled } = useProjectorSettings();
   
   const isWildChild = character.id === 'wild-child';
   const isCupid = character.id === 'cupid';
@@ -217,20 +219,22 @@ const CharacterDetailsDialog: React.FC<CharacterDetailsDialogProps> = ({
             </div>
           )}
           
-          <Button
-            variant="outline"
-            onClick={() =>
-              projector.toggleRoleCard(character.id, character.name, character.icon)
-            }
-            className={
-              isProjected
-                ? "w-full border-werewolf-accent text-werewolf-accent shadow-[0_0_10px_rgba(234,179,8,0.5)]"
-                : "w-full"
-            }
-          >
-            <Projector className="mr-2 h-4 w-4" />
-            {isProjected ? "Masquer" : "Projeter"}
-          </Button>
+          {projectorEnabled && (
+            <Button
+              variant="outline"
+              onClick={() =>
+                projector.toggleRoleCard(character.id, character.name, character.icon)
+              }
+              className={
+                isProjected
+                  ? "w-full border-werewolf-accent text-werewolf-accent shadow-[0_0_10px_rgba(234,179,8,0.5)]"
+                  : "w-full"
+              }
+            >
+              <Projector className="mr-2 h-4 w-4" />
+              {isProjected ? "Masquer" : "Projeter"}
+            </Button>
+          )}
 
           {isAlive ? (
             <Button 

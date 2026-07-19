@@ -7,6 +7,7 @@ import { Users, Heart, Leaf, Eye, EyeOff, Projector } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import projector, { useProjectedRoleId } from '@/lib/projector';
+import { useProjectorSettings } from '@/lib/projectorSettings';
 interface CharactersListProps {
   characters: CharacterType[];
   className?: string;
@@ -33,6 +34,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
 }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterType | null>(null);
   const projectedRoleId = useProjectedRoleId();
+  const { enabled: projectorEnabled } = useProjectorSettings();
 
   const handleToggleProject = (e: React.MouseEvent, character: CharacterType) => {
     e.stopPropagation();
@@ -40,6 +42,7 @@ const CharactersList: React.FC<CharactersListProps> = ({
   };
 
   const renderProjectorButton = (character: CharacterType) => {
+    if (!projectorEnabled) return null;
     const active = projectedRoleId === character.id;
     return (
       <button
