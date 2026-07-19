@@ -149,6 +149,7 @@
     .players-column.right { right: 0; --edge: left; }
     .players-column.hidden { display: none; }
     .player-card {
+      position: relative;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -208,6 +209,70 @@
       filter: grayscale(1) brightness(0.55);
       opacity: 0.55;
     }
+
+    @keyframes deathPulse {
+
+      0% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+    
+      20% {
+        transform: scale(1.18);
+        filter:
+          brightness(1.8)
+          drop-shadow(0 0 15px red);
+      }
+    
+      50% {
+        transform: scale(0.92);
+      }
+    
+      75% {
+        transform: scale(1.08);
+      }
+    
+      100% {
+        transform: scale(1);
+      }
+    
+    }
+
+    @keyframes deathFlash {
+    
+      0% {
+        opacity: 0;
+      }
+    
+      30% {
+        opacity: 0.8;
+      }
+    
+      100% {
+        opacity: 0;
+      }
+    
+    }
+    
+    .player-card.dying {
+      animation: deathPulse 900ms ease;
+    }
+    
+    .player-card .death-flash {
+    
+      position: absolute;
+      inset: -5px;
+    
+      background: rgba(255,0,0,0.6);
+    
+      border-radius: 50%;
+    
+      pointer-events: none;
+    
+      animation: deathFlash 900ms ease;
+    
+    }
+    
     .player-card.dead .avatar {
       position: relative;
     }
@@ -247,7 +312,7 @@
   <div class="controls" aria-label="Contrôles manuels">
     <button data-mode="DAY">Jour</button>
     <button data-mode="NIGHT">Nuit</button>
-    <button <button id="togglePlayers">Rôles</button>
+    <button id="togglePlayers">Rôles</button>
   </div>
 
   <script>
@@ -471,50 +536,109 @@
 
 
     
-    function renderPlayer(p) {
+    function renderPlayer(p, justDied = false) {
+    
       const card = document.createElement("div");
-      card.className = "player-card team-" + (p.team || "village") + (p.alive ? "" : " dead");
+    
+      card.className =
+        "player-card team-" +
+        (p.team || "village") +
+        (p.alive ? "" : " dead");
+    
       const avatar = document.createElement("div");
       avatar.className = "avatar";
+    
       if (p.icon) {
         const img = document.createElement("img");
         img.src = p.icon;
         img.alt = p.name || "";
         avatar.appendChild(img);
       }
+    
       const label = document.createElement("div");
       label.className = "label";
       label.textContent = p.name || "";
+    
       card.appendChild(avatar);
       card.appendChild(label);
+    
+      if (justDied) {
+    
+        card.classList.add("dying");
+    
+        const flash = document.createElement("div");
+        flash.className = "death-flash";
+    
+        card.appendChild(flash);
+      }
+    
       return card;
     }
 
+    let previousPlayersState = {};
+    
     function updatePlayers(players) {
+    
+      const deathsThisUpdate = [];
+    
       if (!Array.isArray(players) || players.length === 0) {
         hidePlayersColumns();
         return;
       }
+    
+      players.forEach(player => {
+    
+        const wasAlive =
+          previousPlayersState[player.id];
+    
+        if (
+          wasAlive === true &&
+          player.alive === false
+        ) {
+          deathsThisUpdate.push(
+            player.id
+          );
+        }
+    
+        previousPlayersState[player.id] =
+          player.alive;
+    
+      });
+    
       leftColEl.innerHTML = "";
       rightColEl.innerHTML = "";
-      
+    
       // Même ordre que la liste du MJ
       const sortedPlayers = [
         ...players.filter(p => p.team === "werewolf"),
         ...players.filter(p => p.team === "village"),
         ...players.filter(p => p.team === "solo")
       ];
-      
+    
       const mid = Math.ceil(sortedPlayers.length / 2);
-      
+    
       sortedPlayers
         .slice(0, mid)
-        .forEach(p => leftColEl.appendChild(renderPlayer(p)));
-      
+        .forEach(p =>
+          leftColEl.appendChild(
+            renderPlayer(
+              p,
+              deathsThisUpdate.includes(p.id)
+            )
+          )
+        );
+    
       sortedPlayers
         .slice(mid)
-        .forEach(p => rightColEl.appendChild(renderPlayer(p)));
-      
+        .forEach(p =>
+          rightColEl.appendChild(
+            renderPlayer(
+              p,
+              deathsThisUpdate.includes(p.id)
+            )
+          )
+        );
+    
       updatePlayersVisibility();
     }
 
