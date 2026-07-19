@@ -438,6 +438,58 @@
       });
     }
 
+    // ===== Players side columns =====
+    const leftColEl = document.getElementById("players-left");
+    const rightColEl = document.getElementById("players-right");
+
+    function renderPlayer(p) {
+      const card = document.createElement("div");
+      card.className = "player-card team-" + (p.team || "village") + (p.alive ? "" : " dead");
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      if (p.icon) {
+        const img = document.createElement("img");
+        img.src = p.icon;
+        img.alt = p.name || "";
+        avatar.appendChild(img);
+      }
+      const label = document.createElement("div");
+      label.className = "label";
+      if (p.playerName) {
+        label.textContent = p.playerName;
+        const role = document.createElement("span");
+        role.className = "role-label";
+        role.textContent = p.name || "";
+        label.appendChild(role);
+      } else {
+        label.textContent = p.name || "";
+      }
+      card.appendChild(avatar);
+      card.appendChild(label);
+      return card;
+    }
+
+    function updatePlayers(players) {
+      if (!Array.isArray(players) || players.length === 0) {
+        hidePlayersColumns();
+        return;
+      }
+      leftColEl.innerHTML = "";
+      rightColEl.innerHTML = "";
+      const mid = Math.ceil(players.length / 2);
+      players.slice(0, mid).forEach(p => leftColEl.appendChild(renderPlayer(p)));
+      players.slice(mid).forEach(p => rightColEl.appendChild(renderPlayer(p)));
+      leftColEl.classList.remove("hidden");
+      rightColEl.classList.remove("hidden");
+    }
+
+    function hidePlayersColumns() {
+      leftColEl.classList.add("hidden");
+      rightColEl.classList.add("hidden");
+      leftColEl.innerHTML = "";
+      rightColEl.innerHTML = "";
+    }
+
     // BroadcastChannel sync avec l'app principale
     try {
       const channel = new BroadcastChannel("loupgarou-projector");
@@ -456,7 +508,17 @@
           hideRoleCard();
           return;
         }
+        if (data.type === "UPDATE_PROJECTOR_PLAYERS") {
+          updatePlayers(data.players);
+          return;
+        }
+        if (data.type === "HIDE_PROJECTOR_PLAYERS") {
+          hidePlayersColumns();
+          return;
+        }
       });
+      // Signaler à l'app qu'on est prêt à recevoir la liste des joueurs
+      try { channel.postMessage({ type: "PROJECTOR_READY" }); } catch (e) {}
     } catch (e) {
       console.warn("BroadcastChannel non supporté:", e);
     }
