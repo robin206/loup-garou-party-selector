@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useAudio } from '@/hooks/useAudio';
 import { projector } from '@/lib/projector';
+import { useProjectorSettings } from '@/lib/projectorSettings';
 import { Button } from "@/components/ui/button";
 
 const GAME_STATE_STORAGE_KEY = 'werewolf-game-current-state';
@@ -105,6 +106,59 @@ const Game = () => {
       localStorage.setItem(GAME_STATE_STORAGE_KEY, JSON.stringify(currentGameState));
     }
   }, [gamePhase, dayCount, aliveCharacters, characterLinks, showPlayerNames, selectedGameCharacters, players, characters, selectedCharacters]);
+
+  const { enabled: projectorEnabled, playersEnabled: projectorPlayersEnabled } = useProjectorSettings();
+
+  useEffect(() => {
+    if (!projectorEnabled) return;
+    if (!projectorPlayersEnabled) {
+      projector.hidePlayers();
+      return;
+    }
+    const payload = selectedGameCharacters.map((c) => {
+      const id = c.instanceId || c.id;
+      return {
+        id,
+        name: c.name,
+        icon: c.icon,
+        playerName: c.playerName,
+        team: c.team,
+        alive: aliveCharacters.includes(id),
+      };
+    });
+    projector.updatePlayers(payload);
+  }, [selectedGameCharacters, aliveCharacters, projectorEnabled, projectorPlayersEnabled]);
+
+  // Répondre aux "PROJECTOR_READY" (nouvelle fenêtre projecteur ouverte)
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const ch = new BroadcastChannel("loupgarou-projector");
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type !== "PROJECTOR_READY") return;
+      if (!projectorEnabled) return;
+      if (!projectorPlayersEnabled) {
+        projector.hidePlayers();
+        return;
+      }
+      const payload = selectedGameCharacters.map((c) => {
+        const id = c.instanceId || c.id;
+        return {
+          id,
+          name: c.name,
+          icon: c.icon,
+          playerName: c.playerName,
+          team: c.team,
+          alive: aliveCharacters.includes(id),
+        };
+      });
+      projector.updatePlayers(payload);
+    };
+    ch.addEventListener("message", handler);
+    return () => {
+      ch.removeEventListener("message", handler);
+      ch.close();
+    };
+  }, [selectedGameCharacters, aliveCharacters, projectorEnabled, projectorPlayersEnabled]);
 
   const createCharacterWithActions = (char: CharacterType): CharacterType => {
     if (char.id === 'werewolf') {

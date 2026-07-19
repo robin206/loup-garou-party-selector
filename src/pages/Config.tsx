@@ -10,6 +10,7 @@ import { useAudio } from '@/hooks/useAudio';
 import audioService from '@/services/audioService';
 import AudioConfigSection from "@/components/config/AudioConfigSection";
 import LightsConfigSection from "@/components/config/LightsConfigSection";
+import ProjectorConfigSection from "@/components/config/ProjectorConfigSection";
 import ConfigFooter from "@/components/config/ConfigFooter";
 import { LightControlProvider } from '@/hooks/LightControlContext';
 
@@ -117,6 +118,7 @@ const Config = () => {
         <LightControlProvider>
           <LightsConfigSection />
         </LightControlProvider>
+        <ProjectorConfigSection />
       </main>
       <ConfigFooter />
     </div>
