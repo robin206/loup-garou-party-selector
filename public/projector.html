@@ -126,15 +126,15 @@
       position: fixed;
       top: 0;
       bottom: 0;
-      width: 11vw;
-      min-width: 90px;
-      max-width: 180px;
+      width: 9vw;
+      min-width: 75px;
+      max-width: 140px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      gap: 1vh;
-      padding: 2vh 0.5vw;
+      gap: 0.4vh;
+      padding: 0.8vh 0.3vw;
       z-index: 5;
       pointer-events: none;
       overflow: hidden;
@@ -159,13 +159,13 @@
       transition: opacity 300ms ease, filter 300ms ease;
     }
     .player-card .avatar {
-      width: 7vw;
-      max-width: 110px;
-      min-width: 70px;
+      width: 4vw;
+      max-width: 65px;
+      min-width: 40px;
       aspect-ratio: 1 / 1;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #f5e6c8, #c9a86a);
-      border: 3px solid #3a2a10;
+      border: 2px solid #3a2a10;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6),
         inset 0 0 0 2px rgba(255, 220, 150, 0.35);
       display: flex;
@@ -192,9 +192,9 @@
       filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
     }
     .player-card .label {
-      font-size: 1.6vh;
+      font-size: 1vh;
       text-align: center;
-      line-height: 1.1;
+      line-height: 1;
       max-width: 100%;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
       word-break: break-word;
@@ -247,6 +247,7 @@
   <div class="controls" aria-label="Contrôles manuels">
     <button data-mode="DAY">Jour</button>
     <button data-mode="NIGHT">Nuit</button>
+    <button <button id="togglePlayers">Rôles</button>
   </div>
 
   <script>
@@ -268,11 +269,32 @@
     const backgroundEl = document.getElementById("fallback-background");
     const buttons = document.querySelectorAll(".controls button");
 
+    let playersVisible = true;
+    const togglePlayersBtn = document.getElementById("togglePlayers");
+
+    
     let currentMode = null;
     let isTransitioning = false;
 
     function updateButtons() {
       buttons.forEach(b => b.classList.toggle("active", b.dataset.mode === currentMode));
+    }
+
+    function updatePlayersVisibility() {
+      if (playersVisible) {
+    
+        leftColEl.classList.remove("hidden");
+        rightColEl.classList.remove("hidden");
+    
+        togglePlayersBtn.classList.add("active");
+    
+      } else {
+    
+        leftColEl.classList.add("hidden");
+        rightColEl.classList.add("hidden");
+    
+        togglePlayersBtn.classList.remove("active");
+      }
     }
 
     async function playLoop(mode) {
@@ -442,6 +464,13 @@
     const leftColEl = document.getElementById("players-left");
     const rightColEl = document.getElementById("players-right");
 
+    togglePlayersBtn.addEventListener("click", () => {
+      playersVisible = !playersVisible;
+      updatePlayersVisibility();
+    });
+
+
+    
     function renderPlayer(p) {
       const card = document.createElement("div");
       card.className = "player-card team-" + (p.team || "village") + (p.alive ? "" : " dead");
@@ -471,8 +500,7 @@
       const mid = Math.ceil(players.length / 2);
       players.slice(0, mid).forEach(p => leftColEl.appendChild(renderPlayer(p)));
       players.slice(mid).forEach(p => rightColEl.appendChild(renderPlayer(p)));
-      leftColEl.classList.remove("hidden");
-      rightColEl.classList.remove("hidden");
+      updatePlayersVisibility();
     }
 
     function hidePlayersColumns() {
