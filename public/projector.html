@@ -120,6 +120,106 @@
     }
     .role-card.swapping img,
     .role-card.swapping .role-name { opacity: 0; }
+
+    /* ===== Players side columns ===== */
+    .players-column {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 11vw;
+      min-width: 90px;
+      max-width: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 1vh;
+      padding: 2vh 0.5vw;
+      z-index: 5;
+      pointer-events: none;
+      overflow: hidden;
+      background: linear-gradient(
+        to var(--edge, right),
+        rgba(0, 0, 0, 0.55) 0%,
+        rgba(0, 0, 0, 0.25) 60%,
+        rgba(0, 0, 0, 0) 100%
+      );
+    }
+    .players-column.left { left: 0; --edge: right; }
+    .players-column.right { right: 0; --edge: left; }
+    .players-column.hidden { display: none; }
+    .player-card {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-family: "Cinzel", Georgia, serif;
+      color: #f5e6c8;
+      transition: opacity 300ms ease, filter 300ms ease;
+    }
+    .player-card .avatar {
+      width: 7vw;
+      max-width: 110px;
+      min-width: 70px;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #f5e6c8, #c9a86a);
+      border: 3px solid #3a2a10;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 2px rgba(255, 220, 150, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .player-card.team-werewolf .avatar {
+      background: radial-gradient(circle at 30% 30%, #7a1f1f, #2a0505);
+      border-color: #4a0000;
+    }
+    .player-card.team-village .avatar {
+      background: radial-gradient(circle at 30% 30%, #cfe5ff, #4a7ec1);
+      border-color: #12365e;
+    }
+    .player-card.team-solo .avatar {
+      background: radial-gradient(circle at 30% 30%, #ffe8a3, #b58619);
+      border-color: #6a4a08;
+    }
+    .player-card .avatar img {
+      width: 78%;
+      height: 78%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+    }
+    .player-card .label {
+      font-size: 1.6vh;
+      text-align: center;
+      line-height: 1.1;
+      max-width: 100%;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      word-break: break-word;
+    }
+    .player-card .label .role-label {
+      font-size: 1.2vh;
+      opacity: 0.75;
+      display: block;
+    }
+    .player-card.dead {
+      filter: grayscale(1) brightness(0.55);
+      opacity: 0.55;
+    }
+    .player-card.dead .avatar {
+      position: relative;
+    }
+    .player-card.dead .avatar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(45deg, transparent 46%, rgba(180, 0, 0, 0.85) 48%, rgba(180, 0, 0, 0.85) 52%, transparent 54%),
+        linear-gradient(-45deg, transparent 46%, rgba(180, 0, 0, 0.85) 48%, rgba(180, 0, 0, 0.85) 52%, transparent 54%);
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
