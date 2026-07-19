@@ -455,15 +455,7 @@
       }
       const label = document.createElement("div");
       label.className = "label";
-      if (p.playerName) {
-        label.textContent = p.playerName;
-        const role = document.createElement("span");
-        role.className = "role-label";
-        role.textContent = p.name || "";
-        label.appendChild(role);
-      } else {
-        label.textContent = p.name || "";
-      }
+      label.textContent = p.name || "";
       card.appendChild(avatar);
       card.appendChild(label);
       return card;
