@@ -497,9 +497,24 @@
       }
       leftColEl.innerHTML = "";
       rightColEl.innerHTML = "";
-      const mid = Math.ceil(players.length / 2);
-      players.slice(0, mid).forEach(p => leftColEl.appendChild(renderPlayer(p)));
-      players.slice(mid).forEach(p => rightColEl.appendChild(renderPlayer(p)));
+      
+      // Même ordre que la liste du MJ
+      const sortedPlayers = [
+        ...players.filter(p => p.team === "werewolf"),
+        ...players.filter(p => p.team === "village"),
+        ...players.filter(p => p.team === "solo")
+      ];
+      
+      const mid = Math.ceil(sortedPlayers.length / 2);
+      
+      sortedPlayers
+        .slice(0, mid)
+        .forEach(p => leftColEl.appendChild(renderPlayer(p)));
+      
+      sortedPlayers
+        .slice(mid)
+        .forEach(p => rightColEl.appendChild(renderPlayer(p)));
+      
       updatePlayersVisibility();
     }
 
