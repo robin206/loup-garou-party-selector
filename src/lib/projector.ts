@@ -4,8 +4,21 @@
  */
 
 import { useEffect, useState } from "react";
+import {
+  getProjectorEnabled,
+  getProjectorPlayersEnabled,
+} from "./projectorSettings";
 
 export type ProjectorMode = "DAY" | "NIGHT";
+
+export type ProjectorPlayer = {
+  id: string;
+  name: string;
+  icon: string;
+  playerName?: string;
+  team: "village" | "werewolf" | "solo";
+  alive: boolean;
+};
 
 const CHANNEL_NAME = "loupgarou-projector";
 
@@ -26,14 +39,19 @@ function getChannel(): BroadcastChannel | null {
   return channel;
 }
 
-function sendMode(mode: ProjectorMode) {
+function post(message: any) {
+  if (!getProjectorEnabled()) return;
   const ch = getChannel();
   if (!ch) return;
   try {
-    ch.postMessage({ type: "CHANGE_PROJECTOR_MODE", mode });
+    ch.postMessage(message);
   } catch (e) {
     console.warn("Envoi projecteur échoué:", e);
   }
+}
+
+function sendMode(mode: ProjectorMode) {
+  post({ type: "CHANGE_PROJECTOR_MODE", mode });
 }
 
 // ----- Role card overlay state (shared) -----
@@ -46,32 +64,25 @@ function setCurrentRole(roleId: string | null) {
 }
 
 function showRoleCard(roleId: string, roleName: string, roleIcon: string) {
-  const ch = getChannel();
-  if (ch) {
-    try {
-      ch.postMessage({
-        type: "SHOW_ROLE_CARD",
-        roleId,
-        roleName,
-        roleIcon,
-      });
-    } catch (e) {
-      console.warn("Envoi projecteur échoué:", e);
-    }
-  }
+  post({ type: "SHOW_ROLE_CARD", roleId, roleName, roleIcon });
   setCurrentRole(roleId);
 }
 
 function hideRoleCard() {
-  const ch = getChannel();
-  if (ch) {
-    try {
-      ch.postMessage({ type: "HIDE_ROLE_CARD" });
-    } catch (e) {
-      console.warn("Envoi projecteur échoué:", e);
-    }
-  }
+  post({ type: "HIDE_ROLE_CARD" });
   setCurrentRole(null);
+}
+
+function updatePlayers(players: ProjectorPlayer[]) {
+  if (!getProjectorPlayersEnabled()) {
+    post({ type: "HIDE_PROJECTOR_PLAYERS" });
+    return;
+  }
+  post({ type: "UPDATE_PROJECTOR_PLAYERS", players });
+}
+
+function hidePlayers() {
+  post({ type: "HIDE_PROJECTOR_PLAYERS" });
 }
 
 export function useProjectedRoleId(): string | null {
@@ -89,9 +100,9 @@ export function useProjectedRoleId(): string | null {
 export const projector = {
   day: () => sendMode("DAY"),
   night: () => sendMode("NIGHT"),
-  /** @deprecated conservé pour compatibilité, sans effet côté projecteur */
+  /** @deprecated */
   vote: () => {},
-  /** @deprecated conservé pour compatibilité, sans effet côté projecteur */
+  /** @deprecated */
   end: () => {},
   setMode: (mode: ProjectorMode) => sendMode(mode),
   showRoleCard,
@@ -104,6 +115,8 @@ export const projector = {
     }
   },
   getProjectedRoleId: () => currentRoleId,
+  updatePlayers,
+  hidePlayers,
 };
 
 export default projector;
