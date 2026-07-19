@@ -1,11 +1,15 @@
 import React from "react";
 import { MonitorPlay } from "lucide-react";
+import { useProjectorSettings } from "@/lib/projectorSettings";
 
 /**
  * Petit bouton flottant pour ouvrir la page /projector.html
  * dans une nouvelle fenêtre destinée au vidéoprojecteur.
  */
 const ProjectorButton: React.FC = () => {
+  const { enabled } = useProjectorSettings();
+  if (!enabled) return null;
+
   const openProjector = () => {
     window.open("/projector.html", "loupgarou-projector");
   };
