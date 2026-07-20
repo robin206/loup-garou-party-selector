@@ -51,6 +51,7 @@ const AudioConfigSection: React.FC<AudioConfigSectionProps> = ({
     setVolume(newVolume);
     audioService.setVolume(newVolume / 100);
     localStorage.setItem('werewolf-volume', newVolume.toString());
+    window.dispatchEvent(new CustomEvent('werewolf-volume-change'));
     toast.success('Volume sauvegardé');
   };
   const testAudio = (playFunction: () => void) => {
