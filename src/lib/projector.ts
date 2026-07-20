@@ -79,7 +79,11 @@ function updatePlayers(players: ProjectorPlayer[]) {
     post({ type: "HIDE_PROJECTOR_PLAYERS" });
     return;
   }
-  post({ type: "UPDATE_PROJECTOR_PLAYERS", players });
+  post({
+    type: "UPDATE_PROJECTOR_PLAYERS",
+    players,
+    deathAnimationEnabled: getProjectorDeathAnimationEnabled(),
+  });
 }
 
 function hidePlayers() {
