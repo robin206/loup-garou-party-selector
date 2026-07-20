@@ -74,6 +74,9 @@ export const AudioPhaseControls = () => {
         playMusic={handlePlayNight} 
         stopMusic={stopMusic} 
       />
+
+      <VolumeControl />
+
       
       {/* Light Off Button - only show if light mode is enabled */}
       {lightEnabled && (
