@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import {
   getProjectorEnabled,
   getProjectorPlayersEnabled,
+  getProjectorDeathAnimationEnabled,
 } from "./projectorSettings";
 
 export type ProjectorMode = "DAY" | "NIGHT";
