@@ -649,6 +649,9 @@
           return;
         }
         if (data.type === "UPDATE_PROJECTOR_PLAYERS") {
+          if (typeof data.deathAnimationEnabled === "boolean") {
+            deathAnimationEnabled = data.deathAnimationEnabled;
+          }
           updatePlayers(data.players);
           return;
         }
