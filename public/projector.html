@@ -509,32 +509,118 @@
       return card;
     }
 
-    function updatePlayers(players) {
-      if (!Array.isArray(players) || players.length === 0) {
-        hidePlayersColumns();
-        return;
-      }
+    // ----- Death animation state -----
+    let deathAnimationEnabled = true;
+    let lastPlayersById = new Map();
+    let currentPlayers = [];
+    const deferredDeathIds = new Set();
+    const deathQueue = [];
+    let isDeathAnimationRunning = false;
+
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function renderPlayersList(players) {
       leftColEl.innerHTML = "";
       rightColEl.innerHTML = "";
-      
-      // Même ordre que la liste du MJ
+
       const sortedPlayers = [
         ...players.filter(p => p.team === "werewolf"),
         ...players.filter(p => p.team === "village"),
         ...players.filter(p => p.team === "solo")
       ];
-      
+
       const mid = Math.ceil(sortedPlayers.length / 2);
-      
-      sortedPlayers
-        .slice(0, mid)
-        .forEach(p => leftColEl.appendChild(renderPlayer(p)));
-      
-      sortedPlayers
-        .slice(mid)
-        .forEach(p => rightColEl.appendChild(renderPlayer(p)));
-      
+
+      sortedPlayers.slice(0, mid).forEach(p => leftColEl.appendChild(renderPlayer(p)));
+      sortedPlayers.slice(mid).forEach(p => rightColEl.appendChild(renderPlayer(p)));
+
       updatePlayersVisibility();
+    }
+
+    function renderWithDeferred() {
+      const rendered = currentPlayers.map(p =>
+        deferredDeathIds.has(p.id) ? { ...p, alive: true } : p
+      );
+      renderPlayersList(rendered);
+    }
+
+    async function showDeathAnimation(player) {
+      const wasVisible = overlayEl.classList.contains("visible");
+      const savedRoleId = currentRoleId;
+      const savedName = roleNameEl.textContent;
+      const savedIcon = roleImgEl.getAttribute("src") || "";
+
+      cardEl.classList.remove("wilting");
+      overlayEl.classList.remove("dying-fadeout");
+
+      applyRole("__death__" + player.id, player.name, player.icon);
+      overlayEl.classList.add("visible");
+      overlayEl.setAttribute("aria-hidden", "false");
+
+      // Force reflow so the transition kicks in from a clean state
+      void cardEl.offsetWidth;
+      await new Promise(r => requestAnimationFrame(r));
+      cardEl.classList.add("wilting");
+
+      await wait(1800);
+
+      overlayEl.classList.add("dying-fadeout");
+      await wait(650);
+
+      cardEl.classList.remove("wilting");
+      overlayEl.classList.remove("dying-fadeout");
+
+      if (wasVisible && savedRoleId && !String(savedRoleId).startsWith("__death__")) {
+        applyRole(savedRoleId, savedName, savedIcon);
+      } else {
+        overlayEl.classList.remove("visible");
+        overlayEl.setAttribute("aria-hidden", "true");
+        currentRoleId = null;
+      }
+    }
+
+    async function processDeathQueue() {
+      if (isDeathAnimationRunning) return;
+      const next = deathQueue.shift();
+      if (!next) return;
+      isDeathAnimationRunning = true;
+      try {
+        await showDeathAnimation(next);
+      } catch (e) {
+        console.warn("Death animation failed:", e);
+      }
+      deferredDeathIds.delete(next.id);
+      renderWithDeferred();
+      isDeathAnimationRunning = false;
+      if (deathQueue.length > 0) processDeathQueue();
+    }
+
+    function updatePlayers(players) {
+      if (!Array.isArray(players) || players.length === 0) {
+        hidePlayersColumns();
+        lastPlayersById = new Map();
+        currentPlayers = [];
+        return;
+      }
+
+      if (deathAnimationEnabled && lastPlayersById.size > 0) {
+        for (const p of players) {
+          const prev = lastPlayersById.get(p.id);
+          if (prev && prev.alive && !p.alive && !deferredDeathIds.has(p.id)) {
+            deferredDeathIds.add(p.id);
+            deathQueue.push({ id: p.id, name: p.name, icon: p.icon });
+          }
+        }
+      }
+
+      currentPlayers = players;
+      lastPlayersById = new Map(players.map(p => [p.id, p]));
+
+      renderWithDeferred();
+
+      if (!isDeathAnimationRunning && deathQueue.length > 0) {
+        processDeathQueue();
+      }
     }
 
     function hidePlayersColumns() {
