@@ -121,6 +121,25 @@
     .role-card.swapping img,
     .role-card.swapping .role-name { opacity: 0; }
 
+    /* ===== Death "wilting" animation ===== */
+    .role-card.wilting {
+      filter: grayscale(1) brightness(0.72);
+      transition: filter 1800ms ease-in;
+    }
+    .role-card.wilting img {
+      filter: grayscale(1) brightness(0.85) contrast(0.9);
+      transition: filter 1800ms ease-in;
+    }
+    .role-card.wilting .role-name {
+      color: #6f6a5f;
+      text-shadow: 0 2px 0 rgba(255,255,255,0.15), 0 3px 6px rgba(0,0,0,0.2);
+      transition: color 1800ms ease-in, text-shadow 1800ms ease-in;
+    }
+    .role-overlay.dying-fadeout {
+      opacity: 0 !important;
+      transition: opacity 600ms ease-in;
+    }
+
     /* ===== Players side columns ===== */
     .players-column {
       position: fixed;
