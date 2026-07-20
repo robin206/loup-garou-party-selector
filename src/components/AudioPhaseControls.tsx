@@ -6,6 +6,7 @@ import { useLightControl } from '@/hooks/LightControlContext';
 import { Button } from '@/components/ui/button';
 import { Bluetooth, BluetoothConnected, BluetoothOff, PowerOff } from 'lucide-react';
 import { projector } from '@/lib/projector';
+import VolumeControl from './VolumeControl';
 
 export const AudioPhaseControls = () => {
   const { playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
