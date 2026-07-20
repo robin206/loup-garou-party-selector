@@ -65,6 +65,33 @@ const ProjectorConfigSection: React.FC = () => {
           }}
         />
       </div>
+
+      <div className="flex items-start justify-between gap-4 pt-4 border-t border-gray-100">
+        <div className="space-y-1">
+          <Label
+            htmlFor="projector-death-anim"
+            className="text-base flex items-center gap-2"
+          >
+            <Skull className="h-4 w-4" /> Animation de mort sur le projecteur
+          </Label>
+          <p className="text-sm text-gray-200">
+            Lorsqu'un personnage meurt, affiche brièvement sa carte au centre
+            avec une animation de fanement avant de marquer sa mini-carte comme
+            éliminée.
+          </p>
+        </div>
+        <Switch
+          id="projector-death-anim"
+          checked={deathAnimationEnabled}
+          disabled={!enabled || !playersEnabled}
+          onCheckedChange={(v) => {
+            setProjectorDeathAnimationEnabled(v);
+            toast.success(
+              v ? "Animation de mort activée" : "Animation de mort désactivée"
+            );
+          }}
+        />
+      </div>
     </div>
   );
 };
