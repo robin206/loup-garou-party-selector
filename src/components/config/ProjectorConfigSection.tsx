@@ -1,16 +1,17 @@
 import React from "react";
-import { MonitorPlay, Users } from "lucide-react";
+import { MonitorPlay, Users, Skull } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   useProjectorSettings,
   setProjectorEnabled,
   setProjectorPlayersEnabled,
+  setProjectorDeathAnimationEnabled,
 } from "@/lib/projectorSettings";
 import { toast } from "sonner";
 
 const ProjectorConfigSection: React.FC = () => {
-  const { enabled, playersEnabled } = useProjectorSettings();
+  const { enabled, playersEnabled, deathAnimationEnabled } = useProjectorSettings();
 
   return (
     <div className="glass-card p-8 rounded-xl space-y-6 animate-scale-in mt-8">
