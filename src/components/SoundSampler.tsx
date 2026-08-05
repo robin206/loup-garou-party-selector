@@ -10,7 +10,7 @@ interface SoundSamplerProps {
 
 const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
   const { playSampleSound, stopMusic, isAudioReady, playViolinSound } = useAudio();
-  const { lightEnabled, lightMode, sendLightCommand, bleSamplerCommands } = useLightControl();
+  const { lightEnabled, sendLightCommand } = useLightControl();
   const [muted, setMuted] = React.useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
@@ -178,18 +178,8 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
         const baseSoundName = soundName.replace('.ogg', '');
         const commandName = `sampler_${baseSoundName}`;
         
-        if (lightMode === 'wifi') {
-          // Envoyer la commande WiFi HTTP
-          console.log(`Envoi commande lumière WiFi pour sampler: ${commandName}`);
-          sendLightCommand(commandName);
-        } else if (lightMode === 'ble' && bleSamplerCommands) {
-          // Envoyer la commande BLE personnalisée pour ce son
-          const bleCommand = bleSamplerCommands[commandName];
-          if (bleCommand) {
-            console.log(`Envoi commande lumière BLE pour sampler: ${bleCommand}`);
-            sendLightCommand(bleCommand);
-          }
-        }
+        // Un seul appel : le contexte dispatche vers BLE et/ou WiFi selon les options actives
+        sendLightCommand(commandName);
       }
     }
   };
@@ -202,18 +192,7 @@ const SoundSampler: React.FC<SoundSamplerProps> = ({ className }) => {
       if (lightEnabled) {
         const commandName = 'sampler_violon';
         
-        if (lightMode === 'wifi') {
-          // Envoyer la commande WiFi HTTP pour le violon
-          console.log('Envoi commande lumière WiFi pour violon');
-          sendLightCommand(commandName);
-        } else if (lightMode === 'ble' && bleSamplerCommands) {
-          // Envoyer la commande BLE personnalisée pour le violon
-          const bleCommand = bleSamplerCommands[commandName];
-          if (bleCommand) {
-            console.log(`Envoi commande lumière BLE pour violon: ${bleCommand}`);
-            sendLightCommand(bleCommand);
-          }
-        }
+        sendLightCommand(commandName);
       }
     }
   };

@@ -36,7 +36,7 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSendingLight, setIsSendingLight] = useState(false);
 
-  const { lightEnabled, lightMode, sendLightCommand } = useLightControl();
+  const { lightEnabled, sendLightCommand } = useLightControl();
   const IconComp = iconMap[type];
 
   // Associe le type à la commande lumière (en minuscules)
