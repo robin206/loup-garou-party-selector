@@ -88,8 +88,8 @@ describe("matrice Bluetooth / WiFi", () => {
       });
       expect(sendBle).toHaveBeenCalledTimes(1);
       expect(sendWifi).toHaveBeenCalledTimes(1);
-      expect(sendBle.mock.calls[0][0]).toBe(PHASE_TO_COMMAND[phase]);
-      expect(sendWifi.mock.calls[0][0]).toBe(PHASE_TO_COMMAND[phase]);
+      expect(sendBle).toHaveBeenCalledWith(PHASE_TO_COMMAND[phase]);
+      expect(sendWifi).toHaveBeenCalledWith(PHASE_TO_COMMAND[phase]);
     }
   });
 });
