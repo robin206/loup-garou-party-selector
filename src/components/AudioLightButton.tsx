@@ -4,8 +4,9 @@ import { Play, Pause, Sun, Vote, Moon, PowerOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLightControl } from "@/hooks/LightControlContext";
+import { LightPhase } from "@/lib/lightDispatch";
 
-type AudioType = "day" | "night" | "vote" | "off";
+type AudioType = LightPhase;
 const iconMap = {
   day: Sun,
   vote: Vote,
@@ -36,19 +37,8 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSendingLight, setIsSendingLight] = useState(false);
 
-  const { lightEnabled, lightMode, sendLightCommand } = useLightControl();
+  const { lightEnabled, sendLightPhase } = useLightControl();
   const IconComp = iconMap[type];
-
-  // Associe le type à la commande lumière (en minuscules)
-  const getLightCode = (): "jour" | "nuit" | "vote" | "off" | null => {
-    switch(type) {
-      case "day": return "jour";
-      case "night": return "nuit";
-      case "vote": return "vote";
-      case "off": return "off";
-      default: return null;
-    }
-  };
 
   // Click du bouton = musique + lumière (si activés)
   const handleClick = async () => {
@@ -62,13 +52,11 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
       setIsPlaying(true);
     }
 
-    // On déclenche la lumière si elle est activée
-    if (lightEnabled && getLightCode()) {
+    // On déclenche la lumière (BLE et/ou WiFi selon les options actives)
+    if (lightEnabled) {
       setIsSendingLight(true);
-      console.log(`AudioLightButton: envoi de la commande ${getLightCode()}`);
       try {
-        const result = await sendLightCommand(getLightCode()!);
-        console.log(`AudioLightButton: résultat de l'envoi: ${result}`);
+        await sendLightPhase(type);
       } catch (err) {
         console.error("Erreur lors de l'envoi de la commande lumière:", err);
       } finally {

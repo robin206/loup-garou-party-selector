@@ -10,7 +10,7 @@ import VolumeControl from './VolumeControl';
 
 export const AudioPhaseControls = () => {
   const { playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
-  const { lightEnabled, lightMode, bleStatus, bleConnect, bleDisconnect, sendLightCommand } = useLightControl();
+  const { lightEnabled, bleEnabled, bleStatus, bleConnect, bleDisconnect, sendLightPhase } = useLightControl();
 
   const handlePlayDay = () => {
     playDayMusic();
@@ -30,7 +30,7 @@ export const AudioPhaseControls = () => {
   // Handle light off button (only affects lights, no audio)
   const handleLightOff = () => {
     if (lightEnabled) {
-      sendLightCommand("off");
+      sendLightPhase("off");
     }
   };
 
@@ -92,7 +92,7 @@ export const AudioPhaseControls = () => {
       )}
       
       {/* BLE Connection Button - only show if light mode is set to BLE */}
-      {lightEnabled && lightMode === "ble" && (
+      {bleEnabled && (
         <Button
           variant="outline"
           size="icon"

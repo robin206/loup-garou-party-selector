@@ -12,7 +12,6 @@ import AudioConfigSection from "@/components/config/AudioConfigSection";
 import LightsConfigSection from "@/components/config/LightsConfigSection";
 import ProjectorConfigSection from "@/components/config/ProjectorConfigSection";
 import ConfigFooter from "@/components/config/ConfigFooter";
-import { LightControlProvider } from '@/hooks/LightControlContext';
 
 const Config = () => {
   const location = useLocation();
@@ -115,9 +114,7 @@ const Config = () => {
           audioService={audioService}
           handleGoToMusicAdmin={handleGoToMusicAdmin}
         />
-        <LightControlProvider>
-          <LightsConfigSection />
-        </LightControlProvider>
+        <LightsConfigSection />
         <ProjectorConfigSection />
       </main>
       <ConfigFooter />

@@ -15,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import NumberInput from "@/components/NumberInput";
 import { useLightControl, LightCommand } from "@/hooks/LightControlContext";
 import { Separator } from "@/components/ui/separator";
@@ -24,14 +23,17 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 const LightsConfigSection: React.FC = () => {
   const {
     lightEnabled,
-    setLightEnabled,
-    lightMode,
-    setLightMode,
+    bleEnabled,
+    setBleEnabled,
+    wifiEnabled,
+    setWifiEnabled,
     bleStatus,
     bleError,
     bleConnect,
     bleDisconnect,
     sendLightCommand,
+    sendBleCommandOnly,
+    sendWifiUrlOnly,
     isBLESupported,
     wifiUrls,
     setWifiUrl,
@@ -58,11 +60,11 @@ const LightsConfigSection: React.FC = () => {
   };
 
   const sendLedCountCommand = () => {
-    sendLightCommand(`ledcount:${ledCount}`);
+    sendBleCommandOnly(`ledcount:${ledCount}`);
   };
 
   const sendBrightnessCommand = () => {
-    sendLightCommand(`brightness:${brightness}`);
+    sendBleCommandOnly(`brightness:${brightness}`);
   };
 
   // Liste des sons du sampler pour les URLs WiFi et commandes BLE
@@ -82,39 +84,37 @@ const LightsConfigSection: React.FC = () => {
         <h2 className="text-2xl font-semibold">Configuration Lumières</h2>
       </div>
 
-      <div className="flex items-center gap-4">
-        <Switch
-          checked={lightEnabled}
-          onCheckedChange={setLightEnabled}
-          id="light-enabled"
-        />
-        <Label htmlFor="light-enabled">
-          Activer la gestion des lumières pendant le jeu
-        </Label>
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <Switch
+            checked={bleEnabled}
+            onCheckedChange={setBleEnabled}
+            id="light-ble-enabled"
+          />
+          <Label htmlFor="light-ble-enabled">
+            Activer les lumières Bluetooth (BLE - ESP32)
+          </Label>
+        </div>
+        <div className="flex items-center gap-4">
+          <Switch
+            checked={wifiEnabled}
+            onCheckedChange={setWifiEnabled}
+            id="light-wifi-enabled"
+          />
+          <Label htmlFor="light-wifi-enabled">
+            Activer les lumières WiFi (requêtes HTTP)
+          </Label>
+        </div>
+        {!lightEnabled && (
+          <p className="text-sm text-gray-400">
+            Aucun système de lumière activé : aucune commande ne sera envoyée pendant la partie.
+          </p>
+        )}
       </div>
 
       {lightEnabled && (
         <div className="space-y-6">
-          <RadioGroup
-            value={lightMode}
-            onValueChange={(value) => setLightMode(value as "none" | "ble" | "wifi")}
-            className="grid gap-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="none" id="none" />
-              <Label htmlFor="none">Pas de gestion de la lumière</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="ble" id="ble" />
-              <Label htmlFor="ble">Bluetooth (BLE - ESP32)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="wifi" id="wifi" />
-              <Label htmlFor="wifi">WiFi (requêtes HTTP)</Label>
-            </div>
-          </RadioGroup>
-
-          {lightMode === "ble" && (
+          {bleEnabled && (
             <div className="space-y-4">
               <Button
                 variant={bleStatus === "connected" ? "secondary" : "outline"}
@@ -309,7 +309,7 @@ const LightsConfigSection: React.FC = () => {
                             <Button
                               variant="outline"
                               size="icon"
-                              onClick={() => sendLightCommand(bleSamplerCommands[sound.id])}
+                              onClick={() => sendBleCommandOnly(bleSamplerCommands[sound.id])}
                               disabled={bleStatus !== "connected" || !bleSamplerCommands[sound.id]}
                               title={`Tester la commande pour ${sound.name}`}
                             >
@@ -329,7 +329,7 @@ const LightsConfigSection: React.FC = () => {
                   size="sm"
                   className="text-gray-900"
                   disabled={bleStatus !== "connected"}
-                  onClick={() => sendLightCommand("jour")}
+                  onClick={() => sendBleCommandOnly("jour")}
                 >
                   Lumière Jour
                 </Button>
@@ -338,7 +338,7 @@ const LightsConfigSection: React.FC = () => {
                   size="sm"
                   className="text-gray-900"
                   disabled={bleStatus !== "connected"}
-                  onClick={() => sendLightCommand("nuit")}
+                  onClick={() => sendBleCommandOnly("nuit")}
                 >
                   Lumière Nuit
                 </Button>
@@ -347,7 +347,7 @@ const LightsConfigSection: React.FC = () => {
                   size="sm"
                   className="text-gray-900"
                   disabled={bleStatus !== "connected"}
-                  onClick={() => sendLightCommand("vote")}
+                  onClick={() => sendBleCommandOnly("vote")}
                 >
                   Lumière Vote
                 </Button>
@@ -356,7 +356,7 @@ const LightsConfigSection: React.FC = () => {
                   size="sm"
                   className="text-gray-900"
                   disabled={bleStatus !== "connected"}
-                  onClick={() => sendLightCommand("off")}
+                  onClick={() => sendBleCommandOnly("off")}
                 >
                   Lumière Off
                 </Button>
@@ -364,7 +364,7 @@ const LightsConfigSection: React.FC = () => {
             </div>
           )}
 
-          {lightMode === "wifi" && (
+          {wifiEnabled && (
             <div className="space-y-4">
               {/* URLs pour les phases de jeu */}
               <div className="space-y-4">
@@ -382,8 +382,9 @@ const LightsConfigSection: React.FC = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => sendLightCommand(command)}
+                        onClick={() => sendWifiUrlOnly(wifiUrls[command], `Lumière ${command}`)}
                         disabled={!wifiUrls[command]}
+                        title={`Tester l'URL Lumière ${command}`}
                       >
                         <Wifi className="h-4 w-4" />
                       </Button>
@@ -441,7 +442,7 @@ const LightsConfigSection: React.FC = () => {
                             <Button
                               variant="outline"
                               size="icon"
-                              onClick={() => sendLightCommand(sound.id as LightCommand)}
+                              onClick={() => sendWifiUrlOnly(wifiUrls[sound.id], sound.name)}
                               disabled={!wifiUrls[sound.id]}
                               title={`Tester l'URL pour ${sound.name}`}
                             >
