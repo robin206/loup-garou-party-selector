@@ -393,17 +393,6 @@ export const charactersPackCharacters: CharacterType[] = [
     expansion: 'characters-pack'
   },
   {
-    id: 'shepherd',
-    name: 'Berger',
-    nameEn: 'Shepherd',
-    icon: '/img/perso_berger.svg',
-    description: 'Le Berger protège son troupeau de moutons. Pour chaque joueur éliminé, il gagne un mouton, renforçant son influence.',
-    team: 'village',
-    minPlayers: 8,
-    recommended: false,
-    expansion: 'characters-pack'
-  },
-  {
     id: 'fallen-angel',
     name: 'Ange déchu',
     nameEn: 'Fallen Angel',
