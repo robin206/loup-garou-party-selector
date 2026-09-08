@@ -192,5 +192,11 @@ export const characterRules: CharacterRule[] = [
     name: "Berger",
     image: "/img/perso_berger.svg",
     description: "Comme les autres villageois, le berger a pour but d'éradiquer tous les loup du village. Chaque nuit il peut envoyer son troupeau entier composé de trois moutons chez trois villageois différents. Chaque mouton placé devant un loup sera mangé."
+  },
+  {
+    id: "samourai",
+    name: "Samouraï",
+    image: "/img/perso_samourai.svg",
+    description: "Chaque nuit, le Samouraï se réveille après les Loups-Garous et désigne un joueur qu'il décapite. Si la victime est un Loup-Garou, le Samouraï conserve son honneur et continue la partie. Si la victime n'est pas un Loup-Garou, le Samouraï considère avoir échoué dans sa mission et se fait immédiatement harakiri. Dans ce cas, les deux joueurs meurent. Le Samouraï est une arme très puissante pour le village, mais extrêmement risquée : une erreur coûte deux vies au camp du Village."
   }
 ];
