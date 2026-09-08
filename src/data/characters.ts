@@ -416,12 +416,42 @@ export const charactersPackCharacters: CharacterType[] = [
   }
 ];
 
+// Bonus expansion characters
+export const bonusCharacters: CharacterType[] = [
+  {
+    id: 'shepherd',
+    name: 'Berger',
+    nameEn: 'Shepherd',
+    icon: '/img/perso_berger.svg',
+    description: 'Le Berger protège son troupeau de moutons. Chaque nuit, il peut envoyer ses trois moutons chez trois villageois différents ; chaque mouton placé devant un Loup-Garou est dévoré.',
+    team: 'village',
+    minPlayers: 8,
+    recommended: false,
+    expansion: 'bonus'
+  },
+  {
+    id: 'samurai',
+    name: 'Samouraï',
+    nameEn: 'Samurai',
+    icon: '/img/perso_samourai.svg',
+    description: "Chaque nuit, après les Loups-Garous, le Samouraï se réveille et désigne un joueur qu'il décapite. Si la victime est un Loup-Garou, le Samouraï conserve son honneur et reste en vie. Sinon, il considère avoir échoué et se fait immédiatement harakiri : les deux joueurs meurent.",
+    team: 'village',
+    minPlayers: 8,
+    recommended: false,
+    expansion: 'bonus',
+    actionPhase: 'night',
+    actionOrder: 52,
+    actionDescription: "Le Samouraï désigne un joueur et lui coupe la tête. Si ce n'est pas un Loup-Garou, le Samouraï meurt aussi (harakiri)."
+  }
+];
+
 // All characters combined
 export const allCharacters: CharacterType[] = [
   ...baseGameCharacters,
   ...newMoonCharacters,
   ...villageCharacters,
-  ...charactersPackCharacters
+  ...charactersPackCharacters,
+  ...bonusCharacters
 ];
 
 // Get characters by expansion
