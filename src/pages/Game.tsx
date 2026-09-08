@@ -9,12 +9,13 @@ import CharactersList from '@/components/CharactersList';
 import GameNotifications from '@/components/GameNotifications';
 import PlayerNamesEditor from '@/components/PlayerNamesEditor';
 import ProjectorButton from '@/components/ProjectorButton';
-import { Heart, Skull, Leaf, Target } from 'lucide-react';
+import { Heart, Skull, Leaf, Target, Swords } from 'lucide-react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useAudio } from '@/hooks/useAudio';
 import { projector } from '@/lib/projector';
 import { useProjectorSettings } from '@/lib/projectorSettings';
+import { findLivingSamurai, resolveSamuraiStrike, SAMURAI_ID } from '@/lib/samurai';
 import { Button } from "@/components/ui/button";
 
 const GAME_STATE_STORAGE_KEY = 'werewolf-game-current-state';
@@ -343,6 +344,21 @@ const Game = () => {
           });
           
           playHunterWarning();
+        }
+
+        // Rappel Samouraï : si un Samouraï vivant est en jeu, la mort peut venir de son sabre
+        const livingSamurai = findLivingSamurai(
+          selectedGameCharacters,
+          aliveCharacters.filter(id => id !== characterId)
+        );
+        if (livingSamurai && character.id !== SAMURAI_ID) {
+          const strike = resolveSamuraiStrike(livingSamurai, character);
+          addNotification({
+            message: `Si cette mort est due au Samouraï : ${strike.message}`,
+            type: strike.harakiri ? 'warning' : 'info',
+            icon: <Swords className="h-5 w-5 text-amber-500" />,
+            duration: 12000
+          });
         }
       }
     } else {
