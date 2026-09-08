@@ -345,6 +345,21 @@ const Game = () => {
           
           playHunterWarning();
         }
+
+        // Rappel Samouraï : si un Samouraï vivant est en jeu, la mort peut venir de son sabre
+        const livingSamurai = findLivingSamurai(
+          selectedGameCharacters,
+          aliveCharacters.filter(id => id !== characterId)
+        );
+        if (livingSamurai && character.id !== SAMURAI_ID) {
+          const strike = resolveSamuraiStrike(livingSamurai, character);
+          addNotification({
+            message: `Si cette mort est due au Samouraï : ${strike.message}`,
+            type: strike.harakiri ? 'warning' : 'info',
+            icon: <Swords className="h-5 w-5 text-amber-500" />,
+            duration: 12000
+          });
+        }
       }
     } else {
       setAliveCharacters(prev => [...prev, characterId]);
