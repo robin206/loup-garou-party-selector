@@ -1,17 +1,16 @@
 
 import React, { useState } from "react";
-import { Play, Pause, Sun, Vote, Moon, PowerOff } from "lucide-react";
+import { Play, Pause, Sun, Vote, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLightControl } from "@/hooks/LightControlContext";
-import { LightPhase } from "@/lib/lightDispatch";
+import { useAmbiance, AmbiancePhase } from "@/hooks/AmbianceContext";
 
-type AudioType = LightPhase;
+type AudioType = AmbiancePhase;
 const iconMap = {
   day: Sun,
   vote: Vote,
-  night: Moon,
-  off: PowerOff
+  night: Moon
 };
 
 interface AudioLightButtonProps {
@@ -34,23 +33,36 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
   className = '',
   variant = "outline",
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isSendingLight, setIsSendingLight] = useState(false);
 
   const { lightEnabled, sendLightPhase } = useLightControl();
+  const { activeAmbiance, setActiveAmbiance } = useAmbiance();
+  // Un bouton est en "play" uniquement s'il correspond à l'ambiance active (une seule à la fois)
+  const isPlaying = activeAmbiance === type;
   const IconComp = iconMap[type];
 
   // Click du bouton = musique + lumière (si activés)
   const handleClick = async () => {
-    if (isPlaying && stopMusic) {
-      stopMusic();
-      setIsPlaying(false);
+    // Clic sur l'ambiance déjà en cours : on coupe tout (musique + lumière)
+    if (isPlaying) {
+      stopMusic?.();
+      setActiveAmbiance(null);
+      if (lightEnabled) {
+        setIsSendingLight(true);
+        try {
+          await sendLightPhase("off");
+        } catch (err) {
+          console.error("Erreur lors de l'extinction de la lumière:", err);
+        } finally {
+          setIsSendingLight(false);
+        }
+      }
       return;
     }
-    if (playMusic) {
-      playMusic();
-      setIsPlaying(true);
-    }
+
+    // Nouvelle ambiance : les autres boutons repassent automatiquement en "play"
+    setActiveAmbiance(type);
+    playMusic?.();
 
     // On déclenche la lumière (BLE et/ou WiFi selon les options actives)
     if (lightEnabled) {

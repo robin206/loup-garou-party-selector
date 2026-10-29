@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import AudioLightButton from './AudioLightButton';
 import { useAudio } from '@/hooks/useAudio';
 import { useLightControl } from '@/hooks/LightControlContext';
+import { useAmbiance } from '@/hooks/AmbianceContext';
 import { Button } from '@/components/ui/button';
 import { Bluetooth, BluetoothConnected, BluetoothOff, PowerOff } from 'lucide-react';
 import { projector } from '@/lib/projector';
@@ -11,6 +12,10 @@ import VolumeControl from './VolumeControl';
 export const AudioPhaseControls = () => {
   const { playDayMusic, playNightMusic, playVoteMusic, stopMusic } = useAudio();
   const { lightEnabled, bleEnabled, bleStatus, bleConnect, bleDisconnect, sendLightPhase } = useLightControl();
+  const { setActiveAmbiance } = useAmbiance();
+
+  // useAudio coupe la musique au démontage : on remet aussi l'état des boutons à zéro
+  useEffect(() => () => setActiveAmbiance(null), [setActiveAmbiance]);
 
   const handlePlayDay = () => {
     playDayMusic();
@@ -27,8 +32,10 @@ export const AudioPhaseControls = () => {
     // Le vote ne modifie pas l'état du projecteur (reste sur JOUR ou NUIT en cours)
   };
 
-  // Handle light off button (only affects lights, no audio)
+  // Bouton d'extinction : coupe la musique, éteint les lumières et désélectionne l'ambiance
   const handleLightOff = () => {
+    stopMusic();
+    setActiveAmbiance(null);
     if (lightEnabled) {
       sendLightPhase("off");
     }

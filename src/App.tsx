@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LightControlProvider } from "@/hooks/LightControlContext";
+import { AmbianceProvider } from "@/hooks/AmbianceContext";
 import Index from "./pages/Index";
 import Game from "./pages/Game";
 import Rules from "./pages/Rules";
@@ -33,19 +34,21 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <LightControlProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/game" element={<Game />} />
-                <Route path="/rules" element={<Rules />} />
-                <Route path="/config" element={<Config />} />
-                <Route path="/setup" element={<Setup />} />
-                <Route path="/distribution" element={<Distribution />} />
-                <Route path="/music-admin" element={<MusicAdmin />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-              <Sonner />
+              <AmbianceProvider>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/game" element={<Game />} />
+                  <Route path="/rules" element={<Rules />} />
+                  <Route path="/config" element={<Config />} />
+                  <Route path="/setup" element={<Setup />} />
+                  <Route path="/distribution" element={<Distribution />} />
+                  <Route path="/music-admin" element={<MusicAdmin />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+                <Sonner />
+              </AmbianceProvider>
             </LightControlProvider>
           </TooltipProvider>
         </QueryClientProvider>
