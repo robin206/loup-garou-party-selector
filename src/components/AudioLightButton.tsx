@@ -1,16 +1,26 @@
 
 import React, { useState } from "react";
-import { Play, Pause, Sun, Vote, Moon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Sun, Vote, Moon, Pause, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useLightControl } from "@/hooks/LightControlContext";
 import { useAmbiance, AmbiancePhase } from "@/hooks/AmbianceContext";
 
 type AudioType = AmbiancePhase;
-const iconMap = {
-  day: Sun,
-  vote: Vote,
-  night: Moon
+
+/** Icône et couleurs de chaque phase (bouton actif). */
+const PHASE_STYLE: Record<AudioType, { icon: typeof Sun; active: string }> = {
+  day: {
+    icon: Sun,
+    active: "bg-amber-500 border-amber-300 text-amber-950 hover:bg-amber-400",
+  },
+  vote: {
+    icon: Vote,
+    active: "bg-red-600 border-red-400 text-white hover:bg-red-500",
+  },
+  night: {
+    icon: Moon,
+    active: "bg-indigo-700 border-indigo-400 text-white hover:bg-indigo-600",
+  },
 };
 
 interface AudioLightButtonProps {
@@ -19,29 +29,28 @@ interface AudioLightButtonProps {
   playMusic?: () => void;
   stopMusic?: () => void;
   className?: string;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 }
 
 /**
- * Bouton qui joue de la musique et déclenche la lumière BLE associée si activée.
+ * Grand bouton de phase (Jour / Vote / Nuit) : joue la musique et déclenche
+ * la lumière associée si elle est activée. Le bouton de la phase en cours
+ * prend la couleur de la phase ; un nouveau clic dessus coupe musique et lumière.
  */
 const AudioLightButton: React.FC<AudioLightButtonProps> = ({
   label,
   type,
   playMusic,
   stopMusic,
-  className = '',
-  variant = "outline",
+  className = "",
 }) => {
   const [isSendingLight, setIsSendingLight] = useState(false);
 
   const { lightEnabled, sendLightPhase } = useLightControl();
   const { activeAmbiance, setActiveAmbiance } = useAmbiance();
-  // Un bouton est en "play" uniquement s'il correspond à l'ambiance active (une seule à la fois)
+  // Un bouton est actif uniquement s'il correspond à l'ambiance en cours (une seule à la fois)
   const isPlaying = activeAmbiance === type;
-  const IconComp = iconMap[type];
+  const { icon: IconComp, active } = PHASE_STYLE[type];
 
-  // Click du bouton = musique + lumière (si activés)
   const handleClick = async () => {
     // Clic sur l'ambiance déjà en cours : on coupe tout (musique + lumière)
     if (isPlaying) {
@@ -60,11 +69,10 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
       return;
     }
 
-    // Nouvelle ambiance : les autres boutons repassent automatiquement en "play"
+    // Nouvelle ambiance : les autres boutons repassent automatiquement à l'état inactif
     setActiveAmbiance(type);
     playMusic?.();
 
-    // On déclenche la lumière (BLE et/ou WiFi selon les options actives)
     if (lightEnabled) {
       setIsSendingLight(true);
       try {
@@ -77,30 +85,31 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
     }
   };
 
-  // Déterminer la variante du bouton selon l'état de lecture
-  const buttonVariant = isPlaying ? "default" : variant;
-  // Ajouter une classe personnalisée si la lecture est active
-  const buttonClassName = `flex items-center gap-2 ${isPlaying ? 'bg-green-500 hover:bg-green-600 text-white' : ''} ${className}`;
-
   return (
-    <Button
-      variant={buttonVariant}
+    <button
+      type="button"
+      data-phase={type}
+      aria-pressed={isPlaying}
       onClick={handleClick}
-      className={buttonClassName}
       disabled={isSendingLight}
-    >
-      {IconComp && <IconComp className="h-4 w-4" />}
-      {isPlaying ? (
-        <>
-          <Pause className="h-4 w-4" />
-        </>
-      ) : (
-        <>
-          <Play className="h-4 w-4" />
-        </>
+      title={isPlaying ? `Arrêter l'ambiance ${label}` : `Lancer l'ambiance ${label}`}
+      className={cn(
+        "relative flex h-16 flex-1 flex-col items-center justify-center gap-1 rounded-xl border-2 text-sm font-semibold transition-all duration-150",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-600",
+        "disabled:cursor-wait",
+        isPlaying
+          ? cn(active, "scale-[1.04] shadow-[0_0_0_3px_rgba(255,255,255,0.35)]")
+          : "bg-zinc-100 border-zinc-300 text-zinc-700 hover:bg-white",
+        className
       )}
-      {isSendingLight && <Badge className="ml-1 animate-pulse" variant="outline">Lumière...</Badge>}
-    </Button>
+    >
+      <IconComp className="h-6 w-6" />
+      <span className="flex items-center gap-1">
+        {label}
+        {isPlaying && !isSendingLight && <Pause className="h-3 w-3 opacity-80" />}
+        {isSendingLight && <Loader2 className="h-3 w-3 animate-spin" />}
+      </span>
+    </button>
   );
 };
 

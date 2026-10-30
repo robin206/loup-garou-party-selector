@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AudioRouteGuard from "@/components/AudioRouteGuard";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LightControlProvider } from "@/hooks/LightControlContext";
 import { AmbianceProvider } from "@/hooks/AmbianceContext";
@@ -35,6 +36,7 @@ const App = () => {
           <TooltipProvider>
             <LightControlProvider>
               <AmbianceProvider>
+                <AudioRouteGuard />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/game" element={<Game />} />

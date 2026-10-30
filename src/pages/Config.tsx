@@ -12,6 +12,7 @@ import AudioConfigSection from "@/components/config/AudioConfigSection";
 import LightsConfigSection from "@/components/config/LightsConfigSection";
 import ProjectorConfigSection from "@/components/config/ProjectorConfigSection";
 import ConfigFooter from "@/components/config/ConfigFooter";
+import { useAmbiance } from '@/hooks/AmbianceContext';
 
 const Config = () => {
   const location = useLocation();
@@ -27,8 +28,22 @@ const Config = () => {
     playDayMusic,
     playNightMusic,
     playVoteMusic,
-    stopMusic
+    stopMusic: stopAudio
   } = useAudio();
+  const { activeAmbiance, setActiveAmbiance } = useAmbiance();
+
+  // Une pré-écoute (ou l'arrêt) depuis la configuration interrompt l'ambiance de la partie :
+  // on prévient l'utilisateur et on remet les boutons Jour / Vote / Nuit à zéro.
+  const interruptGameAmbiance = () => {
+    if (activeAmbiance) {
+      toast.warning("La musique de la partie en cours a été interrompue");
+      setActiveAmbiance(null);
+    }
+  };
+  const stopMusic = () => {
+    interruptGameAmbiance();
+    stopAudio();
+  };
 
   const ambianceAudios = getAmbianceAudios();
   const audioOptions = ambianceAudios.map(file => {

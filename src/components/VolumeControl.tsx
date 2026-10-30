@@ -16,7 +16,12 @@ const readVolume = (): number => {
   return 70;
 };
 
-const VolumeControl: React.FC = () => {
+interface VolumeControlProps {
+  /** Classes du bouton déclencheur (remplace le style outline par défaut). */
+  triggerClassName?: string;
+}
+
+const VolumeControl: React.FC<VolumeControlProps> = ({ triggerClassName }) => {
   const [volume, setVolume] = useState<number>(() => readVolume());
 
   useEffect(() => {
@@ -46,17 +51,23 @@ const VolumeControl: React.FC = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-10 w-10"
-          title="Volume"
-          aria-label="Volume"
-        >
-          {volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-        </Button>
+        {triggerClassName ? (
+          <button type="button" className={triggerClassName} title={`Volume (${volume} %)`} aria-label="Volume">
+            {volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+          </button>
+        ) : (
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-10 w-10"
+            title="Volume"
+            aria-label="Volume"
+          >
+            {volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </Button>
+        )}
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-3" align="center" side="top">
+      <PopoverContent className="z-[110] w-56 p-3" align="center" side="top">
         <div className="flex items-center gap-2">
           <VolumeX className="h-4 w-4 text-gray-500 shrink-0" />
           <Slider

@@ -45,10 +45,9 @@ export function useAudio() {
     };
     
     preloadAudio();
-    
-    return () => {
-      audioService.stopAudio();
-    };
+    // Pas d'arrêt de la musique au démontage : on doit pouvoir passer de la partie
+    // à la configuration (ou aux règles) sans couper l'ambiance en cours.
+    // L'arrêt en sortie de partie est géré par AudioRouteGuard (App.tsx).
   }, []);
 
   const playDayMusic = useCallback(() => {

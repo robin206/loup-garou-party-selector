@@ -8,7 +8,7 @@ import SoundSampler from '@/components/SoundSampler';
 import CharactersList from '@/components/CharactersList';
 import GameNotifications from '@/components/GameNotifications';
 import PlayerNamesEditor from '@/components/PlayerNamesEditor';
-import ProjectorButton from '@/components/ProjectorButton';
+import GameControlBar from '@/components/GameControlBar';
 import { Heart, Skull, Leaf, Target, Swords } from 'lucide-react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
@@ -562,7 +562,7 @@ const Game = () => {
       <div className="sticky bottom-0 left-0 right-0 w-full">
         <SoundSampler />
       </div>
-      <ProjectorButton />
+      <GameControlBar />
     </div>
   );
 };

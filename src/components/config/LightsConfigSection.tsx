@@ -87,6 +87,7 @@ const LightsConfigSection: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center gap-4">
           <Switch
+            showState
             checked={bleEnabled}
             onCheckedChange={setBleEnabled}
             id="light-ble-enabled"
@@ -97,6 +98,7 @@ const LightsConfigSection: React.FC = () => {
         </div>
         <div className="flex items-center gap-4">
           <Switch
+            showState
             checked={wifiEnabled}
             onCheckedChange={setWifiEnabled}
             id="light-wifi-enabled"

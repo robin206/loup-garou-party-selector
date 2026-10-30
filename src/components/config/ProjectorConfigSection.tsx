@@ -31,6 +31,7 @@ const ProjectorConfigSection: React.FC = () => {
           </p>
         </div>
         <Switch
+          showState
           id="projector-enabled"
           checked={enabled}
           onCheckedChange={(v) => {
@@ -54,6 +55,7 @@ const ProjectorConfigSection: React.FC = () => {
           </p>
         </div>
         <Switch
+          showState
           id="projector-players"
           checked={playersEnabled}
           disabled={!enabled}
@@ -81,6 +83,7 @@ const ProjectorConfigSection: React.FC = () => {
           </p>
         </div>
         <Switch
+          showState
           id="projector-death-anim"
           checked={deathAnimationEnabled}
           disabled={!enabled || !playersEnabled}
