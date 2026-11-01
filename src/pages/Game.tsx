@@ -13,6 +13,7 @@ import { Heart, Skull, Leaf, Target, Swords } from 'lucide-react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useAudio } from '@/hooks/useAudio';
+import { useAmbianceControl } from '@/hooks/useAmbianceControl';
 import { projector } from '@/lib/projector';
 import { useProjectorSettings } from '@/lib/projectorSettings';
 import { findLivingSamurai, resolveSamuraiStrike, SAMURAI_ID } from '@/lib/samurai';
@@ -24,6 +25,7 @@ const Game = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { playHunterWarning } = useAudio();
+  const { startAmbiance } = useAmbianceControl();
   
   const initialGameState = location.state as GameState || JSON.parse(localStorage.getItem(GAME_STATE_STORAGE_KEY) || 'null');
   
@@ -269,6 +271,13 @@ const Game = () => {
     
     if (newPhase === 'day' && gamePhase === 'night') {
       setDayCount(prevCount => prevCount + 1);
+    }
+
+    // Les boutons de changement de phase lancent aussi l'ambiance (musique, projecteur, lumière)
+    if (newPhase === 'firstDay' || newPhase === 'day') {
+      startAmbiance('day');
+    } else if (newPhase === 'firstNight' || newPhase === 'night') {
+      startAmbiance('night');
     }
     
     toast.success(`Phase changée: ${newPhase}`);

@@ -1,12 +1,35 @@
 
-type FadeDirection = 'in' | 'out';
+/** Durée du fondu sortant de la musique en cours lors d'un changement d'ambiance ou d'un arrêt. */
+const FADE_MS = 2000;
+/** Pas de rafraîchissement du volume pendant un fondu. */
+const FADE_STEP_MS = 50;
+
+/**
+ * Une piste d'ambiance en cours de lecture. Chaque piste a son propre élément audio
+ * et son propre fondu sortant : un fondu n'en écrase jamais un autre.
+ */
+interface Track {
+  file: string;
+  audio: HTMLAudioElement;
+  /** Niveau de fondu de 0 à 1, multiplié par le volume général pour obtenir le volume réel. */
+  level: number;
+  fadeTimer: number | null;
+  releaseTimer: number | null;
+}
 
 class AudioService {
-  private currentAudio: HTMLAudioElement | null = null;
-  private fadeInterval: number | null = null;
+  /** Piste d'ambiance audible (la plus récente démarrée avec succès). */
+  private current: Track | null = null;
+  /** Pistes en fondu sortant, libérées une fois le fondu terminé. */
+  private leaving: Set<Track> = new Set();
+  /** Numéro de la dernière demande de lecture : une demande plus ancienne qui aboutit en retard est abandonnée. */
+  private requestId = 0;
+  /** Instant (performance.now) où toutes les pistes en fondu sortant seront silencieuses. */
+  private silentAt = 0;
   private volume: number = 0.7;
   private preloadedAudios: Map<string, HTMLAudioElement> = new Map();
   private preloadComplete: boolean = false;
+  private preloadPromise: Promise<void> | null = null;
   private customAudios: Set<string> = new Set();
   
   // Musiques par défaut mises à jour avec les nouveaux fichiers d'ambiance
@@ -15,6 +38,14 @@ class AudioService {
   private defaultVoteMusic = 'ambiance/epic_Paint_It_Black.mp3';
   
   constructor() {
+    // Volume enregistré (curseur de volume) : sans cela le service démarre à 70 % tant qu'on
+    // n'est pas passé par la page de configuration, qui était la seule à l'appliquer.
+    try {
+      const saved = parseInt(localStorage.getItem('werewolf-volume') ?? '', 10);
+      if (Number.isFinite(saved)) this.volume = Math.max(0, Math.min(1, saved / 100));
+    } catch {
+      // localStorage indisponible : on garde la valeur par défaut
+    }
     // Charger les fichiers audio personnalisés précédemment ajoutés
     this.loadCustomAudiosFromStorage();
   }
@@ -82,28 +113,53 @@ class AudioService {
   }
   
   /**
-   * Joue un fichier audio avec un fondu si une autre piste est déjà en cours
+   * Joue une ambiance. Si une musique est en cours, elle baisse doucement jusqu'au silence
+   * (FADE_MS), puis la nouvelle démarre d'un coup au volume normal. Pas de fondu enchaîné.
+   * Le nouveau fichier se charge pendant le fondu sortant, pour démarrer sans délai.
+   * Sans musique en cours, la nouvelle démarre tout de suite au volume normal.
    */
   public playAudio(audioFile: string, loop: boolean = true): void {
-    // Si un audio est déjà en cours, on fait un fondu sortant avant de lancer le nouveau
-    if (this.currentAudio && !this.currentAudio.paused) {
-      this.fadeAudio('out', this.currentAudio).then(() => {
-        this.currentAudio?.pause();
-        this.startNewAudio(audioFile, loop);
-      }).catch(error => {
-        console.error('Erreur lors du fondu sortant:', error);
-        // En cas d'erreur, on arrête quand même l'audio en cours
-        if (this.currentAudio) {
-          this.currentAudio.pause();
-          this.currentAudio.currentTime = 0;
+    // Cette ambiance joue déjà (et n'est pas en train de s'éteindre) : rien à faire
+    if (this.current && this.current.file === audioFile && !this.current.audio.paused) {
+      return;
+    }
+
+    const requestId = ++this.requestId;
+    const track = this.createTrack(audioFile, loop);
+
+    const previous = this.current;
+    this.current = null;
+    if (previous) this.retireTrack(previous, FADE_MS);
+
+    const start = () => {
+      // Une demande plus récente (ou un arrêt) est arrivée entre-temps : on abandonne
+      if (requestId !== this.requestId) {
+        this.disposeTrack(track);
+        return;
+      }
+      track.audio.play().then(() => {
+        if (requestId !== this.requestId) {
+          this.disposeTrack(track);
+          return;
         }
-        this.startNewAudio(audioFile, loop);
+        this.current = track;
+        track.level = 1;
+        track.audio.volume = this.volume;
+      }).catch(error => {
+        console.error(`Échec de lecture de ${audioFile}:`, error);
+        this.disposeTrack(track);
       });
+    };
+
+    // On attend que toute musique en fondu sortant (y compris d'un clic précédent) soit silencieuse
+    const wait = this.silentAt - performance.now();
+    if (wait > 0) {
+      window.setTimeout(start, wait + 50);
     } else {
-      this.startNewAudio(audioFile, loop);
+      start();
     }
   }
-  
+
   /**
    * Joue un son du sampler sans interrompre la musique de fond
    */
@@ -134,30 +190,33 @@ class AudioService {
   }
   
   /**
-   * Arrête l'audio en cours avec un fondu
+   * Arrête l'ambiance en cours avec un fondu sortant.
+   * Annule aussi toute lecture demandée mais pas encore démarrée.
    */
   public stopAudio(): void {
-    if (this.currentAudio && !this.currentAudio.paused) {
-      this.fadeAudio('out', this.currentAudio).then(() => {
-        if (this.currentAudio) {
-          this.currentAudio.pause();
-          this.currentAudio.currentTime = 0;
-        }
-      }).catch(error => {
-        console.error('Erreur lors du fondu sortant pour l\'arrêt:', error);
-        // En cas d'erreur, on arrête brusquement
-        if (this.currentAudio) {
-          this.currentAudio.pause();
-          this.currentAudio.currentTime = 0;
-        }
-      });
+    this.requestId++;
+    if (this.current) {
+      this.retireTrack(this.current, FADE_MS);
+      this.current = null;
     }
   }
-  
+
   /**
    * Précharge tous les fichiers audio dans le cache
    */
   public preloadAudioFiles(): Promise<void> {
+    // Un seul préchargement à la fois : chaque page qui monte useAudio() l'appelle,
+    // et relancer des dizaines de téléchargements en parallèle saturait la connexion.
+    if (!this.preloadPromise) {
+      this.preloadPromise = this.doPreloadAudioFiles().catch(error => {
+        this.preloadPromise = null;
+        throw error;
+      });
+    }
+    return this.preloadPromise;
+  }
+
+  private doPreloadAudioFiles(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.preloadComplete) {
         resolve();
@@ -165,7 +224,9 @@ class AudioService {
       }
       
       try {
-        const audioFiles = this.getAvailableAudioFiles();
+        // Seules les musiques de jour, nuit et vote choisies sont préchargées (les autres
+        // se chargent à la demande) : précharger tout le catalogue (~90 Mo) saturait la connexion.
+        const audioFiles = this.getPhaseMusicFiles();
         const samplerSounds = [
           'sampler_loup.ogg', 
           'sampler_ours.ogg', 
@@ -302,94 +363,108 @@ class AudioService {
   }
   
   /**
-   * Démarre un nouvel audio avec fondu entrant
+   * Crée la piste (élément audio muet, volume 0) pour un fichier d'ambiance.
    */
-  private startNewAudio(audioFile: string, loop: boolean): void {
-    try {
-      let audio: HTMLAudioElement;
-      
-      // Vérifier si l'audio est préchargé
-      if (this.preloadedAudios.has(audioFile)) {
-        // Utiliser l'audio préchargé (en le clonant pour pouvoir le réutiliser)
-        audio = this.preloadedAudios.get(audioFile)!.cloneNode(true) as HTMLAudioElement;
-        console.log(`Utilisation de l'audio préchargé: ${audioFile}`);
-      } else {
-        // Sinon, créer un nouvel élément audio
-        audio = new Audio(`/audio/${audioFile}`);
-        console.warn(`Audio ${audioFile} non préchargé, chargement à la volée`);
+  private createTrack(audioFile: string, loop: boolean): Track {
+    let audio: HTMLAudioElement;
+    if (this.preloadedAudios.has(audioFile)) {
+      // Copie de l'élément préchargé (le même fichier peut être rejoué plus tard)
+      audio = this.preloadedAudios.get(audioFile)!.cloneNode(true) as HTMLAudioElement;
+    } else {
+      audio = new Audio(`/audio/${audioFile}`);
+      console.warn(`Audio ${audioFile} non préchargé, chargement à la volée`);
+    }
+    audio.loop = loop;
+    audio.volume = 0;
+    audio.preload = 'auto';
+    audio.addEventListener('error', (e) => {
+      console.error(`Erreur de lecture audio pour ${audioFile}:`, e);
+    });
+    return { file: audioFile, audio, level: 0, fadeTimer: null, releaseTimer: null };
+  }
+
+  /**
+   * Fondu d'une piste vers un niveau cible (1 = plein volume, 0 = silence). Sert au fondu sortant.
+   * Le fondu est calculé sur l'horloge réelle : si le navigateur ralentit les minuteurs,
+   * il rattrape son retard au tick suivant au lieu de se prolonger.
+   * La courbe en cosinus donne un fondu sortant doux.
+   */
+  private fadeTrack(track: Track, target: number, durationMs: number): void {
+    this.cancelFade(track);
+    const from = track.level;
+    const startedAt = performance.now();
+
+    const apply = (level: number) => {
+      track.level = level;
+      track.audio.volume = Math.max(0, Math.min(1, level * this.volume));
+    };
+
+    track.fadeTimer = window.setInterval(() => {
+      const progress = Math.min(1, (performance.now() - startedAt) / durationMs);
+      const curve = target > from ? Math.sin(progress * Math.PI / 2) : 1 - Math.cos(progress * Math.PI / 2);
+      apply(from + (target - from) * curve);
+      if (progress >= 1) {
+        apply(target);
+        this.cancelFade(track);
       }
-      
-      audio.loop = loop;
-      audio.volume = 0;
-      
-      // Ajouter des gestionnaires d'erreurs
-      audio.addEventListener('error', (e) => {
-        console.error(`Erreur de lecture audio pour ${audioFile}:`, e);
-      });
-      
-      audio.play().then(() => {
-        this.currentAudio = audio;
-        this.fadeAudio('in', audio);
-      }).catch(error => {
-        console.error(`Échec de lecture de ${audioFile}:`, error);
-        
-        // Tenter de lire un audio par défaut en cas d'échec
-        if (audioFile !== this.defaultDayMusic) {
-          console.log('Tentative avec la musique par défaut...');
-          this.startNewAudio(this.defaultDayMusic, loop);
-        }
-      });
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'élément audio:', error);
+    }, FADE_STEP_MS);
+  }
+
+  private cancelFade(track: Track): void {
+    if (track.fadeTimer !== null) {
+      clearInterval(track.fadeTimer);
+      track.fadeTimer = null;
     }
   }
-  
+
   /**
-   * Applique un effet de fondu sur un élément audio
+   * Fait baisser une piste jusqu'au silence puis la libère.
    */
-  private fadeAudio(direction: FadeDirection, audio: HTMLAudioElement): Promise<void> {
-    return new Promise((resolve, reject) => {
-      try {
-        // Nettoyer tout intervalle de fondu existant
-        if (this.fadeInterval !== null) {
-          clearInterval(this.fadeInterval);
-        }
-        
-        const targetVolume = direction === 'in' ? this.volume : 0;
-        const step = direction === 'in' ? 0.05 : -0.05;
-        const fadeSpeed = 100; // ms entre chaque étape
-        
-        this.fadeInterval = window.setInterval(() => {
-          try {
-            // Calculer le nouveau volume
-            let newVolume = audio.volume + step;
-            
-            // S'assurer que le volume reste dans les limites
-            if (direction === 'in' && newVolume >= targetVolume) {
-              newVolume = targetVolume;
-              clearInterval(this.fadeInterval as number);
-              this.fadeInterval = null;
-              resolve();
-            } else if (direction === 'out' && newVolume <= targetVolume) {
-              newVolume = targetVolume;
-              clearInterval(this.fadeInterval as number);
-              this.fadeInterval = null;
-              resolve();
-            }
-            
-            audio.volume = newVolume;
-          } catch (error) {
-            clearInterval(this.fadeInterval as number);
-            this.fadeInterval = null;
-            reject(error);
-          }
-        }, fadeSpeed);
-      } catch (error) {
-        reject(error);
-      }
-    });
+  private retireTrack(track: Track, durationMs: number): void {
+    this.leaving.add(track);
+    this.silentAt = Math.max(this.silentAt, performance.now() + durationMs);
+    this.fadeTrack(track, 0, durationMs);
+    track.releaseTimer = window.setTimeout(() => this.disposeTrack(track), durationMs + 200);
   }
-  
+
+  /**
+   * Arrête définitivement une piste et libère ses ressources.
+   */
+  private disposeTrack(track: Track): void {
+    this.cancelFade(track);
+    if (track.releaseTimer !== null) {
+      clearTimeout(track.releaseTimer);
+      track.releaseTimer = null;
+    }
+    try {
+      track.audio.pause();
+      track.audio.currentTime = 0;
+    } catch (error) {
+      console.error('Erreur lors de l\'arrêt de la piste audio:', error);
+    }
+    this.leaving.delete(track);
+    if (this.current === track) this.current = null;
+  }
+
+  /**
+   * Musiques réellement utilisées par la partie (jour, nuit, vote), sans doublon.
+   */
+  private getPhaseMusicFiles(): string[] {
+    const read = (key: string, fallback: string) => {
+      try {
+        return localStorage.getItem(key) || fallback;
+      } catch {
+        return fallback;
+      }
+    };
+    const files = [
+      read('werewolf-day-music', this.defaultDayMusic),
+      read('werewolf-night-music', this.defaultNightMusic),
+      read('werewolf-vote-music', this.defaultVoteMusic),
+    ];
+    return Array.from(new Set(files));
+  }
+
   /**
    * Obtient la liste des fichiers audio disponibles
    */
@@ -429,10 +504,13 @@ class AudioService {
    * Définit le volume global
    */
   public setVolume(volume: number): void {
+    if (!Number.isFinite(volume)) return;
     this.volume = Math.max(0, Math.min(1, volume));
-    if (this.currentAudio) {
-      this.currentAudio.volume = this.volume;
-    }
+    // Applique le nouveau volume immédiatement, en respectant le niveau de fondu de chaque piste
+    const tracks = this.current ? [this.current, ...this.leaving] : [...this.leaving];
+    tracks.forEach(track => {
+      track.audio.volume = Math.max(0, Math.min(1, track.level * this.volume));
+    });
   }
   
   /**
