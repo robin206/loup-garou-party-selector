@@ -176,11 +176,11 @@ const AudioFileUploader: React.FC<AudioFileUploaderProps> = ({ onFileUploaded })
       <div className="flex flex-col gap-4">
         {!files.length ? (
           <div 
-            className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer"
+            className="border-2 border-dashed border-white/20 rounded-lg p-8 text-center hover:bg-white/5 transition-colors cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload className="mx-auto h-12 w-12 text-gray-400" />
-            <div className="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
+            <div className="mt-4 flex text-sm leading-6 text-gray-400 justify-center">
               <label
                 htmlFor="file-upload"
                 className="relative cursor-pointer rounded-md font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
@@ -221,7 +221,7 @@ const AudioFileUploader: React.FC<AudioFileUploaderProps> = ({ onFileUploaded })
             
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {files.map((file, index) => (
-                <div key={index} className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded">
+                <div key={index} className="flex items-center justify-between text-sm p-2 bg-white/5 rounded">
                   <div className="flex items-center overflow-hidden">
                     <Music className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                     <span className="truncate">{file.name}</span>

@@ -57,7 +57,7 @@ export const PhaseFooter: React.FC<PhaseFooterProps> = ({
           className={cn(
             'w-full mt-4 text-white transition-colors duration-200 h-auto min-h-10 whitespace-normal',
             !onBack && 'col-span-2',
-            allDone ? 'bg-green-600 hover:bg-green-500' : armed ? 'bg-amber-600 hover:bg-amber-500' : 'bg-zinc-700 hover:bg-zinc-600'
+            allDone ? 'bg-green-600 hover:bg-green-500' : armed ? 'bg-amber-600 hover:bg-amber-500' : 'bg-white/10 hover:bg-white/15'
           )}
         >
           {armed ? 'Passer quand même' : nextLabel}

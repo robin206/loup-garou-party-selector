@@ -103,7 +103,7 @@ const Config = () => {
   }, [dayMusic, nightMusic, voteMusic]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="app-shell">
       <Header />
       <main className="flex-1 w-full max-w-4xl mx-auto pt-24 pb-12 px-4">
         <div className="flex justify-between items-center mb-6">

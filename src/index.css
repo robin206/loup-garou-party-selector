@@ -88,8 +88,18 @@
   }
 }
 
+/* Fond commun à toutes les pages, repris de la page d'accueil */
+.app-shell {
+  @apply min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-900 to-black text-gray-100;
+}
+
 .glass-card {
   @apply bg-black/60 backdrop-blur-lg border border-white/10 shadow-sm text-gray-100;
+}
+
+/* Bouton d'action principal, même dégradé que "Commencer une nouvelle partie" */
+.btn-primary-blood {
+  @apply bg-gradient-to-r from-werewolf-blood to-werewolf-accent text-white shadow-lg hover:brightness-110;
 }
 
 .character-card {
@@ -215,14 +225,15 @@
   animation: wild-child-transform 20s ease-in-out 1;
 }
 
-/* Configuration page specific button overrides.
-   Les interrupteurs (role="switch") et les boutons de phase Jour/Vote/Nuit (data-phase)
-   sont exclus : leur couleur porte leur état (activé / phase en cours).
-   Idem pour data-keep-color (bouton de passage à la phase suivante, gris puis vert). */
-.glass-card button[class*="outline"]:not([role="switch"]):not([data-phase]):not([data-keep-color]) {
-  @apply text-gray-900 border-gray-300 bg-white/90 hover:bg-gray-100 hover:text-gray-900;
+/* Boutons "outline" (shadcn, classe border-input) posés sur une carte sombre :
+   version sombre au lieu du blanc par défaut. Ne vise que la variante outline,
+   les boutons pleins gardent leur couleur.
+   Les interrupteurs (role="switch"), les boutons de phase (data-phase) et
+   data-keep-color sont exclus : leur couleur porte leur état. */
+.glass-card button[class*="border-input"]:not([role="switch"]):not([data-phase]):not([data-keep-color]) {
+  @apply text-gray-100 border-white/15 bg-white/5 hover:bg-white/10 hover:text-white;
 }
 
-.glass-card .flex button[disabled]:not([role="switch"]):not([data-phase]):not([data-keep-color]) {
-  @apply text-gray-900 bg-gray-200/90;
+.glass-card button[class*="border-input"][disabled]:not([role="switch"]):not([data-phase]):not([data-keep-color]) {
+  @apply text-gray-500 bg-white/5;
 }

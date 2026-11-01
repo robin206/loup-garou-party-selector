@@ -24,20 +24,20 @@ const GameNotifications: React.FC<GameNotificationsProps> = ({ notifications, on
       case 'success':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
       default:
-        return <InfoIcon className="h-5 w-5 text-blue-950" />;
+        return <InfoIcon className="h-5 w-5 text-sky-400" />;
     }
   };
 
   const getAlertClass = (type: GameNotification['type']) => {
     switch (type) {
       case 'warning':
-        return 'border-amber-500/30 bg-amber-500/70';
+        return 'border-amber-500/40 bg-amber-500/10';
       case 'error':
-        return 'border-red-500/30 bg-red-500/70';
+        return 'border-red-500/40 bg-red-500/10';
       case 'success':
-        return 'border-green-500/30 bg-green-500/70';
+        return 'border-green-500/40 bg-green-500/10';
       default:
-        return 'border-blue-500/30 bg-blue-500/70';
+        return 'border-sky-500/40 bg-sky-500/10';
     }
   };
 
@@ -56,20 +56,20 @@ const GameNotifications: React.FC<GameNotificationsProps> = ({ notifications, on
               {getIconForType(notification.type, notification.icon)}
             </span>
             <div>
-              <AlertTitle className="text-sm text-black font-semibold">
+              <AlertTitle className="text-sm text-white font-semibold">
                 {notification.type === 'warning' && 'Attention'}
                 {notification.type === 'error' && 'Erreur'}
                 {notification.type === 'success' && 'Succès'}
                 {notification.type === 'info' && 'Information'}
               </AlertTitle>
-              <AlertDescription className="text-sm text-black">
+              <AlertDescription className="text-sm text-gray-300">
                 {notification.message}
               </AlertDescription>
             </div>
           </div>
           <button 
             onClick={() => onDismiss(notification.id)} 
-            className="text-black hover:text-gray-700"
+            className="text-gray-400 hover:text-white text-lg leading-none"
           >
             ×
           </button>

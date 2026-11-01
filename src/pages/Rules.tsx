@@ -40,7 +40,7 @@ const Rules = () => {
   // Group characters by their type
   const villageCharacters = characterRules.filter(char => !char.name.toLowerCase().includes('loup') && !char.name.toLowerCase().includes('infect') && !char.name.toLowerCase().includes('blanc') && !char.name.toLowerCase().includes('chien-loup'));
   const wolfCharacters = characterRules.filter(char => char.name.toLowerCase().includes('loup') || char.name.toLowerCase().includes('infect') || char.name.toLowerCase().includes('blanc') || char.name.toLowerCase().includes('chien-loup'));
-  return <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
+  return <div className="app-shell">
       <Header />
       
       <main className="flex-1 w-full max-w-4xl mx-auto pt-24 pb-12 px-4">

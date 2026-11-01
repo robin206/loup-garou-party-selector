@@ -64,7 +64,7 @@ const AudioConfigSection: React.FC<AudioConfigSectionProps> = ({
         <div className="inline-flex items-center justify-center p-3 bg-werewolf-accent/10 rounded-full mb-4 animate-fade-in">
           <Settings className="h-8 w-8 text-werewolf-accent animate-pulse-subtle" />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl animate-fade-up text-slate-800">
+        <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl animate-fade-up text-white">
           Configuration Audio et Lumière
         </h1>
       </section>
@@ -146,7 +146,7 @@ const AudioConfigSection: React.FC<AudioConfigSectionProps> = ({
               <div className="flex items-center gap-4">
                 <Volume className="h-4 w-4 text-gray-500" />
                 <Slider id="volume-slider" defaultValue={[volume]} max={100} step={5} onValueChange={handleVolumeChange} className="flex-1" />
-                <Volume2 className="h-5 w-5 text-gray-700" />
+                <Volume2 className="h-5 w-5 text-gray-400" />
               </div>
               <p className="text-sm text-gray-200">Ajustez le volume pour toutes les musiques</p>
             </div>

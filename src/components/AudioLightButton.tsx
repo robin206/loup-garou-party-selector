@@ -95,11 +95,11 @@ const AudioLightButton: React.FC<AudioLightButtonProps> = ({
       title={isPlaying ? `Arrêter l'ambiance ${label}` : `Lancer l'ambiance ${label}`}
       className={cn(
         "relative flex h-16 flex-1 flex-col items-center justify-center gap-1 rounded-xl border-2 text-sm font-semibold transition-all duration-150",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-600",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black",
         "disabled:cursor-wait",
         isPlaying
-          ? cn(active, "scale-[1.04] shadow-[0_0_0_3px_rgba(255,255,255,0.35)]")
-          : "bg-zinc-100 border-zinc-300 text-zinc-700 hover:bg-white",
+          ? cn(active, "scale-[1.04] shadow-[0_0_18px_2px_rgba(255,255,255,0.18)]")
+          : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white",
         className
       )}
     >

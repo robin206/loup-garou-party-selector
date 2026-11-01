@@ -7,6 +7,7 @@ import { AudioPhaseControls } from './AudioPhaseControls';
 import { ActionStepList, ActionStep } from './ActionStepList';
 import { PhaseFooter } from './PhaseFooter';
 import { countRemainingSteps } from '@/lib/stepProgress';
+import { cn } from '@/lib/utils';
 
 interface GameMasterGuideProps {
   characters: CharacterType[];
@@ -66,10 +67,15 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     switch (phase) {
       case 'setup':
         return <div>
-            <p className="mb-4">1. Distribuez les cartes aux joueurs.</p>
-            <p className="mb-4">2. Demandez à chaque joueur de consulter son rôle discrètement.</p>
-            
-            <Button onClick={() => onPhaseChange('firstDay')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
+            <ol className="space-y-2 mb-2">
+              {['Distribuez les cartes aux joueurs.', 'Demandez à chaque joueur de consulter son rôle discrètement.'].map((text, i) => (
+                <li key={i} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                  <span className="h-7 w-7 shrink-0 rounded-full bg-werewolf-accent/15 text-werewolf-accent font-bold flex items-center justify-center">{i + 1}</span>
+                  <span className="text-gray-200 pt-0.5">{text}</span>
+                </li>
+              ))}
+            </ol>
+            <Button onClick={() => onPhaseChange('firstDay')} size="lg" className="btn-primary-blood w-full mt-4">
               Commencer le premier jour <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>;
@@ -101,7 +107,10 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         const steps = getOrderedCharacterActions(characters, 'night', isFirstNight, aliveCharacters).map(characterToStep);
         return <div>
             <AudioPhaseControls />
-            <p className="mb-4 text-slate-100">Demandez à tous les joueurs de fermer les yeux.</p>
+            <div className="mb-4 flex items-center gap-2 rounded-xl border border-indigo-400/25 bg-indigo-500/10 px-3 py-2 text-sm text-indigo-100">
+              <Moon className="h-4 w-4 shrink-0 text-indigo-300" />
+              Demandez à tous les joueurs de fermer les yeux.
+            </div>
             <ActionStepList title="Actions à effectuer dans l'ordre" steps={steps} completedSteps={completedSteps} onToggleStep={onToggleStep} />
             <PhaseFooter
               nextLabel={isFirstNight ? 'Jour suivant' : 'Passer au jour suivant'}
@@ -147,9 +156,9 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       }
       case 'gameEnd':
         return <div>
-            <p className="mb-4">La partie est terminée !</p>
-            <p className="mb-4">Annoncez les gagnants et dévoilez les rôles de chaque joueur.</p>
-            <Button onClick={() => onPhaseChange('setup')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
+            <p className="mb-2 text-gray-200">La partie est terminée !</p>
+            <p className="mb-4 text-gray-400">Annoncez les gagnants et dévoilez les rôles de chaque joueur.</p>
+            <Button onClick={() => onPhaseChange('setup')} size="lg" className="btn-primary-blood w-full mt-4">
               Commencer une nouvelle partie <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>;
@@ -174,20 +183,20 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
     return uniqueChars.sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
   };
 
-  const getPhaseIcon = () => {
+  /** Habillage de la phase : icône, couleur de la pastille et lueur en haut de la carte */
+  const getPhaseTheme = () => {
     switch (phase) {
       case 'firstDay':
       case 'day':
-        return <Sun className="h-8 w-8 text-amber-500" />;
+        return { Icon: Sun, bubble: 'bg-amber-500/15 text-amber-400', glow: 'from-amber-500/15', label: 'Le village se réveille' };
       case 'firstNight':
       case 'night':
-        return <Moon className="h-8 w-8 text-indigo-500" />;
-      case 'setup':
-        return <Crown className="h-8 w-8 text-werewolf-accent" />;
+        return { Icon: Moon, bubble: 'bg-indigo-500/20 text-indigo-300', glow: 'from-indigo-500/20', label: "Le village s'endort" };
       case 'gameEnd':
-        return <SkullIcon className="h-8 w-8 text-gray-500" />;
+        return { Icon: SkullIcon, bubble: 'bg-white/10 text-gray-300', glow: 'from-white/5', label: 'Partie terminée' };
+      case 'setup':
       default:
-        return null;
+        return { Icon: Crown, bubble: 'bg-werewolf-accent/15 text-werewolf-accent', glow: 'from-werewolf-accent/15', label: 'Avant la partie' };
     }
   };
 
@@ -203,32 +212,43 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
         teamCounts[char.team]++;
       }
     });
-    return <div className="flex justify-around text-sm mb-4 p-2 rounded-lg bg-gray-50">
-        <div className="text-center">
-          <span className="font-medium text-blue-600">Village: </span>
-          <span className="text-zinc-950">{teamCounts.village}</span>
-        </div>
-        <div className="text-center">
-          <span className="font-medium text-werewolf-blood">Loups: </span>
-          <span className="text-zinc-950">{teamCounts.werewolf}</span>
-        </div>
-        {teamCounts.solo > 0 && <div className="text-center">
-            <span className="font-medium text-amber-600">Solo: </span>
-            <span className="text-zinc-950">{teamCounts.solo}</span>
-          </div>}
+    const chip = 'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium';
+    return <div className="flex flex-wrap gap-2 mb-5">
+        <span className={cn(chip, 'border-sky-500/30 bg-sky-500/10 text-sky-300')}>
+          Village <span className="font-bold text-white tabular-nums">{teamCounts.village}</span>
+        </span>
+        <span className={cn(chip, 'border-werewolf-accent/30 bg-werewolf-accent/10 text-werewolf-accent')}>
+          Loups <span className="font-bold text-white tabular-nums">{teamCounts.werewolf}</span>
+        </span>
+        {teamCounts.solo > 0 && <span className={cn(chip, 'border-amber-500/30 bg-amber-500/10 text-amber-400')}>
+            Solo <span className="font-bold text-white tabular-nums">{teamCounts.solo}</span>
+          </span>}
       </div>;
   };
 
-  return <div className="glass-card p-6 rounded-xl w-full max-w-md sm:max-w-[600px] animate-scale-in">
-      <div className="flex items-center mb-4">
-        {getPhaseIcon()}
-        <h2 className="text-xl font-bold ml-2">{getPhaseTitle()}</h2>
-      </div>
-      
-      {getCurrentTeamCounts()}
-      
-      <div className="prose prose-sm">
-        {getPhaseInstructions()}
+  const theme = getPhaseTheme();
+  const PhaseIcon = theme.Icon;
+
+  return <div className="glass-card relative overflow-hidden p-6 rounded-2xl w-full max-w-md sm:max-w-[600px] animate-scale-in">
+      {/* Lueur colorée selon la phase, rappel de l'ambiance lumineuse */}
+      <div className={cn('pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b to-transparent', theme.glow)} aria-hidden="true" />
+
+      <div className="relative">
+        <div className="flex items-center gap-3 mb-3">
+          <div className={cn('h-12 w-12 shrink-0 rounded-full flex items-center justify-center', theme.bubble)}>
+            <PhaseIcon className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-xs uppercase tracking-widest text-gray-400">{theme.label}</div>
+            <h2 className="text-2xl font-bold tracking-tight text-white leading-tight">{getPhaseTitle()}</h2>
+          </div>
+        </div>
+
+        {getCurrentTeamCounts()}
+
+        <div>
+          {getPhaseInstructions()}
+        </div>
       </div>
     </div>;
 };

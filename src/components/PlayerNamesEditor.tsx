@@ -54,8 +54,8 @@ const PlayerNamesEditor: React.FC<PlayerNamesEditorProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full gap-2 bg-amber-600 hover:bg-amber-700">
-          <Users className="h-4 w-4" /> 
+        <Button className="w-full gap-2 bg-white/5 border border-white/10 text-gray-100 hover:bg-white/10">
+          <Users className="h-4 w-4 text-werewolf-accent" /> 
           Assigner les noms des joueurs
         </Button>
       </DialogTrigger>

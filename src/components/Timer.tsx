@@ -61,41 +61,41 @@ const Timer: React.FC<TimerProps> = ({ defaultMinutes = 5 }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 p-3 bg-gray-950/50 backdrop-blur-sm rounded-lg">
-      <div className={`text-3xl font-mono font-bold ${getTimerColor()}`}>
+    <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/5">
+      <div className={`text-3xl font-mono font-bold tabular-nums tracking-wider ${getTimerColor()}`}>
         {formatTime()}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <Button
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          size="icon"
           onClick={toggleTimer}
-          className="bg-gray-950/70; text-gray-100 hover:bg-gray-800"
+          className="h-9 w-9 rounded-full bg-white/5 text-gray-200 hover:bg-white/15 hover:text-white"
         >
           {isActive ? <Pause size={18} /> : <Play size={18} />}
         </Button>
         <Button
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          size="icon"
           onClick={resetTimer}
-          className="bg-gray-950/70; text-gray-100 hover:bg-gray-800"
+          className="h-9 w-9 rounded-full bg-white/5 text-gray-200 hover:bg-white/15 hover:text-white"
         >
           <RotateCcw size={18} />
         </Button>
         <Button
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          size="icon"
           onClick={removeMinute}
-          className="bg-gray-950/70; text-gray-100 hover:bg-gray-800"
+          className="h-9 w-9 rounded-full bg-white/5 text-gray-200 hover:bg-white/15 hover:text-white"
         >
           <Minus size={18} />
         </Button>
         <Button
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          size="icon"
           onClick={addMinute}
-          className="bg-gray-950/70; text-gray-100 hover:bg-gray-800"
+          className="h-9 w-9 rounded-full bg-white/5 text-gray-200 hover:bg-white/15 hover:text-white"
         >
           <Plus size={18} />
         </Button>

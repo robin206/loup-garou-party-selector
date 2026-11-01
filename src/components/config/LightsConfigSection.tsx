@@ -168,9 +168,9 @@ const LightsConfigSection: React.FC = () => {
               </div>
 
               {/* Section déroulante pour la configuration avancée BLE */}
-              <div className="mt-4 border rounded-md p-4 bg-gray-50/50">
+              <div className="mt-4 border border-white/10 rounded-md p-4 bg-white/5">
                 <button 
-                  className="flex items-center justify-between w-full font-medium text-sm text-gray-700"
+                  className="flex items-center justify-between w-full font-medium text-sm text-gray-200"
                   onClick={() => setShowAdvancedBLE(!showAdvancedBLE)}
                 >
                   Configuration avancée BLE
@@ -263,13 +263,13 @@ const LightsConfigSection: React.FC = () => {
               </div>
               
               {/* Section déroulante pour la configuration des commandes BLE du sampler */}
-              <div className="mt-4 border rounded-md p-4 bg-gray-50/50">
+              <div className="mt-4 border border-white/10 rounded-md p-4 bg-white/5">
                 <button 
-                  className="flex items-center justify-between w-full font-medium text-sm text-gray-700"
+                  className="flex items-center justify-between w-full font-medium text-sm text-gray-200"
                   onClick={() => setShowBleSamplerCommands(!showBleSamplerCommands)}
                 >
                   <div className="flex items-center gap-2">
-                    <Bluetooth className="h-4 w-4 text-gray-600" />
+                    <Bluetooth className="h-4 w-4 text-gray-400" />
                     Configuration BLE pour les sons du sampler
                   </div>
                   {showBleSamplerCommands ? (
@@ -396,13 +396,13 @@ const LightsConfigSection: React.FC = () => {
               </div>
               
               {/* Section déroulante pour les URLs des sons du sampler */}
-              <div className="mt-8 border rounded-md p-4 bg-gray-50/50">
+              <div className="mt-8 border border-white/10 rounded-md p-4 bg-white/5">
                 <button 
-                  className="flex items-center justify-between w-full font-medium text-sm text-gray-700"
+                  className="flex items-center justify-between w-full font-medium text-sm text-gray-200"
                   onClick={() => setShowSamplerUrls(!showSamplerUrls)}
                 >
                   <div className="flex items-center gap-2">
-                    <Volume2 className="h-4 w-4 text-gray-600" />
+                    <Volume2 className="h-4 w-4 text-gray-400" />
                     Configuration URLs pour les sons du sampler
                   </div>
                   {showSamplerUrls ? (

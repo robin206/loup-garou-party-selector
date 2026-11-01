@@ -42,7 +42,7 @@ export const ActionStepList: React.FC<ActionStepListProps> = ({
         <h3 className="font-semibold text-slate-100 text-base m-0">{title}</h3>
         <span className="text-sm text-gray-400 tabular-nums">{doneCount} / {steps.length}</span>
       </div>
-      <div className="h-1 bg-zinc-800 rounded-full mb-4 overflow-hidden">
+      <div className="h-1 bg-white/10 rounded-full mb-4 overflow-hidden">
         <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${progress}%` }} />
       </div>
 
@@ -69,13 +69,13 @@ export const ActionStepList: React.FC<ActionStepListProps> = ({
                     'h-10 w-10 shrink-0 rounded-full flex items-center justify-center text-xl font-bold transition-colors duration-200',
                     done && 'bg-green-600 text-white',
                     !done && current && 'bg-werewolf-accent text-white',
-                    !done && !current && 'bg-zinc-800 border-2 border-zinc-600 text-gray-400'
+                    !done && !current && 'bg-white/5 border-2 border-white/15 text-gray-400'
                   )}
                 >
                   {done ? <Check className="h-5 w-5" strokeWidth={3} /> : index + 1}
                 </div>
                 {!isLast && (
-                  <div className={cn('w-0.5 flex-1 min-h-[12px] my-1 transition-colors duration-200', done ? 'bg-green-600' : 'bg-zinc-700')} />
+                  <div className={cn('w-0.5 flex-1 min-h-[12px] my-1 transition-colors duration-200', done ? 'bg-green-600' : 'bg-white/10')} />
                 )}
               </div>
 
@@ -83,9 +83,9 @@ export const ActionStepList: React.FC<ActionStepListProps> = ({
               <div
                 className={cn(
                   'flex flex-1 items-start gap-3 rounded-xl border px-3 py-2 mb-3 transition-all duration-200',
-                  done && 'bg-green-600/10 border-green-600 opacity-80',
-                  !done && current && 'bg-zinc-950 border-werewolf-accent',
-                  !done && !current && 'bg-zinc-950 border-zinc-800'
+                  done && 'bg-green-600/10 border-green-600/60 opacity-80',
+                  !done && current && 'bg-werewolf-accent/5 border-werewolf-accent shadow-[0_0_20px_-6px_rgba(234,56,76,0.6)]',
+                  !done && !current && 'bg-white/[0.03] border-white/10'
                 )}
               >
                 <div className="h-10 w-10 shrink-0 flex items-center justify-center">
@@ -104,7 +104,7 @@ export const ActionStepList: React.FC<ActionStepListProps> = ({
                 <div
                   className={cn(
                     'mt-1 h-6 w-6 shrink-0 rounded-md border-2 flex items-center justify-center transition-colors duration-200',
-                    done ? 'bg-green-600 border-green-600 text-white' : 'border-zinc-600 text-transparent'
+                    done ? 'bg-green-600 border-green-600 text-white' : 'border-white/20 text-transparent'
                   )}
                 >
                   <Check className="h-4 w-4" strokeWidth={3} />

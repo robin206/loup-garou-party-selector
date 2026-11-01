@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import CharacterDetailsDialog from './CharacterDetailsDialog';
 import { Users, Heart, Leaf, Eye, EyeOff, Projector } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import projector, { useProjectedRoleId } from '@/lib/projector';
 import { useProjectorSettings } from '@/lib/projectorSettings';
 interface CharactersListProps {
@@ -163,86 +162,49 @@ const CharactersList: React.FC<CharactersListProps> = ({
         </span>
       </div>;
   };
-  return <div className={cn("glass-card p-2 rounded-xl", className)}>
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-xs font-semibold text-gray-100">Personnages en jeu</h3>
+  // Une section par camp : libellé, couleurs et compteur vivants / total
+  const teams = [
+    { key: 'werewolf', label: 'Loups-Garous', chars: werewolfChars, alive: aliveWerewolfCount, text: 'text-werewolf-accent', ring: 'border-werewolf-accent/50', bg: 'from-werewolf-accent/10 to-werewolf-accent/25' },
+    { key: 'village', label: 'Village', chars: villageChars, alive: aliveVillageCount, text: 'text-sky-400', ring: 'border-sky-500/50', bg: 'from-sky-500/10 to-sky-500/25' },
+    { key: 'solo', label: 'Solitaires', chars: soloChars, alive: aliveSoloCount, text: 'text-amber-400', ring: 'border-amber-500/50', bg: 'from-amber-500/10 to-amber-500/25' }
+  ];
+
+  return <div className={cn("glass-card p-4 rounded-2xl", className)}>
+      <div className="flex justify-between items-center mb-4 gap-2">
+        <h3 className="text-sm font-semibold text-white whitespace-nowrap">Personnages en jeu</h3>
         <div className="flex items-center gap-2">
-          {onTogglePlayerNames && <Button size="sm" variant="ghost" className="h-7 px-2 flex items-center gap-1 bg-zinc-900/60 hover:bg-zinc-800" onClick={onTogglePlayerNames} title={showPlayerNames ? "Masquer les prénoms" : "Afficher les prénoms"}>
-              {showPlayerNames ? <EyeOff className="h-3 w-3 text-gray-300" /> : <Eye className="h-3 w-3 text-gray-300" />}
-              <span className="text-xs text-gray-300">
-                {showPlayerNames ? "Masquer" : "Prénoms"}
-              </span>
-            </Button>}
-          <div className="flex items-center text-xs bg-zinc-900/60 px-2 py-1 rounded-full">
-            <Users className="h-3 w-3 mr-1 text-werewolf-accent" />
-            <span className="font-medium">{totalAliveCount}</span>
-            <span className="text-gray-400 mx-1">joueurs vivants</span>
+          {onTogglePlayerNames && <button type="button" className="h-8 px-3 rounded-full flex items-center gap-1.5 whitespace-nowrap text-xs text-gray-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white transition-colors" onClick={onTogglePlayerNames} title={showPlayerNames ? "Masquer les prénoms" : "Afficher les prénoms"}>
+              {showPlayerNames ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              {showPlayerNames ? "Masquer" : "Prénoms"}
+            </button>}
+          <div className="h-8 flex items-center whitespace-nowrap text-xs bg-white/5 border border-white/10 px-3 rounded-full">
+            <Users className="h-3.5 w-3.5 mr-1.5 text-werewolf-accent" />
+            <span className="font-bold text-white tabular-nums">{totalAliveCount}</span>
+            <span className="text-gray-400 ml-1">en vie</span>
           </div>
         </div>
       </div>
-      
-      <div className="flex justify-between mb-3 text-xs">
-        <div className="flex flex-col items-center bg-blue-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
-          <span className="text-blue-500 font-medium">{aliveVillageCount}/{villageChars.length}</span>
-          <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
-        </div>
-        <div className="flex flex-col items-center bg-red-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
-          <span className="text-werewolf-blood font-medium">{aliveWerewolfCount}/{werewolfChars.length}</span>
-          <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
-        </div>
-        <div className="flex flex-col items-center bg-amber-950/20 px-3 py-1 rounded-lg w-1/3 mx-0.5">
-          <span className="text-amber-500 font-medium">{aliveSoloCount}/{soloChars.length}</span>
-          <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
-        </div>
+
+      <div className="space-y-4">
+        {teams.filter(team => team.chars.length > 0).map(team => <div key={team.key}>
+            <div className="flex items-baseline justify-between mb-2 border-b border-white/5 pb-1">
+              <h4 className={cn("text-xs font-semibold uppercase tracking-wider", team.text)}>{team.label}</h4>
+              <span className="text-xs text-gray-400 tabular-nums"><span className="text-white font-semibold">{team.alive}</span> / {team.chars.length}</span>
+            </div>
+            <div className={cn("flex flex-wrap", containerClass)}>
+              {team.chars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
+                  <div className={cn("rounded-full border-2 bg-gradient-to-br cursor-pointer transition-all relative mb-1 overflow-visible hover:-translate-y-0.5", isAlive(character) ? cn(team.ring, team.bg) : "border-white/10 from-white/5 to-white/5 grayscale opacity-40", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
+                    <img src={character.icon} alt={character.name} className={cn("w-full h-full object-contain p-1", character.id === 'wild-child' && character.team === 'werewolf' && "animate-pulse-subtle")} />
+                    {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
+                        <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
+                      </div>}
+                    {renderPlayerName(character)}
+                    {renderProjectorButton(character)}
+                  </div>
+                </TooltipWrapper>)}
+            </div>
+          </div>)}
       </div>
-        
-      {werewolfChars.length > 0 && <div className="team-container">
-          <h4 className="text-[10px] font-medium text-werewolf-blood mb-1">Loups-Garous</h4>
-          <div className={cn("flex flex-wrap", containerClass)}>
-            {werewolfChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-werewolf-blood/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
-                  <img src={character.icon} alt={character.name} className={cn("w-full h-full object-contain p-1", character.id === 'wild-child' && character.team === 'werewolf' && "animate-pulse-subtle")} />
-                  {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
-                    </div>}
-                  {renderPlayerName(character)}
-                  {renderProjectorButton(character)}
-                </div>
-              </TooltipWrapper>)}
-          </div>
-        </div>}
-      
-      {villageChars.length > 0 && <div className="team-container">
-          <h4 className="text-[10px] font-medium text-blue-500 mb-1">Village</h4>
-          <div className={cn("flex flex-wrap", containerClass)}>
-            {villageChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-blue-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
-                  <img src={character.icon} alt={character.name} className="w-full h-full object-contain p-1" />
-                  {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
-                    </div>}
-                  {renderPlayerName(character)}
-                  {renderProjectorButton(character)}
-                </div>
-              </TooltipWrapper>)}
-          </div>
-        </div>}
-      
-      {soloChars.length > 0 && <div className="team-container">
-          <h4 className="text-[10px] font-medium text-amber-500 mb-1">Solitaires</h4>
-          <div className={cn("flex flex-wrap", containerClass)}>
-            {soloChars.map((character, index) => <TooltipWrapper key={character.instanceId || `${character.id}-${index}`} character={character} side="top">
-                <div className={cn("rounded-full border bg-zinc-900 cursor-pointer transition-all relative mb-6 overflow-visible", isAlive(character) ? "border-amber-500/30" : "border-gray-600/30 grayscale opacity-70", iconSize, getCharacterBorderClass(character))} onClick={() => handleCharacterClick(character)}>
-                  <img src={character.icon} alt={character.name} className="w-full h-full object-contain p-1" />
-                  {isLinkedByCupid(character) && isAlive(character) && <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="w-12 h-12 text-pink-500 fill-pink-500 opacity-50" />
-                    </div>}
-                  {renderPlayerName(character)}
-                  {renderProjectorButton(character)}
-                </div>
-              </TooltipWrapper>)}
-          </div>
-        </div>}
       
       {selectedCharacter && onKillCharacter && <CharacterDetailsDialog character={selectedCharacter} isOpen={!!selectedCharacter} onClose={handleCloseDialog} onKillCharacter={wrappedOnKillCharacter} isAlive={isAlive(selectedCharacter)} gameCharacters={characters} characterLinks={characterLinks} onLinkCharacter={onLinkCharacter} playerName={selectedCharacter.playerName} />}
     </div>;

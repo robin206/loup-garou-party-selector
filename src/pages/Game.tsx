@@ -528,7 +528,7 @@ const Game = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="app-shell">
       <Header />
       <main className="flex-1 w-full max-w-6xl mx-auto pt-24 pb-24 px-4 flex flex-col items-center justify-center">
         <div className="w-full flex flex-col items-center">
@@ -567,10 +567,10 @@ const Game = () => {
               />
               <div className="mt-10 flex justify-center">
                 <Button
-                  variant="destructive"
+                  variant="ghost"
                   size="lg"
                   onClick={handleEndGame}
-                  className="w-full"
+                  className="w-full border border-werewolf-accent/40 text-werewolf-accent hover:bg-werewolf-accent/10 hover:text-werewolf-accent"
                 >
                   <Skull className="mr-2 h-5 w-5" />
                   Terminer la partie

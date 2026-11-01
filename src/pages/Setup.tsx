@@ -37,7 +37,7 @@ const Setup = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="app-shell">
       <Header />
       
       <main className="w-full max-w-4xl mx-auto pt-24 pb-24 px-4 flex flex-col">
