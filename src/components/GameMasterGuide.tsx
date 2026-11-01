@@ -19,6 +19,8 @@ interface GameMasterGuideProps {
   /** Identifiants des étapes cochées dans la phase en cours */
   completedSteps?: string[];
   onToggleStep?: (stepId: string) => void;
+  /** Affiche le bloc Partie aléatoire (lien dans l'étape 1 de la préparation) */
+  onShowRandomAssignment?: () => void;
 }
 
 const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
@@ -29,7 +31,8 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   aliveCharacters = [],
   onReturnToSetup,
   completedSteps = [],
-  onToggleStep = () => {}
+  onToggleStep = () => {},
+  onShowRandomAssignment
 }) => {
   const characterToStep = (char: CharacterType): ActionStep => {
     const hasPicto = typeof char.icon === 'string' && char.icon.startsWith('/');
@@ -68,7 +71,21 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       case 'setup':
         return <div>
             <ol className="space-y-2 mb-2">
-              {['Distribuez les cartes aux joueurs.', 'Demandez à chaque joueur de consulter son rôle discrètement.'].map((text, i) => (
+              {[
+                onShowRandomAssignment
+                  ? <>Distribuez les cartes aux joueurs ou faites une{' '}
+                      <button
+                        type="button"
+                        data-keep-color
+                        onClick={onShowRandomAssignment}
+                        className="font-semibold text-werewolf-accent underline underline-offset-4 hover:text-red-300"
+                      >
+                        partie aléatoire
+                      </button>.
+                    </>
+                  : 'Distribuez les cartes aux joueurs.',
+                'Demandez à chaque joueur de consulter son rôle discrètement.'
+              ].map((text, i) => (
                 <li key={i} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
                   <span className="h-7 w-7 shrink-0 rounded-full bg-werewolf-accent/15 text-werewolf-accent font-bold flex items-center justify-center">{i + 1}</span>
                   <span className="text-gray-200 pt-0.5">{text}</span>

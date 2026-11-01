@@ -9,6 +9,8 @@ import SoundSampler from '@/components/SoundSampler';
 import CharactersList from '@/components/CharactersList';
 import GameNotifications from '@/components/GameNotifications';
 import PlayerNamesEditor from '@/components/PlayerNamesEditor';
+import RandomAssignmentPanel from '@/components/RandomAssignmentPanel';
+import { assignPlayersToRoles } from '@/lib/randomAssignment';
 import GameControlBar from '@/components/GameControlBar';
 import { Heart, Skull, Leaf, Target, Swords } from 'lucide-react';
 import { toast } from 'sonner';
@@ -510,6 +512,24 @@ const Game = () => {
     toast.success(`Prénom "${name}" associé au personnage`);
   };
   
+  // Bloc Partie aléatoire masqué par défaut, affiché par le lien de l'étape 1
+  const [showRandomPanel, setShowRandomPanel] = useState(false);
+  const handleShowRandomPanel = () => {
+    setShowRandomPanel(true);
+    setTimeout(() => document.getElementById('partie-aleatoire')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  };
+
+  // Partie aléatoire : chaque prénom de la soirée est tiré au sort sur un rôle
+  const handleRandomAssign = (players: string[]) => {
+    try {
+      setSelectedGameCharacters(assignPlayersToRoles(selectedGameCharacters, players));
+      setShowPlayerNames(true);
+      toast.success(`Rôles tirés au sort pour ${players.length} joueurs`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Tirage impossible');
+    }
+  };
+
   const togglePlayerNames = () => {
     setShowPlayerNames(prev => !prev);
   };
@@ -541,15 +561,23 @@ const Game = () => {
             onReturnToSetup={gamePhase !== 'setup' ? handleReturnToSetup : undefined}
             completedSteps={completedSteps}
             onToggleStep={handleToggleStep}
+            onShowRandomAssignment={handleShowRandomPanel}
           />
           {selectedGameCharacters.length > 0 && (
             <div className="mt-6 w-full max-w-md sm:max-w-[600px]">
               {gamePhase === 'setup' && (
-                <div className="mb-4">
+                <div className="mb-4 space-y-4">
                   <PlayerNamesEditor
                     characters={selectedGameCharacters}
                     onPlayerNameChange={handlePlayerNameChange}
                   />
+                  {showRandomPanel && (
+                    <RandomAssignmentPanel
+                      characters={selectedGameCharacters}
+                      onAssign={handleRandomAssign}
+                      onClose={() => setShowRandomPanel(false)}
+                    />
+                  )}
                 </div>
               )}
               <CharactersList 
