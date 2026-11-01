@@ -7,6 +7,7 @@ import { AudioPhaseControls } from './AudioPhaseControls';
 import { ActionStepList, ActionStep } from './ActionStepList';
 import { PhaseFooter } from './PhaseFooter';
 import { countRemainingSteps } from '@/lib/stepProgress';
+import { getOrderedCharacterActions } from '@/lib/nightActions';
 import { cn } from '@/lib/utils';
 
 interface GameMasterGuideProps {
@@ -182,22 +183,6 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       default:
         return <p>Instructions non disponibles</p>;
     }
-  };
-
-  const getOrderedCharacterActions = (chars: CharacterType[], phase: 'night' | 'day', isFirstNight: boolean = false, aliveChars: string[] = []) => {
-    const uniqueCharIds = new Set<string>();
-    const uniqueChars: CharacterType[] = [];
-    chars.forEach(char => {
-      if (uniqueCharIds.has(char.id)) return;
-      const isAlive = aliveChars.includes(char.instanceId || char.id);
-      if (!isAlive) return;
-      if (char.actionPhase !== phase) return;
-      const isFirstNightOnly = char.id === 'cupid' || char.id === 'wild-child' || char.id === 'thief';
-      if (!isFirstNight && isFirstNightOnly) return;
-      uniqueCharIds.add(char.id);
-      uniqueChars.push(char);
-    });
-    return uniqueChars.sort((a, b) => (a.actionOrder || 999) - (b.actionOrder || 999));
   };
 
   /** Habillage de la phase : icône, couleur de la pastille et lueur en haut de la carte */
