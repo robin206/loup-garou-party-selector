@@ -1,9 +1,12 @@
 import React from 'react';
 import { GamePhase, CharacterType } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users, ArrowLeft } from 'lucide-react';
+import { Moon, Sun, Crown, SkullIcon, ArrowRight, Users, MessagesSquare, Vote, UserX } from 'lucide-react';
 import Timer from './Timer';
 import { AudioPhaseControls } from './AudioPhaseControls';
+import { ActionStepList, ActionStep } from './ActionStepList';
+import { PhaseFooter } from './PhaseFooter';
+import { countRemainingSteps } from '@/lib/stepProgress';
 
 interface GameMasterGuideProps {
   characters: CharacterType[];
@@ -12,6 +15,9 @@ interface GameMasterGuideProps {
   dayCount: number;
   aliveCharacters?: string[];
   onReturnToSetup?: () => void;
+  /** Identifiants des étapes cochées dans la phase en cours */
+  completedSteps?: string[];
+  onToggleStep?: (stepId: string) => void;
 }
 
 const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
@@ -20,9 +26,22 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
   onPhaseChange,
   dayCount,
   aliveCharacters = [],
-  onReturnToSetup
+  onReturnToSetup,
+  completedSteps = [],
+  onToggleStep = () => {}
 }) => {
-  const hasDevotedServant = characters.some(char => char.id === 'devoted-servant');
+  const characterToStep = (char: CharacterType): ActionStep => {
+    const hasPicto = typeof char.icon === 'string' && char.icon.startsWith('/');
+    return {
+      id: `char:${char.id}`,
+      title: char.name,
+      description: char.actionDescription || `Action de ${char.name}`,
+      iconSrc: hasPicto ? char.icon : undefined,
+      Icon: hasPicto ? undefined : Users
+    };
+  };
+
+  const remainingOf = (steps: ActionStep[]) => countRemainingSteps(steps.map(step => step.id), completedSteps);
 
   const getPhaseTitle = () => {
     switch (phase) {
@@ -54,138 +73,78 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
               Commencer le premier jour <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>;
-      case 'firstDay':
+      case 'firstDay': {
+        const steps: ActionStep[] = [
+          { id: 'day:wake', title: 'Réveil du village', description: "Demandez à tous les joueurs d'ouvrir les yeux.", Icon: Sun },
+          { id: 'day:mayor-election', title: 'Élection du maire', description: "Chaque joueur peut se présenter en 30 secondes, puis procédez au vote. Le maire aura une voix prépondérante en cas d'égalité.", iconSrc: '/img/perso_maire.svg' },
+          { id: 'day:mayor-announce', title: 'Annonce du maire', description: 'Annoncez le maire élu.', Icon: Crown }
+        ];
         return <div>
             <AudioPhaseControls />
             <div className="mb-4">
               <Timer defaultMinutes={5} />
             </div>
-            <p className="mb-4">1. Demandez à tous les joueurs d'ouvrir les yeux.</p>
-            <p className="mb-4">2. Annoncez l'élection du maire :</p>
-            <ul className="list-disc list-inside mb-4 pl-4">
-              <li>Chaque joueur peut se présenter en 30 secondes</li>
-              <li>Procédez au vote (le maire aura une voix prépondérante en cas d'égalité)</li>
-            </ul>
-            <p className="mb-4">3. Annoncez le maire élu.</p>
-            
-            <div className="grid grid-cols-2 gap-2">
-              {onReturnToSetup && <Button onClick={onReturnToSetup} variant="outline" className="w-full mt-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Préparation
-                </Button>}
-              
-              <Button onClick={() => onPhaseChange('firstNight')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Première nuit <Moon className="ml-2 h-4 w-4" />
-              </Button>
-              
-              
-            </div>
+            <ActionStepList title="Déroulé du premier jour" steps={steps} completedSteps={completedSteps} onToggleStep={onToggleStep} />
+            <PhaseFooter
+              nextLabel="Première nuit"
+              NextIcon={Moon}
+              onNext={() => onPhaseChange('firstNight')}
+              remainingSteps={remainingOf(steps)}
+              onBack={onReturnToSetup}
+              backLabel="Préparation"
+            />
           </div>;
+      }
       case 'firstNight':
-        const nightActions = getOrderedCharacterActions(characters, 'night', true, aliveCharacters);
+      case 'night': {
+        const isFirstNight = phase === 'firstNight';
+        const steps = getOrderedCharacterActions(characters, 'night', isFirstNight, aliveCharacters).map(characterToStep);
         return <div>
             <AudioPhaseControls />
             <p className="mb-4 text-slate-100">Demandez à tous les joueurs de fermer les yeux.</p>
-            <div className="mb-4">
-              <h3 className="font-semibold mb-2 text-slate-100">Actions à effectuer dans l'ordre :</h3>
-              <ol className="list-decimal list-inside pl-4 space-y-2 px-0">
-                {nightActions.map((char, index) => <li key={index} className="p-2 rounded bg-zinc-950 mx-0 py-[6px] px-[8px]">
-                    <div className="flex items-start gap-2">
-                      <div className="flex-shrink-0 mt-1">
-                        {getCharacterIcon(char.icon)}
-                      </div>
-                      <div className="display:inline;">
-                        <div className="font-medium text-white">{char.name} :</div>
-                        <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
-                      </div>
-                    </div>
-                  </li>)}
-              </ol>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">        
-              {onReturnToSetup && <Button onClick={onReturnToSetup} variant="outline" className="w-full mt-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour préparation
-                </Button>}
-              <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Jour suivant <Sun className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <ActionStepList title="Actions à effectuer dans l'ordre" steps={steps} completedSteps={completedSteps} onToggleStep={onToggleStep} />
+            <PhaseFooter
+              nextLabel={isFirstNight ? 'Jour suivant' : 'Passer au jour suivant'}
+              NextIcon={Sun}
+              onNext={() => onPhaseChange('day')}
+              remainingSteps={remainingOf(steps)}
+              onBack={onReturnToSetup}
+            />
           </div>;
-      case 'day':
+      }
+      case 'day': {
         const dayActions = getOrderedCharacterActions(characters, 'day', false, aliveCharacters);
+        const servantAlive = dayActions.some(char => char.id === 'devoted-servant');
+        const steps: ActionStep[] = [
+          { id: 'day:victims', title: 'Victimes de la nuit', description: "Annoncez les victimes de la nuit, s'il y en a.", Icon: SkullIcon },
+          { id: 'day:debate', title: 'Débat', description: 'Laissez les joueurs débattre pour trouver les Loups-Garous.', Icon: MessagesSquare },
+          ...dayActions.filter(char => char.id !== 'devoted-servant').map(characterToStep),
+          { id: 'day:vote', title: 'Vote', description: 'Procédez au vote pour éliminer un joueur.', Icon: Vote },
+          { id: 'day:eliminated', title: 'Annonce du joueur éliminé', description: 'Annoncez le joueur éliminé, sans révéler son rôle.', Icon: UserX }
+        ];
+        if (servantAlive) {
+          steps.push({
+            id: 'char:devoted-servant',
+            title: 'Servante dévouée',
+            description: 'Demandez-lui discrètement si elle souhaite échanger son rôle avec le joueur éliminé.',
+            iconSrc: '/img/perso_servante.svg'
+          });
+        }
         return <div>
             <AudioPhaseControls />
             <div className="mb-4">
               <Timer defaultMinutes={5} />
             </div>
-            <p className="mb-4">1. Annoncez les victimes de la nuit, s'il y en a.</p>
-            <p className="mb-4">2. Laissez les joueurs débattre pour trouver les Loups-Garous.</p>
-            
-            {dayActions.length > 0 && <div className="mb-4">
-                <h3 className="font-semibold mb-2">Actions spéciales du jour :</h3>
-                <ol className="list-decimal list-inside pl-4 space-y-2">
-                  {dayActions.map((char, index) => <li key={index} className="p-2 rounded bg-gray-950">
-                      <div className="flex items-start gap-2">
-                        <div className="flex-shrink-0 mt-1">
-                          {getCharacterIcon(char.icon)}
-                        </div>
-                        <div>
-                          <div className="font-medium">{char.name} :</div>
-                          <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
-                        </div>
-                      </div>
-                    </li>)}
-                </ol>
-              </div>}
-            
-            <p className="mb-4">3. Procédez au vote pour éliminer un joueur.</p>
-            <p className="mb-4">4. Annoncez le joueur éliminé (sans révéler son rôle).</p>
-            
-            {hasDevotedServant && <p className="mb-4 p-2 rounded bg-amber-900/20 border border-amber-800/30">
-                <span className="font-medium">5. Action de la Servante dévouée:</span> Si la Servante dévouée est en jeu, 
-                demandez-lui discrètement si elle souhaite échanger son rôle avec le joueur éliminé.
-              </p>}
-            
-            <div className="grid grid-cols-2 gap-2">
-              {onReturnToSetup && <Button onClick={onReturnToSetup} variant="outline" className="w-full mt-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour préparation
-                </Button>}
-              <Button onClick={() => onPhaseChange('night')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Nuit <Moon className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <ActionStepList title="Déroulé du jour" steps={steps} completedSteps={completedSteps} onToggleStep={onToggleStep} />
+            <PhaseFooter
+              nextLabel="Nuit"
+              NextIcon={Moon}
+              onNext={() => onPhaseChange('night')}
+              remainingSteps={remainingOf(steps)}
+              onBack={onReturnToSetup}
+            />
           </div>;
-      case 'night':
-        const regularNightActions = getOrderedCharacterActions(characters, 'night', false, aliveCharacters);
-        return <div>
-            <AudioPhaseControls />
-            <p className="mb-4">Demandez à tous les joueurs de fermer les yeux.</p>
-            <div className="mb-4">
-              <h3 className="font-semibold mb-2">Actions à effectuer dans l'ordre :</h3>
-              <ol className="list-decimal list-inside pl-4 space-y-2">
-                {regularNightActions.map((char, index) => <li key={index} className="p-2 rounded bg-zinc-950">
-                    <div className="flex items-start gap-2">
-                      <div className="flex-shrink-0 mt-1">
-                        {getCharacterIcon(char.icon)}
-                      </div>
-                      <div>
-                        <div className="font-medium">{char.name} :</div>
-                        <div className="text-sm text-gray-300">{char.actionDescription || `Action de ${char.name}`}</div>
-                      </div>
-                    </div>
-                  </li>)}
-              </ol>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              {onReturnToSetup && <Button onClick={onReturnToSetup} variant="outline" className="w-full mt-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour préparation
-                </Button>}
-              <Button onClick={() => onPhaseChange('day')} className="bg-werewolf-accent hover:bg-werewolf-accent/90 w-full mt-4">
-                Passer au jour suivant <Sun className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>;
+      }
       case 'gameEnd':
         return <div>
             <p className="mb-4">La partie est terminée !</p>
@@ -196,20 +155,6 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
           </div>;
       default:
         return <p>Instructions non disponibles</p>;
-    }
-  };
-
-  const getCharacterIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'moon':
-        return <Moon className="h-4 w-4 text-werewolf-accent" />;
-      case 'eye':
-        return <span>👁️</span>;
-      case 'user':
-      case 'users':
-        return <Users className="h-4 w-4 text-blue-500" />;
-      default:
-        return null;
     }
   };
 
@@ -274,7 +219,7 @@ const GameMasterGuide: React.FC<GameMasterGuideProps> = ({
       </div>;
   };
 
-  return <div className="glass-card p-6 rounded-xl w-full max-w-md animate-scale-in">
+  return <div className="glass-card p-6 rounded-xl w-full max-w-md sm:max-w-[600px] animate-scale-in">
       <div className="flex items-center mb-4">
         {getPhaseIcon()}
         <h2 className="text-xl font-bold ml-2">{getPhaseTitle()}</h2>

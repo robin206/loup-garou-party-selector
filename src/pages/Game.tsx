@@ -4,6 +4,7 @@ import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { GameState, CharacterType, GamePhase, CharacterLinks, GameNotification } from '@/types';
 import Header from '@/components/Header';
 import GameMasterGuide from '@/components/GameMasterGuide';
+import { toggleStep } from '@/lib/stepProgress';
 import SoundSampler from '@/components/SoundSampler';
 import CharactersList from '@/components/CharactersList';
 import GameNotifications from '@/components/GameNotifications';
@@ -45,6 +46,8 @@ const Game = () => {
   });
   const [gameNotifications, setGameNotifications] = useState<GameNotification[]>([]);
   const [showPlayerNames, setShowPlayerNames] = useState<boolean>(initialGameState.showPlayerNames || false);
+  // Étapes cochées par le maître du jeu dans la phase en cours (remises à zéro à chaque changement de phase)
+  const [completedSteps, setCompletedSteps] = useState<string[]>(initialGameState.completedSteps || []);
 
   const WILD_CHILD_ANIMATION_DURATION = 20000; // 20 seconds
 
@@ -103,12 +106,13 @@ const Game = () => {
         aliveCharacters,
         characterLinks,
         showPlayerNames,
-        gameCharacters: selectedGameCharacters
+        gameCharacters: selectedGameCharacters,
+        completedSteps
       };
       
       localStorage.setItem(GAME_STATE_STORAGE_KEY, JSON.stringify(currentGameState));
     }
-  }, [gamePhase, dayCount, aliveCharacters, characterLinks, showPlayerNames, selectedGameCharacters, players, characters, selectedCharacters]);
+  }, [gamePhase, dayCount, aliveCharacters, characterLinks, showPlayerNames, selectedGameCharacters, completedSteps, players, characters, selectedCharacters]);
 
   const { enabled: projectorEnabled, playersEnabled: projectorPlayersEnabled } = useProjectorSettings();
 
@@ -266,8 +270,13 @@ const Game = () => {
     return char;
   };
 
+  const handleToggleStep = (stepId: string) => {
+    setCompletedSteps(prev => toggleStep(prev, stepId));
+  };
+
   const handlePhaseChange = (newPhase: GamePhase) => {
     setGamePhase(newPhase);
+    setCompletedSteps([]);
     
     if (newPhase === 'day' && gamePhase === 'night') {
       setDayCount(prevCount => prevCount + 1);
@@ -514,6 +523,7 @@ const Game = () => {
   
   const handleReturnToSetup = () => {
     setGamePhase('setup');
+    setCompletedSteps([]);
     toast.success("Retour à la phase de préparation");
   };
 
@@ -529,9 +539,11 @@ const Game = () => {
             dayCount={dayCount}
             aliveCharacters={aliveCharacters}
             onReturnToSetup={gamePhase !== 'setup' ? handleReturnToSetup : undefined}
+            completedSteps={completedSteps}
+            onToggleStep={handleToggleStep}
           />
           {selectedGameCharacters.length > 0 && (
-            <div className="mt-6 w-full max-w-md">
+            <div className="mt-6 w-full max-w-md sm:max-w-[600px]">
               {gamePhase === 'setup' && (
                 <div className="mb-4">
                   <PlayerNamesEditor

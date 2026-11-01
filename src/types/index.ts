@@ -28,6 +28,7 @@ export type GameState = {
   characterLinks?: CharacterLinks; // Added for linked characters
   showPlayerNames?: boolean; // To control visibility of player names
   gameCharacters?: CharacterType[]; // Added to store full expanded characters with player names
+  completedSteps?: string[]; // Étapes cochées par le maître du jeu dans la phase en cours
 };
 
 export type CharacterLinks = {

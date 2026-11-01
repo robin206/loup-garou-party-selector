@@ -217,11 +217,12 @@
 
 /* Configuration page specific button overrides.
    Les interrupteurs (role="switch") et les boutons de phase Jour/Vote/Nuit (data-phase)
-   sont exclus : leur couleur porte leur état (activé / phase en cours). */
-.glass-card button[class*="outline"]:not([role="switch"]):not([data-phase]) {
+   sont exclus : leur couleur porte leur état (activé / phase en cours).
+   Idem pour data-keep-color (bouton de passage à la phase suivante, gris puis vert). */
+.glass-card button[class*="outline"]:not([role="switch"]):not([data-phase]):not([data-keep-color]) {
   @apply text-gray-900 border-gray-300 bg-white/90 hover:bg-gray-100 hover:text-gray-900;
 }
 
-.glass-card .flex button[disabled]:not([role="switch"]):not([data-phase]) {
+.glass-card .flex button[disabled]:not([role="switch"]):not([data-phase]):not([data-keep-color]) {
   @apply text-gray-900 bg-gray-200/90;
 }
